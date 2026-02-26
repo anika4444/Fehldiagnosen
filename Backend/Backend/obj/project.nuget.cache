@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "nhtbA1PhmzA=",
+  "success": true,
+  "projectFilePath": "C:\\sources\\Anwendungsintegration\\Backend\\Backend\\Backend.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\schne\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "C:\\Users\\schne\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
+    "C:\\Users\\schne\\.nuget\\packages\\scalar.aspnetcore\\2.12.48\\scalar.aspnetcore.2.12.48.nupkg.sha512"
+  ],
+  "logs": []
+}
