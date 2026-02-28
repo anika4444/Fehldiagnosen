@@ -1,4 +1,6 @@
-﻿namespace Backend.Domain.Entities
+﻿using Backend.Domain.Interfaces;
+
+namespace Backend.Domain.Entities
 {
     public class Medication : IEntity
     {

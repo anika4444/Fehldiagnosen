@@ -1,4 +1,4 @@
-﻿namespace Backend.Domain.Entities
+﻿namespace Backend.Domain.Interfaces
 {
     public interface IEntity
     {
