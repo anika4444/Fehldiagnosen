@@ -10,13 +10,21 @@ namespace Backend.Api.Controller;
 [Route("api/medications")]
 public class MedicationController : ControllerBase
 {
-    [HttpGet("{id}")]
+    [HttpGet("{Id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Medication>GetById(int id)
+    public ActionResult<Medication>GetById(int Id)
     
     {
         return Ok();
     }
+
+    [HttpDelete("{Id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult DeleteById(int Id)
+    {  return Ok(); }
 }
+
