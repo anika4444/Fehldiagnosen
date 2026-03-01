@@ -22,5 +22,13 @@ public class PatientController :ControllerBase
     {
         return NoContent();
     }
-    
+    [HttpPut("{patientId}/medications/{medicationId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+    public ActionResult UpdatePatientMedication(int medicationId, int patientId)
+    {
+        return Ok();
+    }
 }
