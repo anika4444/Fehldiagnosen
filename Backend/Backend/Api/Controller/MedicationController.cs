@@ -4,7 +4,6 @@ using Backend.Domain.Entities;
 namespace Backend.Api.Controller;
 
 //mögliche Erweiterung Get all medications
-//testing git :) 
 
 [ApiController]
 [Route("api/medications")]
