@@ -17,6 +17,7 @@ const smaragdHell = "#10B981";
 export const Colors = {
   light: {
     text: dunklesMoos,
+    textwithbackground: elfenbein,
     background: elfenbein,
     surface: minzGruen,
     primary: smaragdGruen,
@@ -28,9 +29,10 @@ export const Colors = {
   },
   dark: {
     text: elfenbein,
+    textwithbackground: elfenbein,
     background: darkBackground,
     surface: darkSurface,
-    primary: smaragdHell,
+    primary: smaragdGruen,
     accent: sonnenGold,
     tint: smaragdHell,
     icon: elfenbein,
