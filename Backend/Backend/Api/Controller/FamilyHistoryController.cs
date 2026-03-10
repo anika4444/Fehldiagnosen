@@ -47,10 +47,9 @@ namespace Backend.Api.Controller
             return Ok(entry);
         }
 
-        [HttpPost("patients/{patientId:int}/family-history-entries)")]
+        [HttpPost("patients/{patientId:int}/family-history-entries")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
 
         public async Task<ActionResult<FamilyHistoryEntry>> CreateNewHistoryEntry(int patientId, [FromBody] FamilyHistoryEntry newEntry)
         {
@@ -63,10 +62,10 @@ namespace Backend.Api.Controller
 
             var createdEntry = await _repository.AddAsync(newEntry);
 
-
-
-
+            return CreatedAtAction(nameof(GetEntriesByHistoryEntryId), new { historyEntryId = createdEntry.Id }, createdEntry);
         }
+
+
 
     }
 }
