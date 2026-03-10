@@ -13,7 +13,6 @@ public class PatientController :ControllerBase
     {
         _symptomService = symptomService;
     }
-
     #region Medication
     [HttpGet("{patientId:int}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
