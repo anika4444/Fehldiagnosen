@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Repositories;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Session;
 
 namespace Backend.Api.Controller
 {
@@ -45,5 +46,27 @@ namespace Backend.Api.Controller
 
             return Ok(entry);
         }
+
+        [HttpPost("patients/{patientId:int}/family-history-entries)")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public async Task<ActionResult<FamilyHistoryEntry>> CreateNewHistoryEntry(int patientId, [FromBody] FamilyHistoryEntry newEntry)
+        {
+            if (newEntry == null)
+            {
+                return BadRequest("Eintrag darf nicht leer sein");
+            }
+
+            newEntry.PatientId = patientId;
+
+            var createdEntry = await _repository.AddAsync(newEntry);
+
+
+
+
+        }
+
     }
 }
