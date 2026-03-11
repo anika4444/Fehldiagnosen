@@ -17,7 +17,7 @@ public class PatientController :ControllerBase
     [HttpGet("{patientId:int}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<IEnumerable<Medication>> GetMedicationsById(int patientId)
+    public ActionResult<IEnumerable<Medication>> GetMedicationsByPatientId(int patientId)
     {
         return Ok();
 
@@ -29,7 +29,7 @@ public class PatientController :ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult CreateMedication(int patientId, int medicationId)
     {
-        return NoContent();
+        return Created();
     }
     [HttpPut("{patientId}/medications/{medicationId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

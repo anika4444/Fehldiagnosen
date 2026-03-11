@@ -24,7 +24,16 @@ namespace Backend.Infrastructure.Repositories
                     FirstName = "Alice",
                     LastName = "Smith",
                     DateOfBirth = new DateTime(1985, 5, 15),},
+                new Patient
+                {
+                    UserName = "M.Muster",
+                    FirstName = "Max",
+                    LastName ="Mustermann",
+                    DateOfBirth = new DateTime(2000,1 ,30),
+
+                }
             };
+
 
 
 

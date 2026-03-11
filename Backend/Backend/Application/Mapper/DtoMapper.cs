@@ -1,5 +1,7 @@
-﻿using Backend.Application.Services.SymptomService.Dto;
+﻿using Backend.Application.Services.MedicationService.Dto;
+using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
+
 
 namespace Backend.Application.Mapper
 {
@@ -27,6 +29,15 @@ namespace Backend.Application.Mapper
         public IEnumerable<PatientSymptomResponse> ToPatientSymptomResponseList(IEnumerable<PatientSymptom> symptoms)
         {
             return symptoms.Select(s => ToPatientSymptomResponse(s));
+        }
+
+        public MedicationResponse ToMedicationResponse(Medication medication)
+        {
+            return new MedicationResponse
+            {
+                Id = medication.Id,
+                Name = medication.Name,
+            };
         }
     }
 }

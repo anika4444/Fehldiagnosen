@@ -8,6 +8,7 @@ namespace Backend.Infrastructure.Repositories
     public class MySqlDbContext : DbContext
     {
         public DbSet<Patient> Patients { get; set; }
+        public DbSet<Medication> Medications { get; set; }
         public DbSet<SymptomDefinition> SymptomsDefinition { get; set; }
         public DbSet<PatientSymptom> PatientSymptoms { get; set; }
 
