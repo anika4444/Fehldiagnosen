@@ -6,7 +6,7 @@ using Mysqlx.Session;
 namespace Backend.Api.Controller
 {
     [ApiController]
-    [Route("api/family-history-entries")]
+    [Route("api")]
     public class FamilyHistoryController : ControllerBase
     {
         private readonly IFamilyHistoryRepository _repository;
@@ -19,7 +19,7 @@ namespace Backend.Api.Controller
         [HttpGet("family-history-entries/{historyEntryId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<FamilyHistoryEntry>>> GetEntriesByHistoryEntryId(int historyEntryId)
+        public async Task<ActionResult<FamilyHistoryEntry>> GetEntriesByHistoryEntryId(int historyEntryId)
         {
             var entries = await _repository.FindByIdAsync(historyEntryId);
 
@@ -35,7 +35,7 @@ namespace Backend.Api.Controller
         [HttpGet("patients/{patientId:int}/family-history-entries")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntry>> GetEntriesByPatientId(int patientId)
+        public async Task<ActionResult<IEnumerable<FamilyHistoryEntry>>> GetEntriesByPatientId(int patientId)
         {
             var entry = await _repository.FindByPatientIdAsync(patientId);
 
@@ -50,7 +50,7 @@ namespace Backend.Api.Controller
         [HttpPost("patients/{patientId:int}/family-history-entries")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FamilyHistoryEntry>> CreateNewHistoryEntry(int patientId, [FromBody] FamilyHistoryEntry newEntry)
         {
             if (newEntry == null)
@@ -67,5 +67,40 @@ namespace Backend.Api.Controller
 
 
 
+        [HttpPut("patients/{patientId:int}/family-history-entries/{historyEntryId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FamilyHistoryEntry>> UpdateHistoryEntry(int patientId, int historyEntryId, [FromBody] FamilyHistoryEntry updatedEntry)
+        {
+            if (updatedEntry == null)
+            {
+                return BadRequest("Eintrag darf nicht leer sein");
+            }
+            var existingEntry = await _repository.FindByIdAsync(updatedEntry.Id);
+            if (existingEntry == null || existingEntry.PatientId != patientId)
+            {
+                return NotFound();
+            }
+            updatedEntry.PatientId = patientId;
+            updatedEntry.Id = historyEntryId;
+
+            var result = await _repository.UpdateAsync(updatedEntry);
+            return Ok(result);
+        }
+
+        [HttpDelete("family-history-entries/{historyEntryId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FamilyHistoryEntry>> DeleteHistoryEntry(int historyEntryId)
+        {
+            var existingEntry = await _repository.FindByIdAsync(historyEntryId);
+            if (existingEntry == null)
+            {
+                return NotFound();
+            }
+            var deletedEntry = await _repository.DeleteAsync(existingEntry);
+            return Ok(deletedEntry);
+        }
     }
 }
