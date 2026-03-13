@@ -18,5 +18,6 @@ namespace Backend.Domain.Entities
         public Gender? Gender { get; set; }
 
         public List<PatientSymptom> SymptomEntries { get; set; } = new();
+        public List<Medication> MedicationEntries { get; set; } = new();
     }
 }

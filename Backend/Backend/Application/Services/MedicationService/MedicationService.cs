@@ -7,21 +7,25 @@ namespace Backend.Application.Services.MedicationService
 {
     public class MedicationService : IMedicationService
     {
-        private readonly IMedicationrepository _medicationRepository;
+        private readonly IMedicationRepository _medicationRepository;
+        private readonly IPatientRepository _patientRepository;
         private readonly DtoMapper _mapper;
-        public MedicationService(IMedicationrepository medicationrepository,DtoMapper mapper)
+        public MedicationService(IMedicationRepository medicationrepository,IPatientRepository patientRepository ,DtoMapper mapper)
         {
             _medicationRepository = medicationrepository;
+            _patientRepository = patientRepository;
             _mapper = mapper;
         }
-        public async Task<MedicationResponse> CreateMedication(int patientId, CreateMedicationRequest request)
+        public async Task<MedicationResponse?> CreateMedication(int patientId, CreateMedicationRequest request)
         {
+            Patient? patient = await _patientRepository.FindByIdAsync(patientId);
+            if (patient == null) { return null; }
             var medication = new Medication()
             {
                 Name = request.Name,
-                Id = request.Id,
-
+                PatientId = patientId,
             };
+            
             Medication newMedication = await _medicationRepository.AddAsync(medication);
 
             return _mapper.ToMedicationResponse(newMedication);
@@ -45,14 +49,12 @@ namespace Backend.Application.Services.MedicationService
             return _mapper.ToMedicationResponse(medication);
         }
 
-        public Task<IEnumerable<MedicationResponse>> GetMedicationsByPatientIdAsync(int patientId)
-        {
-            throw new NotImplementedException(); // PatientReporequired
+        public async Task<IEnumerable<MedicationResponse>> GetMedicationsByPatientIdAsync(int patientId)
+        {       
+           var patientMedications = await _patientRepository.GetAllMedications(patientId);
+            return patientMedications.Select(medication=> _mapper.ToMedicationResponse(medication));
         }
 
-        public Task UpdateMedication(int medicationId, int patientId)
-        {
-            throw new NotImplementedException(); // PatientReporequired
-        }
+  
     }
 }
