@@ -17,20 +17,20 @@ export const MENU_ITEMS: MenuItem[] = [
     title: "Aktuelle Medikamente",
     subtitle: "2 Medikamente",
     icon: "pill",
-    route: "/meds",
+    route: "/medications" as Href,
   },
   {
     id: "family",
     title: "Familienanamnsese",
     subtitle: "1 Eintrag",
     icon: "account-group-outline",
-    route: "/familyanamnese",
+    route: "/familyhistory" as Href,
   },
   {
     id: "medicalhistory",
     title: "Medizinische Vorgeschichte",
     subtitle: "3 Einträge",
     icon: "history",
-    route: "/medicalhistory",
+    route: "/medicalhistory" as Href,
   },
 ];

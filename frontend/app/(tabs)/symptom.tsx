@@ -1,10 +1,13 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React from "react";
+import React, { useState } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 
 import { Card } from "@/components/card";
 import { DatePickerField } from "@/components/date-picker-field";
 import { HeaderView } from "@/components/header-view";
+import { ModalCard } from "@/components/modal-card";
+import { PrimaryButton } from "@/components/primary-button";
+import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useDatePicker } from "@/hooks/use-date-picker";
@@ -15,6 +18,9 @@ const Symptom = () => {
 
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+
+  const [isFormVisible, setIsFormVisible] = useState(false);
+
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
       <HeaderView
@@ -40,6 +46,24 @@ const Symptom = () => {
             maximumDate={new Date()}
           />
         )}
+
+        {!isFormVisible ? (
+          <PrimaryButton
+            title="Neues Symptom hinzufügen"
+            onPress={() => setIsFormVisible(true)}
+          />
+        ) : (
+          <ModalCard
+            title="Neues Symptom"
+            onClose={() => setIsFormVisible(false)}
+          >
+            <ThemedText>Hier kommen Textfelder hin...</ThemedText>
+          </ModalCard>
+        )}
+        <ThemedText type="subtitle">Symptome am {formattedDate}</ThemedText>
+        <ModalCard title="Symptom 1" onClose={() => {}} types="secondary">
+          <ThemedText>Beschreibung des Symptoms...</ThemedText>
+        </ModalCard>
       </View>
     </ScrollView>
   );

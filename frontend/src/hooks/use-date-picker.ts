@@ -25,9 +25,9 @@ export const useDatePicker = (initialDate: Date = new Date()) => {
     onChange,
     toggleDatePicker,
     formattedDate: date.toLocaleDateString("de-DE", {
-      weekday: "long",
       day: "2-digit",
-      month: "long",
+      month: "2-digit",
+      year: "numeric",
     }),
   };
 };

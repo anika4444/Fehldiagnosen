@@ -1,14 +1,18 @@
 import MaterialCommunityIcons from "@expo/vector-icons/build/MaterialCommunityIcons";
-import { TouchableOpacity, useColorScheme, View } from "react-native";
-import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
+import { useRouter } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
 
 import { Card } from "@/components/card";
 import { HeaderView } from "@/components/header-view";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { MENU_ITEMS } from "@/types/navigation-type";
-
-import { useRouter } from ".expo/types/router";
 
 const Data = () => {
   const router = useRouter();

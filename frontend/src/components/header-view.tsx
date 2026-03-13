@@ -27,7 +27,7 @@ export function HeaderView({ title, subtitle }: HeaderViewProps) {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,

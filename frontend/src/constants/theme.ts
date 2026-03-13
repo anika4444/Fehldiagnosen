@@ -5,39 +5,47 @@
 
 import { Platform } from "react-native";
 
-const smaragdGruen = "#059669";
-const minzGruen = "#D1FAE5";
-const dunklesMoos = "#064E3B";
-const elfenbein = "#F9FAFB";
-const sonnenGold = "#F59E0B";
+const emeraldGreen = "#059669";
+const mintGreen = "#D1FAE5";
+const darkMoss = "#064E3B";
+const ivory = "#F9FAFB";
+const sunGold = "#F59E0B";
 const darkBackground = "#151718";
 const darkSurface = "#1F2937";
-const smaragdHell = "#10B981";
+const lightEmerald = "#10B981";
+const redAccent = "#EF4444";
+const darkRedAccent = "#F87171";
+const lightRedAccent = "#FEE2E2";
+const fadeRedAccent = "rgba(239, 68, 68, 0.15)";
 
 export const Colors = {
   light: {
-    text: dunklesMoos,
-    textwithbackground: elfenbein,
-    background: elfenbein,
-    surface: minzGruen,
-    primary: smaragdGruen,
-    accent: sonnenGold,
-    tint: smaragdGruen,
-    icon: dunklesMoos,
+    text: darkMoss,
+    textwithbackground: ivory,
+    background: ivory,
+    surface: mintGreen,
+    primary: emeraldGreen,
+    accent: sunGold,
+    tint: emeraldGreen,
+    icon: darkMoss,
     tabIconDefault: "#9CA3AF",
-    tabIconSelected: smaragdHell,
+    tabIconSelected: lightEmerald,
+    closeIconColor: redAccent,
+    closeBgColor: lightRedAccent,
   },
   dark: {
-    text: elfenbein,
-    textwithbackground: elfenbein,
+    text: ivory,
+    textwithbackground: ivory,
     background: darkBackground,
     surface: darkSurface,
-    primary: smaragdGruen,
-    accent: sonnenGold,
-    tint: smaragdHell,
-    icon: elfenbein,
+    primary: emeraldGreen,
+    accent: sunGold,
+    tint: lightEmerald,
+    icon: ivory,
     tabIconDefault: "#6B7280",
-    tabIconSelected: smaragdHell,
+    tabIconSelected: lightEmerald,
+    closeIconColor: darkRedAccent,
+    closeBgColor: fadeRedAccent,
   },
 };
 
