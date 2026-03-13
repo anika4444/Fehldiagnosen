@@ -67,7 +67,7 @@ Folge diesen Schritten, um unser Projekt lokal auf deinem Rechner zum Laufen zu 
 ### 1. Repository klonen & updaten
 Lade dir das Projekt auf deinen Rechner herunter:
 ```bash
-git clone [https://github.com/anika4444/Fehldiagnosen.git](https://github.com/anika4444/Fehldiagnosen.git)
+git clone https://github.com/anika4444/Fehldiagnosen.git
 cd dein-projekt
 ```
 
