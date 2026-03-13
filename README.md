@@ -24,6 +24,32 @@ git pull
 
 # 3. Erstelle deinen eigenen Arbeits-Branch (z.B. feature/login-button oder bugfix/header)
 git checkout -b feature/dein-aufgaben-name
+```
+
+### 3. Coden & Speichern
+Jetzt kannst du an deiner Aufgabe arbeiten. Wenn du fertig bist (oder einen guten Zwischenstand hast), speicherst du deine Änderungen lokal:
+```bash
+# 1. Füge alle geänderten Dateien hinzu
+git add .
+
+# 2. Speichere die Änderungen mit einer klaren Nachricht
+git commit -m "Fügt das neue Daten-Formular hinzu"
+```
+### 4. Coden hochladen
+Lade deinen fertigen Branch auf GitHub hoch, damit der Rest des Teams ihn sehen kann:
+```bash
+git push origin feature/dein-aufgaben-name
+```
+### 5. Pull Request (PR) erstellen
+#1. Geh auf GitHub in unser Repository. Dort sollte jetzt ein gelber Button mit der Aufschrift Compare & pull request auftauchen. Klick da drauf!
+#2. Beschreibe kurz, was du gemacht hast. Pro-Tipp: Wenn du z.B. Closes #5 in die Beschreibung schreibst (falls deine Issue-Nummer die 5 ist), wird das Issue später automatisch geschlossen.
+#3. Verschiebe deine Karte auf unserem Kanban-Board in die Spalte In review.
+
+### 6. Review & Merge (Vier-Augen-Prinzip)
+Sag dem Team Bescheid (z.B. in unserer Gruppe), dass dein PR fertig ist.
+Ein anderes Teammitglied schaut sich deinen Code auf GitHub an.
+Wenn alles fehlerfrei aussieht, klickt die Person auf Approve und danach auf Merge pull request.
+Dein Code ist jetzt sicher im main-Branch gelandet und deine Karte wandert auf dem Kanban-Board zu Done. 🎉
 
 ## 🛠 Voraussetzungen
 
