@@ -6,6 +6,7 @@ namespace Backend.Infrastructure.Repositories
     {
         public static void Initialize(MySqlDbContext context)
         {
+            context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             
             if(context.SymptomsDefinition.Any())
@@ -49,13 +50,15 @@ namespace Backend.Infrastructure.Repositories
                         {
                             Name = "Art",
                             Type = "select",
-                            Options = new List<string?> { "stechend", "dumpf", "pochend", "drückend" }
+                            Options = new List<string?> { "stechend", "dumpf", "pochend", "drückend" },
+                            IsRequired = true
                         },
                         new SymptomField
                         {
                             Name = "Lokalisation",
                             Type = "select",
-                            Options = new List<string?> { "Ganz Stirn", "Einseitig", "Beidseitig", "Hinterkopf" }
+                            Options = new List<string?> { "Ganz Stirn", "Einseitig", "Beidseitig", "Hinterkopf" },
+                            IsRequired = true
                         }
                     }
                 },
@@ -69,13 +72,15 @@ namespace Backend.Infrastructure.Repositories
                         {
                             Name = "Bereich",
                             Type = "select",
-                            Options = new List<string?> { "Oberbauch", "Unterbauch", "Ganzflächig", "Bauchnabel" }
+                            Options = new List<string?> { "Oberbauch", "Unterbauch", "Ganzflächig", "Bauchnabel" },
+                            IsRequired = true
                         },
                         new SymptomField
                         {
                             Name = "Art",
                             Type = "select",
-                            Options = new List<string?> { "krampfartig", "dumpf", "brennend" }
+                            Options = new List<string?> { "krampfartig", "dumpf", "brennend" },
+                            IsRequired = true
                         }
                     }
                 },
@@ -89,13 +94,15 @@ namespace Backend.Infrastructure.Repositories
                         {
                             Name = "Gemessene Temperatur (°C)",
                             Type = "number",
-                            Options = null // Bei Zahlen brauchen wir keine Optionen
+                            Options = null, // Bei Zahlen brauchen wir keine Optionen
+                            IsRequired = true
                         },
                         new SymptomField
                         {
                             Name = "Schüttelfrost",
                             Type = "select",
-                            Options = new List<string?> { "Ja", "Nein" }
+                            Options = new List<string?> { "Ja", "Nein" },
+                            IsRequired = true
                         }
                     }
                 }

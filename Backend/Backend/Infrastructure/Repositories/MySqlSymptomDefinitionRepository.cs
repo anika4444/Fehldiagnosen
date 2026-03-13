@@ -43,7 +43,8 @@ namespace Backend.Infrastructure.Repositories
                 return await _context.SymptomsDefinition.ToListAsync();
 
             return await _context.SymptomsDefinition
-                .Where(s => s.Name.Contains(name))
+                .AsAsyncEnumerable()
+                .Where(s => s.Name.Contains(name) || s.Aliases.Any(alias => alias.Contains(name)))
                 .OrderBy(s => s.Name)
                 .ToListAsync();
         }

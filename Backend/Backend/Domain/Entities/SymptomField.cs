@@ -12,6 +12,7 @@ namespace Backend.Domain.Entities
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
+        public bool IsRequired { get; set; }
         public List<string?> Options { get; set; }
     }
 }

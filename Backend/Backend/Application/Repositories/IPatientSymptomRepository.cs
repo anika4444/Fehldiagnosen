@@ -6,5 +6,6 @@ namespace Backend.Application.Repositories
     public interface IPatientSymptomRepository : IRepository<PatientSymptom>
     {
         Task<IEnumerable<PatientSymptom>> GetByPatientIdAsync(int patientId);
+        Task<IEnumerable<PatientSymptom>> GetByPatientIdAndDateAsync(int symptomDefinitionId, DateTime date);
     }
 }

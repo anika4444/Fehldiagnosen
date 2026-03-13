@@ -26,9 +26,31 @@ namespace Backend.Application.Mapper
             };
         }
 
+        public SymptomDefinitionResponse ToSymptomDefinitionResponse(SymptomDefinition definition)
+        {
+            return new SymptomDefinitionResponse
+            {
+                Id = definition.Id,
+                Name = definition.Name,
+                Aliases = definition.Aliases?.ToList() ?? new List<string>(),
+                Fields = definition.Fields?.Select(field => new SymptomFieldResponse
+                {
+                    Name = field.Name,
+                    Type = field.Type,
+                    Options = field.Options?.ToList() ?? new List<string?>(),
+                    IsRequired = field.IsRequired
+                }).ToList() ?? new List<SymptomFieldResponse>()
+            };
+        }
+
         public IEnumerable<PatientSymptomResponse> ToPatientSymptomResponseList(IEnumerable<PatientSymptom> symptoms)
         {
             return symptoms.Select(s => ToPatientSymptomResponse(s));
+        }
+
+        public IEnumerable<SymptomDefinitionResponse> ToSymptomDefinitionList(IEnumerable<SymptomDefinition> definitions)
+        {
+            return definitions.Select(d => ToSymptomDefinitionResponse(d));
         }
 
         public MedicationResponse ToMedicationResponse(Medication medication)

@@ -4,8 +4,6 @@ namespace Backend.Application.Services.SymptomService.Dto
 {
     public class CreatePatientSymptomRequest
     {
-        [Required]
-        public int PatientId { get; set; }
         [MaxLength(150)]
         public string? SymptomName { get; set; }
         public int? SymptomId { get; set; }

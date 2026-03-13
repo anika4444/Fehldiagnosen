@@ -35,6 +35,13 @@ namespace Backend.Infrastructure.Repositories
             return await _context.PatientSymptoms.FindAsync(id);
         }
 
+        public async Task<IEnumerable<PatientSymptom>> GetByPatientIdAndDateAsync(int symptomDefinitionId, DateTime date)
+        {
+            return await _context.PatientSymptoms
+                .Where(ps => ps.SymptomDefinitionId == symptomDefinitionId && ps.OccurrenceTime.Date == date.Date)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<PatientSymptom>> GetByPatientIdAsync(int patientId)
         {
             return await _context.PatientSymptoms
