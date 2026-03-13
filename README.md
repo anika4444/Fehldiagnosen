@@ -41,9 +41,11 @@ Lade deinen fertigen Branch auf GitHub hoch, damit der Rest des Teams ihn sehen 
 git push origin feature/dein-aufgaben-name
 ```
 ### 5. Pull Request (PR) erstellen
-#1. Geh auf GitHub in unser Repository. Dort sollte jetzt ein gelber Button mit der Aufschrift Compare & pull request auftauchen. Klick da drauf!
-#2. Beschreibe kurz, was du gemacht hast. Pro-Tipp: Wenn du z.B. Closes #5 in die Beschreibung schreibst (falls deine Issue-Nummer die 5 ist), wird das Issue später automatisch geschlossen.
-#3. Verschiebe deine Karte auf unserem Kanban-Board in die Spalte In review.
+1. Geh auf GitHub in unser Repository. Dort sollte jetzt ein gelber Button mit der Aufschrift Compare & pull request auftauchen. Klick da drauf!
+
+2. Beschreibe kurz, was du gemacht hast. Pro-Tipp: Wenn du z.B. Closes #5 in die Beschreibung schreibst (falls deine Issue-Nummer die 5 ist), wird das Issue später automatisch geschlossen.
+
+3. Verschiebe deine Karte auf unserem Kanban-Board in die Spalte In review.
 
 ### 6. Review & Merge (Vier-Augen-Prinzip)
 Sag dem Team Bescheid (z.B. in unserer Gruppe), dass dein PR fertig ist.
