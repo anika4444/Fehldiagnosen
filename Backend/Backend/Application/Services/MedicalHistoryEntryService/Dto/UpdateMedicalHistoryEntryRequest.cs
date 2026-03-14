@@ -1,16 +1,10 @@
-﻿using Backend.Domain.Interfaces;
+﻿using Backend.Domain.Entities;
 using Backend.Domain.Enums;
 
-namespace Backend.Domain.Entities
+namespace Backend.Application.Services.MedicalHistoryEntryService.Dto
 {
-    public class MedicalHistoryEntry : IEntity
+    public class UpdateMedicalHistoryEntryRequest
     {
-        public int Id { get; set; }
-
-        public int PatientId { get; set; }
-
-        public Patient? Patient { get; set; }
-
         public string? ICD10Code { get; set; } = string.Empty;
 
         public string Diagnosis { get; set; } = string.Empty;
@@ -20,7 +14,5 @@ namespace Backend.Domain.Entities
         public ConditionStatus Status { get; set; }
 
         public string? Comment { get; set; } = string.Empty;
-
-        public EntryBy EntryBy { get; set; }
     }
 }

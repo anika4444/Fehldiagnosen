@@ -4,6 +4,6 @@ namespace Backend.Application.Services.PatientService
 {
     public interface IPatientService
     {
-            Task<Patient> GetPatientByIdAsync(int id);
+        Task<Patient> GetPatientByIdAsync(int id);
     }
 }

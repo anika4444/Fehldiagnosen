@@ -1,4 +1,5 @@
-﻿using Backend.Application.Services.MedicationService.Dto;
+﻿using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+using Backend.Application.Services.MedicationService.Dto;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 
@@ -59,6 +60,20 @@ namespace Backend.Application.Mapper
             {
                 Id = medication.Id,
                 Name = medication.Name,
+            };
+        }
+
+        public MedicalHistoryEntryResponse ToMedicalHistoryEntryResponse(MedicalHistoryEntry medicalHistoryEntry)
+        {
+            return new MedicalHistoryEntryResponse
+            {
+                Id = medicalHistoryEntry.Id,
+                ICD10Code = medicalHistoryEntry.ICD10Code,
+                Diagnosis = medicalHistoryEntry.Diagnosis,
+                Year = medicalHistoryEntry.Year,
+                Status = medicalHistoryEntry.Status,
+                Comment = medicalHistoryEntry.Comment,
+                EntryBy = medicalHistoryEntry.EntryBy,
             };
         }
     }
