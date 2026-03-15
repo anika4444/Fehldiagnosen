@@ -1,15 +1,11 @@
-﻿using Backend.Domain.Interfaces;
+﻿using Backend.Domain.Entities;
 using Backend.Domain.Enums;
 
-namespace Backend.Domain.Entities
+namespace Backend.Application.Services.MedicalHistoryEntryService.Dto
 {
-    public class MedicalHistoryEntry : IEntity
+    public class MedicalHistoryEntryResponse
     {
         public int Id { get; set; }
-
-        public int PatientId { get; set; }
-
-        public Patient? Patient { get; set; }
 
         public string? ICD10Code { get; set; } = string.Empty;
 

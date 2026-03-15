@@ -1,4 +1,6 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+using Backend.Application.Services.MedicalHistoryService;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
@@ -10,13 +12,16 @@ namespace Backend.Api.Controller;
 public class PatientController :ControllerBase
 {
     private readonly ISymptomService _symptomService;
-    public PatientController(ISymptomService symptomService)
+    private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
+
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService)
     {
         _symptomService = symptomService;
+        _medicalHistoryEntryService = medicalHistoryEntryService;
     }
 
     #region Medication
-    [HttpGet("{patientId:int}/medications")]
+    [HttpGet("{patientId}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<IEnumerable<Medication>> GetMedicationsByPatientId(int patientId)
@@ -25,7 +30,7 @@ public class PatientController :ControllerBase
 
     }
 
-    [HttpPost("{patientId:int}/medications/{medicationId:int}")]
+    [HttpPost("{patientId}/medications/{medicationId}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -102,6 +107,50 @@ public class PatientController :ControllerBase
             ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
             _ => BadRequest(result.ErrorMessage)
         };
+    }
+    #endregion
+
+    #region Medical History Entries
+    [HttpGet("{patientId}/medical-history-entries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<MedicalHistoryEntry>>> GetMedicalHistoryEntriesByPatientId(int patientId)
+    {
+        var results = await _medicalHistoryEntryService.GetAllAsync(patientId);
+
+        return Ok(results);
+    }
+
+    [HttpPost("{patientId}/medical-history-entries")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MedicalHistoryEntryResponse>> CreateMedicalHistoryEntryForPatientId(int patientId, CreateMedicalHistoryEntryRequest request)
+    {
+        var result = await _medicalHistoryEntryService.CreateAsync(patientId, request);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = result.Id }, result);
+    }
+
+    [HttpPut("{patientId}/medical-history-entries/{medicalHistoryEntryId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MedicalHistoryEntryResponse>> UpdateMedicalHistoryEntryForPatientId(int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
+    {
+        var result = await _medicalHistoryEntryService.UpdateAsync(medicalHistoryEntryId, request);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
     }
     #endregion
 }
