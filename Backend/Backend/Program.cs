@@ -21,6 +21,7 @@ builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionR
 builder.Services.AddScoped<ISymptomService, SymptomService>();
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
 builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryRepository>();
+builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
 
 builder.Services.AddTransient<DtoMapper>();
 
