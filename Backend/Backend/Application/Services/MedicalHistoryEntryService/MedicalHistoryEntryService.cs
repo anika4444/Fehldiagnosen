@@ -1,7 +1,6 @@
 ﻿using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
-using Backend.Application.Services.MedicalHistoryService;
 using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.MedicalHistoryEntryService

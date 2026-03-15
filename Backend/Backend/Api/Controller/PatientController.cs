@@ -1,6 +1,6 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
-using Backend.Application.Services.MedicalHistoryService;
+using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
@@ -9,7 +9,7 @@ namespace Backend.Api.Controller;
 
 [ApiController]
 [Route("api/patients/")]
-public class PatientController :ControllerBase
+public class PatientController : ControllerBase
 {
     private readonly ISymptomService _symptomService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;

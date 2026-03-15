@@ -1,5 +1,6 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
+using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.SymptomService;
 using Backend.Infrastructure.Repositories;
@@ -18,6 +19,8 @@ builder.Services.AddScoped<IPatientSymptomRepository, MySqlPatientSymptomReposit
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
 builder.Services.AddScoped<ISymptomService, SymptomService>();
+builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
+builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryRepository>();
 
 builder.Services.AddTransient<DtoMapper>();
 

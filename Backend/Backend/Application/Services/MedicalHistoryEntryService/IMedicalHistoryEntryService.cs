@@ -1,6 +1,6 @@
 ﻿using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 
-namespace Backend.Application.Services.MedicalHistoryService
+namespace Backend.Application.Services.MedicalHistoryEntryService
 {
     public interface IMedicalHistoryEntryService
     {
