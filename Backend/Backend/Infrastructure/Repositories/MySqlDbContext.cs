@@ -11,10 +11,13 @@ namespace Backend.Infrastructure.Repositories
         public DbSet<Medication> Medications { get; set; }
         public DbSet<SymptomDefinition> SymptomsDefinition { get; set; }
         public DbSet<PatientSymptom> PatientSymptoms { get; set; }
+        public DbSet<MedicalHistoryEntry> MedicalHistoryEntries { get; set; }
+        public DbSet<FamilyHistoryEntry> FamilyHistoryEntries { get; set; }
 
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

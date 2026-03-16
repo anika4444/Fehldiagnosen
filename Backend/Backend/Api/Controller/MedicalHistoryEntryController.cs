@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Backend.Domain.Entities;
-using Backend.Application.Services.MedicalHistoryService;
-using Backend.Application.Repositories;
+using Backend.Application.Services.MedicalHistoryEntryService;
 
 namespace Backend.Api.Controller;
 

@@ -1,7 +1,10 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
+<<<<<<< HEAD
 using Backend.Application.Services.MedicalHistoryService;
+=======
+>>>>>>> bda72a0f68944dfa9b8033b17ce8cfb1b8104a1d
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.SymptomService;
 using Backend.Infrastructure.Repositories;
@@ -30,8 +33,14 @@ builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
 
 builder.Services.AddScoped<ISymptomService, SymptomService>();
+<<<<<<< HEAD
 //builder.Services.AddScoped<IMedicationService, MedicationService>();
 
+=======
+builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
+builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryRepository>();
+builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
+>>>>>>> bda72a0f68944dfa9b8033b17ce8cfb1b8104a1d
 
 builder.Services.AddTransient<DtoMapper>();
 
