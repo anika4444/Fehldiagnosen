@@ -2,6 +2,8 @@
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Mysqlx.Session;
+using Backend.Application.Services.FamilyHistoryService;
+using Backend.Application.Services.FamilyHistoryService.Dto;
 
 namespace Backend.Api.Controller
 {
@@ -9,97 +11,69 @@ namespace Backend.Api.Controller
     [Route("api")]
     public class FamilyHistoryController : ControllerBase
     {
-        private readonly IFamilyHistoryRepository _repository;
+        private readonly IFamilyHistoryService _familyHistoryService;
 
-        public FamilyHistoryController(IFamilyHistoryRepository repository)
+        public FamilyHistoryController(IFamilyHistoryService familyHistoryService)
         {
-            _repository = repository;
+            _familyHistoryService = familyHistoryService;
         }
 
+        // GET /api/family-history-entries/{historyEntryId}
         [HttpGet("family-history-entries/{historyEntryId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntry>> GetEntriesByHistoryEntryId(int historyEntryId)
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> GetEntryByHistoryEntryId(int historyEntryId)
         {
-            var entries = await _repository.FindByIdAsync(historyEntryId);
-
-            if (entries == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(entries);
-        }
-
-
-        [HttpGet("patients/{patientId:int}/family-history-entries")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<FamilyHistoryEntry>>> GetEntriesByPatientId(int patientId)
-        {
-            var entry = await _repository.FindByPatientIdAsync(patientId);
-
-            if (entry == null || !entry.Any())
-            {
-                return NotFound();
-            }
-
+            var entry = await _familyHistoryService.GetByIdAsync(historyEntryId);
+            if (entry == null) return NotFound();
             return Ok(entry);
         }
 
+        // GET /api/patients/{patientId}/family-history-entries
+        [HttpGet("patients/{patientId:int}/family-history-entries")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<FamilyHistoryEntryResponse>>> GetEntriesByPatientId(int patientId)
+        {
+            var entries = await _familyHistoryService.GetAllByPatientIdAsync(patientId);
+            if (entries == null || !entries.Any()) return NotFound();
+            return Ok(entries);
+        }
+
+        // POST /api/patients/{patientId}/family-history-entries
         [HttpPost("patients/{patientId:int}/family-history-entries")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntry>> CreateNewHistoryEntry(int patientId, [FromBody] FamilyHistoryEntry newEntry)
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> CreateEntry(int patientId, [FromBody] CreateFamilyHistoryEntryRequest request)
         {
-            if (newEntry == null)
-            {
-                return BadRequest("Eintrag darf nicht leer sein");
-            }
-
-            newEntry.PatientId = patientId;
-
-            var createdEntry = await _repository.AddAsync(newEntry);
-
-            return CreatedAtAction(nameof(GetEntriesByHistoryEntryId), new { historyEntryId = createdEntry.Id }, createdEntry);
+            if (request == null) return BadRequest("Eintrag darf nicht leer sein.");
+            var createdEntry = await _familyHistoryService.CreateAsync(patientId, request);
+            if (createdEntry == null) return NotFound();
+            return CreatedAtAction(nameof(GetEntryByHistoryEntryId), new { historyEntryId = createdEntry.Id }, createdEntry);
         }
 
-
-
+        // PUT /api/patients/{patientId}/family-history-entries/{historyEntryId}
         [HttpPut("patients/{patientId:int}/family-history-entries/{historyEntryId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntry>> UpdateHistoryEntry(int patientId, int historyEntryId, [FromBody] FamilyHistoryEntry updatedEntry)
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> UpdateEntry(int patientId, int historyEntryId, [FromBody] UpdateFamilyHistoryEntryRequest request)
         {
-            if (updatedEntry == null)
-            {
-                return BadRequest("Eintrag darf nicht leer sein");
-            }
-            var existingEntry = await _repository.FindByIdAsync(updatedEntry.Id);
-            if (existingEntry == null || existingEntry.PatientId != patientId)
-            {
-                return NotFound();
-            }
-            updatedEntry.PatientId = patientId;
-            updatedEntry.Id = historyEntryId;
-
-            var result = await _repository.UpdateAsync(updatedEntry);
-            return Ok(result);
+            if (request == null) return BadRequest("Eintrag darf nicht leer sein.");
+            var updatedEntry = await _familyHistoryService.UpdateAsync(patientId, historyEntryId, request);
+            if (updatedEntry == null) return NotFound();
+            return Ok(updatedEntry);
         }
 
+        // DELETE /api/family-history-entries/{historyEntryId}
         [HttpDelete("family-history-entries/{historyEntryId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntry>> DeleteHistoryEntry(int historyEntryId)
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> DeleteEntry(int historyEntryId)
         {
-            var existingEntry = await _repository.FindByIdAsync(historyEntryId);
-            if (existingEntry == null)
-            {
-                return NotFound();
-            }
-            var deletedEntry = await _repository.DeleteAsync(existingEntry);
+            var deletedEntry = await _familyHistoryService.DeleteAsync(historyEntryId);
+            if (deletedEntry == null) return NotFound();
             return Ok(deletedEntry);
         }
     }

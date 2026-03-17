@@ -1,7 +1,6 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
-using Backend.Application.Services.MedicalHistoryService;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.SymptomService;
 using Backend.Infrastructure.Repositories;
