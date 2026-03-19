@@ -7,6 +7,9 @@ namespace Backend.Domain.Entities
     {
         public int Id { get; set; }
 
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser ApplicationUser;
+
         public string UserName { get; set; } = string.Empty;
 
         public string FirstName { get; set; } = string.Empty;

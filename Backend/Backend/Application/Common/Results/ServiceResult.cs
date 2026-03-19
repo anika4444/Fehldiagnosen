@@ -22,6 +22,11 @@
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.ValidationError };
         }
+        public static ServiceResult Unauthorized(string errorMessage)
+        {
+            return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Unauthorized };
+        }
+
     }
     public class ServiceResult<T> : ServiceResult
     {
@@ -49,5 +54,9 @@
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.ValidationError };
         }
 
+        public static ServiceResult<T> Unauthorized(string errorMessage)
+        {
+            return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Unauthorized };
+        }
     }
 }

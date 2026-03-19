@@ -1,11 +1,12 @@
 ﻿using Backend.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class MySqlDbContext : DbContext
+    public class MySqlDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Medication> Medications { get; set; }

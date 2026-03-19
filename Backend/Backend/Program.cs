@@ -1,6 +1,7 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
+using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.UserService;
 using Backend.Domain.Entities;
@@ -50,9 +51,6 @@ if (string.IsNullOrEmpty(connectionString))
 
 builder.Services.AddDbContext<MySqlDbContext>(options => options.UseMySQL(connectionString));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<MySqlDbContext>();
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
@@ -62,7 +60,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredLength = 6;
     options.SignIn.RequireConfirmedAccount = false;
 
-}).AddEntityFrameworkStores<MySqlDbContext>();
+}).AddEntityFrameworkStores<MySqlDbContext>()
+  .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -85,13 +84,6 @@ builder.Services.AddAuthentication(options =>
 
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<MySqlDbContext>();
-    DbInitializer.Initialize(context);
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

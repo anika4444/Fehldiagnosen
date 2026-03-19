@@ -5,8 +5,10 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 namespace Backend.Api.Controller;
 
+[Authorize]
 [ApiController]
 [Route("api/patients/")]
 public class PatientController : ControllerBase

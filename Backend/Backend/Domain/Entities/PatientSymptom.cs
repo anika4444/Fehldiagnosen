@@ -7,10 +7,13 @@ namespace Backend.Domain.Entities
     public class PatientSymptom : IEntity
     {
         public int Id { get; set; }
+
         [Required]
         public int PatientId { get; set; }
+
         [ForeignKey("PatientId")]
         public Patient? Patient { get; set; }
+
         [MaxLength(150)]
         public string? SymptomName { get; set; }
         public int? SymptomDefinitionId { get; set; }

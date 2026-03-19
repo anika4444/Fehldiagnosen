@@ -1,7 +1,9 @@
 ﻿using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicationService.Dto;
 using Backend.Application.Services.SymptomService.Dto;
+using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Domain.Entities;
+using Org.BouncyCastle.Asn1;
 
 
 namespace Backend.Application.Mapper
@@ -74,6 +76,33 @@ namespace Backend.Application.Mapper
                 Status = medicalHistoryEntry.Status,
                 Comment = medicalHistoryEntry.Comment,
                 EntryBy = medicalHistoryEntry.EntryBy,
+            };
+        }
+
+        public FamilyHistoryEntryResponse ToFamilyHistoryEntryResponse(FamilyHistoryEntry entry)
+        {
+            return new FamilyHistoryEntryResponse
+            {
+                Id = entry.Id,
+                PatientId = entry.PatientId,
+                Relative = entry.Relative,
+                Diagnosis = entry.Diagnosis,
+                Comment = entry.Comment,
+            };
+        }
+
+        public IEnumerable<FamilyHistoryEntryResponse> ToFamilyHistoryEntryResponseList(IEnumerable<FamilyHistoryEntry> entries)
+        {
+            return entries.Select(e => ToFamilyHistoryEntryResponse(e));
+        }
+
+        public FamilyHistoryEntry ToFamilyHistoryEntry(CreateFamilyHistoryEntryRequest request)
+        {
+            return new FamilyHistoryEntry
+            {
+                Relative = request.Relative,
+                Diagnosis = request.Diagnosis,
+                Comment = request.Comment
             };
         }
     }
