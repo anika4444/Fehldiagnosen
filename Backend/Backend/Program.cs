@@ -1,11 +1,14 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
-using Backend.Application.Services.MedicalHistoryService;
-using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.SymptomService;
+using Backend.Application.Services.UserService;
+using Backend.Domain.Entities;
 using Backend.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +38,7 @@ builder.Services.AddScoped<ISymptomService, SymptomService>();
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
 builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryRepository>();
 builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddTransient<DtoMapper>();
 
@@ -45,6 +49,40 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 builder.Services.AddDbContext<MySqlDbContext>(options => options.UseMySQL(connectionString));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<MySqlDbContext>();
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = false;
+
+}).AddEntityFrameworkStores<MySqlDbContext>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+            builder.Configuration.GetSection("JwtSettings")["Secret"])
+        ),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        RequireExpirationTime = false
+    };
+});
+
 
 var app = builder.Build();
 
@@ -66,6 +104,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
