@@ -1,16 +1,30 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 
+import { symptomService } from "@/api/symptomService";
 import { Card } from "@/components/card";
 import { DatePickerField } from "@/components/date-picker-field";
 import { HeaderView } from "@/components/header-view";
-import { ModalCard } from "@/components/modal-card";
 import { PrimaryButton } from "@/components/primary-button";
+import { SymptomCard } from "@/components/symptom-card";
+import { SymptomForm } from "@/components/symptom-form";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useDatePicker } from "@/hooks/use-date-picker";
+import {
+  PatientSymptomRequest,
+  PatientSymptomResponse,
+  SymptomFormData,
+} from "@/types/symptom-type";
 
 const Symptom = () => {
   const { date, show, onChange, toggleDatePicker, formattedDate } =
@@ -19,7 +33,94 @@ const Symptom = () => {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
+  const patientId = 1; // TODO: Aktuell hartkodiert, muss später dynamisch aus Auth kommen
+
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [symptoms, setSymptoms] = useState<PatientSymptomResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [editingSymptom, setEditingSymptom] =
+    useState<PatientSymptomResponse | null>(null);
+
+  const fetchSymptoms = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const isoDate = date.toISOString();
+      const data = await symptomService.getPatientSymptoms(patientId, isoDate);
+      setSymptoms(data);
+    } catch (error) {
+      setError("Fehler beim Laden der Symptome.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveSymptom = async (formData: SymptomFormData) => {
+    try {
+      const requestPayload: PatientSymptomRequest = {
+        symptomName: formData.symptomName,
+        occurrenceTime: formData.occurrenceTime,
+        intensity: formData.intensity,
+        duration: formData.duration,
+        possibleTrigger: formData.possibleTriggers,
+        notes: formData.notes,
+        details: formData.details || {},
+      };
+      if (editingSymptom) {
+        await symptomService.updatePatientSymptom(
+          patientId,
+          editingSymptom.id,
+          requestPayload,
+        );
+      } else {
+        await symptomService.createPatientSymptom(patientId, requestPayload);
+      }
+
+      setIsFormVisible(false);
+      setEditingSymptom(null);
+      fetchSymptoms();
+
+      if (Platform.OS !== "web") {
+        Alert.alert("Erfolg", "Symptom wurde gespeichert.");
+      }
+    } catch (error) {
+      console.error("Konnte Symptom nicht speichern:", error);
+      Alert.alert("Fehler", "Es gab ein Problem beim Speichern.", [
+        { text: "OK" },
+      ]);
+    }
+  };
+
+  const handleEditSymptom = (symptom: PatientSymptomResponse) => {
+    setEditingSymptom(symptom);
+    setIsFormVisible(true);
+  };
+
+  const handleDeleteSymptom = async (id: number) => {
+    const deleteConfirmed = async () => {
+      try {
+        await symptomService.deleteSymptom(id);
+        fetchSymptoms();
+      } catch (error) {
+        Alert.alert("Fehler", "Löschen fehlgeschlagen.");
+      }
+    };
+    if (Platform.OS === "web") {
+      if (confirm("Möchten Sie diesen Eintrag wirklich löschen?")) {
+        deleteConfirmed();
+      }
+    } else {
+      Alert.alert("Löschen", "Möchten Sie diesen Eintrag wirklich entfernen?", [
+        { text: "Abbrechen", style: "cancel" },
+        { text: "Löschen", style: "destructive", onPress: deleteConfirmed },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    fetchSymptoms();
+  }, [date]);
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
@@ -50,20 +151,40 @@ const Symptom = () => {
         {!isFormVisible ? (
           <PrimaryButton
             title="Neues Symptom hinzufügen"
-            onPress={() => setIsFormVisible(true)}
+            onPress={() => {
+              setEditingSymptom(null);
+              setIsFormVisible(true);
+            }}
           />
         ) : (
-          <ModalCard
-            title="Neues Symptom"
-            onClose={() => setIsFormVisible(false)}
-          >
-            <ThemedText>Hier kommen Textfelder hin...</ThemedText>
-          </ModalCard>
+          <SymptomForm
+            selectedDate={date}
+            initialData={editingSymptom}
+            onSave={handleSaveSymptom}
+            onCancel={() => {
+              setIsFormVisible(false);
+              setEditingSymptom(null);
+            }}
+          />
         )}
         <ThemedText type="subtitle">Symptome am {formattedDate}</ThemedText>
-        <ModalCard title="Symptom 1" onClose={() => {}} types="secondary">
-          <ThemedText>Beschreibung des Symptoms...</ThemedText>
-        </ModalCard>
+
+        {isLoading && <ActivityIndicator size="large" color={theme.primary} />}
+        {error && <ThemedText style={{ color: "red" }}>{error}</ThemedText>}
+
+        {!isLoading && !error && symptoms.length === 0 && (
+          <ThemedText>Keine Symptome für dieses Datum gefunden.</ThemedText>
+        )}
+
+        {!isLoading &&
+          symptoms.map((symptom) => (
+            <SymptomCard
+              key={symptom.id}
+              symptom={symptom}
+              onDelete={handleDeleteSymptom}
+              onEdit={() => handleEditSymptom(symptom)}
+            />
+          ))}
       </View>
     </ScrollView>
   );

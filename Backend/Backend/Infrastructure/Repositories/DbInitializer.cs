@@ -7,10 +7,8 @@ namespace Backend.Infrastructure.Repositories
     {
         public static async Task Initialize(MySqlDbContext context, RoleManager<IdentityRole> roleManager)
         {
-            // Stelle sicher, dass die Datenbank existiert
             context.Database.EnsureCreated();
 
-            // Erstelle Rollen, falls sie nicht existieren
             string[] roleNames = { "Patient", "Arzt" };
             foreach (var roleName in roleNames)
             {

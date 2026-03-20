@@ -10,12 +10,16 @@ import {
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
+import { PrimaryButton } from "./primary-button";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
 interface ModalCardProps {
   title: string;
   onClose: () => void;
+  onSave?: () => void;
+  onEdit?: () => void;
+  saveButtonText?: string;
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   types?: "primary" | "secondary";
@@ -24,6 +28,9 @@ interface ModalCardProps {
 export function ModalCard({
   title,
   onClose,
+  onSave,
+  onEdit,
+  saveButtonText = "Speichern",
   children,
   style,
   types = "primary",
@@ -48,23 +55,48 @@ export function ModalCard({
         <ThemedText style={[styles.title, { color: theme.text }]}>
           {title}
         </ThemedText>
-        <TouchableOpacity
-          onPress={onClose}
-          activeOpacity={0.7}
-          style={[styles.closeButton, { backgroundColor: theme.closeBgColor }]}
-        >
-          <MaterialCommunityIcons
-            name="close"
-            size={20}
-            color={theme.closeIconColor}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          {onEdit && (
+            <TouchableOpacity
+              onPress={onEdit}
+              activeOpacity={0.7}
+              style={[styles.actionButton, { marginRight: 8 }]}
+            >
+              <MaterialCommunityIcons
+                name="pencil-outline"
+                size={20}
+                color={theme.primary}
+              />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={onClose}
+            activeOpacity={0.7}
+            style={[
+              styles.closeButton,
+              { backgroundColor: theme.closeBgColor },
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="close"
+              size={20}
+              color={theme.closeIconColor}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.content}>{children}</View>
+      <View style={styles.content}>
+        {children}
+
+        {onSave && (
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={onSave} title={saveButtonText} />
+          </View>
+        )}
+      </View>
     </ThemedView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     borderRadius: 24,
@@ -80,9 +112,21 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   title: {
     fontSize: 18,
     fontWeight: "600",
+    flex: 1, // Titel nimmt Platz ein, schiebt Buttons nach rechts
+    marginRight: 10,
+  },
+  actionButton: {
+    width: 32,
+    height: 32,
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButton: {
     width: 32,
@@ -94,5 +138,8 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  buttonContainer: {
+    marginTop: 20,
   },
 });

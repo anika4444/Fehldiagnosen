@@ -1,6 +1,9 @@
 import MaterialCommunityIcons from "@expo/vector-icons/build/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import {
+  Alert,
+  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -19,6 +22,36 @@ const Data = () => {
 
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+
+  const handleLogout = async () => {
+    const performLogout = async () => {
+      try {
+        if (Platform.OS === "web") {
+          localStorage.removeItem("userToken");
+          localStorage.removeItem("tokenExpiration");
+        } else {
+          await SecureStore.deleteItemAsync("userToken");
+          await SecureStore.deleteItemAsync("tokenExpiration");
+        }
+        // Zurück zum Login und den Verlauf löschen
+        router.replace("/(auth)/login");
+      } catch (error) {
+        console.error("Logout fehlgeschlagen", error);
+      }
+    };
+
+    // Bestätigungs-Dialog (im Web als einfaches confirm)
+    if (Platform.OS === "web") {
+      if (confirm("Möchten Sie sich wirklich abmelden?")) {
+        await performLogout();
+      }
+    } else {
+      Alert.alert("Abmelden", "Möchten Sie sich wirklich abmelden?", [
+        { text: "Abbrechen", style: "cancel" },
+        { text: "Logout", style: "destructive", onPress: performLogout },
+      ]);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -58,6 +91,40 @@ const Data = () => {
             </Card>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          style={styles.logoutButton}
+          activeOpacity={0.7}
+          onPress={handleLogout}
+        >
+          <Card
+            style={[
+              styles.cardRow,
+              styles.logoutCard,
+              { borderColor: theme.closeBgColor },
+            ]}
+          >
+            <View
+              style={[
+                styles.iconCircle,
+                { backgroundColor: theme.closeBgColor },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name="logout"
+                size={22}
+                color={theme.closeIconColor}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <ThemedText
+                style={{ color: theme.closeIconColor, fontWeight: "bold" }}
+              >
+                Abmelden
+              </ThemedText>
+              <ThemedText type="smallText">Sitzung beenden</ThemedText>
+            </View>
+          </Card>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -79,15 +146,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
+    flexShrink: 0,
   },
   textContainer: {
     flex: 1,
     justifyContent: "center",
   },
+  logoutCard: {
+    borderWidth: 1,
+    marginTop: 8,
+  },
+  logoutButton: { marginTop: 20 },
 });
