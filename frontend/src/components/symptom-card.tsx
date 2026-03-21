@@ -1,11 +1,6 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from "react-native";
+import { StyleSheet, useColorScheme, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
 import { PatientSymptomResponse } from "@/types/symptom-type";

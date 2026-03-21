@@ -43,7 +43,7 @@ export function FormPicker({
       <View
         style={[
           styles.pickerContainer,
-          hasError && { borderColor: theme.closeIconColor, borderWidth: 1.5 },
+          hasError && { borderColor: theme.surface, borderWidth: 1.5 },
         ]}
       >
         <Picker
@@ -51,7 +51,11 @@ export function FormPicker({
           onValueChange={onValueChange}
           style={[
             styles.picker,
-            { color: theme.text, backgroundColor: theme.background },
+            {
+              color: theme.text,
+              backgroundColor: theme.background,
+              borderColor: theme.surface,
+            },
             Platform.OS === "web" && { borderWidth: 0, outline: "none" },
           ]}
           dropdownIconColor={theme.text}
@@ -93,8 +97,8 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderRadius: 12,
-    borderColor: "transparent",
     overflow: "hidden",
+    justifyContent: "center",
   },
   picker: {
     height: 50,

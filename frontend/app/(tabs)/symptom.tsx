@@ -1,4 +1,5 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -33,8 +34,7 @@ const Symptom = () => {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const patientId = 1; // TODO: Aktuell hartkodiert, muss später dynamisch aus Auth kommen
-
+  const [patientId, setPatientId] = useState<number | null>(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [symptoms, setSymptoms] = useState<PatientSymptomResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +42,23 @@ const Symptom = () => {
   const [editingSymptom, setEditingSymptom] =
     useState<PatientSymptomResponse | null>(null);
 
+  useEffect(() => {
+    const loadPatientData = async () => {
+      const storedId =
+        Platform.OS === "web"
+          ? localStorage.getItem("patientId")
+          : await SecureStore.getItemAsync("patientId");
+
+      if (storedId) {
+        setPatientId(parseInt(storedId));
+      }
+    };
+    loadPatientData();
+  }, []);
+
   const fetchSymptoms = async () => {
+    if (!patientId) return;
+
     setIsLoading(true);
     setError(null);
     try {
@@ -57,6 +73,14 @@ const Symptom = () => {
   };
 
   const handleSaveSymptom = async (formData: SymptomFormData) => {
+    if (patientId === null) {
+      Alert.alert(
+        "Fehler",
+        "Sitzung abgelaufen. Bitte loggen Sie sich neu ein.",
+      );
+      return;
+    }
+
     try {
       const requestPayload: PatientSymptomRequest = {
         symptomName: formData.symptomName,
@@ -120,7 +144,7 @@ const Symptom = () => {
 
   useEffect(() => {
     fetchSymptoms();
-  }, [date]);
+  }, [date, patientId]);
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>

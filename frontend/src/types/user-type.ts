@@ -23,6 +23,7 @@ export interface LoginResponse {
   data: {
     token: string;
     expiration: string;
+    patientId: string;
   };
   errorMessage: string | null;
   errorType: number;

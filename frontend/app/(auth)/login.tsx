@@ -28,7 +28,6 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    debugger;
     if (!username || !password) {
       Alert.alert("Eingabe fehlt", "Bitte Benutzername und Passwort eingeben.");
       return;
@@ -38,18 +37,16 @@ const LoginScreen = () => {
     try {
       const result = await login({ username, password });
 
-      console.log("Login Result:", result); // Debug-Ausgabe
-
       if (result.isSuccess && result.data && result.data.token) {
+        const { token, expiration, patientId } = result.data;
         if (Platform.OS === "web") {
-          localStorage.setItem("userToken", result.data.token);
-          localStorage.setItem("tokenExpiration", result.data.expiration);
+          localStorage.setItem("userToken", token);
+          localStorage.setItem("tokenExpiration", expiration);
+          localStorage.setItem("patientId", patientId);
         } else {
-          await SecureStore.setItemAsync("userToken", result.data.token);
-          await SecureStore.setItemAsync(
-            "tokenExpiration",
-            result.data.expiration,
-          );
+          await SecureStore.setItemAsync("userToken", token);
+          await SecureStore.setItemAsync("tokenExpiration", expiration);
+          await SecureStore.setItemAsync("patientId", patientId);
         }
 
         router.replace("/(tabs)");
