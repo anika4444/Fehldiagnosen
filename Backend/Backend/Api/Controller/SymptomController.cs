@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller
 {
+    [Authorize]
     [Route("api/symptoms")]
     [ApiController]
     public class SymptomController : ControllerBase
