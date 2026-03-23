@@ -10,35 +10,9 @@ namespace Backend.Infrastructure.Repositories
         {
             _context = context;
         }
-
-        public Task<Patient> AddAsync(Patient entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Patient> DeleteAsync(Patient entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Patient>> FindAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Patient?> FindByIdAsync(int id)
         {
             return await _context.Patients.FindAsync(id);
-        }
-
-        public Task<List<Medication>> GetAllMedications(int patientId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Patient> UpdateAsync(Patient entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }

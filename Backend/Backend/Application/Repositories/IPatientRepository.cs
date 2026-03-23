@@ -3,8 +3,7 @@ using Backend.Domain.Interfaces;
 
 namespace Backend.Application.Repositories
 {
-    public interface IPatientRepository: IRepository<Patient>
+    public interface IPatientRepository
     {
-        Task<List<Medication>> GetAllMedications(int patientId);
     }
 }
