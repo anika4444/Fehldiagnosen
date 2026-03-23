@@ -5,5 +5,6 @@ namespace Backend.Application.Repositories
 {
     public interface IPatientRepository
     {
+        Task<Patient?> FindByIdAsync(int id);
     }
 }

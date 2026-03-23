@@ -51,10 +51,8 @@ namespace Backend.Application.Services.MedicationService
 
         public async Task<IEnumerable<MedicationResponse>> GetMedicationsByPatientIdAsync(int patientId)
         {       
-           var patientMedications = await _patientRepository.GetAllMedications(patientId);
+           var patientMedications = await _medicationRepository.GetAllMedications(patientId);
             return patientMedications.Select(medication=> _mapper.ToMedicationResponse(medication));
         }
-
-  
     }
 }

@@ -38,6 +38,11 @@ namespace Backend.Infrastructure.Repositories
             return medication;
         }
 
+        public Task<List<Medication>> GetAllMedications(int patientId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Medication> UpdateAsync(Medication entity)
         {
             _context.Medications.Update(entity);
