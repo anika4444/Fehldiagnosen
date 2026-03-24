@@ -62,6 +62,7 @@ namespace Backend.Application.Mapper
             {
                 Id = medication.Id,
                 Name = medication.Name,
+                
             };
         }
 

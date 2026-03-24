@@ -1,4 +1,5 @@
-﻿using Backend.Domain.Interfaces;
+﻿using Backend.Domain.Enums;
+using Backend.Domain.Interfaces;
 using Microsoft.VisualBasic;
 
 namespace Backend.Domain.Entities
@@ -8,14 +9,14 @@ namespace Backend.Domain.Entities
         public int Id { get; set; }
         public int PatientId { get; set; }
         public required string Name { get; set; }
-        public string? dosage { get; set; }
-        public string? intakeFrequency { get; set; }
-        public DateOnly intakeStartDate { get; set; }
+        public string? Dosage { get; set; }
+        public string? IntakeFrequency { get; set; }
+        public DateOnly IntakeStartDate { get; set; }
         public int DurationInDays { get; set; }
 
-        public DateOnly EndDate =>
-            intakeStartDate.AddDays(DurationInDays);
-        public string? indication { get; set; }
-        public string? issuedBy { get; set; }
+        public DateOnly? EndDate =>
+            IntakeStartDate.AddDays(DurationInDays);
+        public string? Indication { get; set; }
+        public EntryBy? EntryBy { get; set; }
     }
 }

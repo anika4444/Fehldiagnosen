@@ -32,9 +32,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPatientSymptomRepository, MySqlPatientSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
+builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
 
 builder.Services.AddScoped<ISymptomService, SymptomService>();
-//builder.Services.AddScoped<IMedicationService, MedicationService>();
+builder.Services.AddScoped<IMedicationService, MedicationService>();
 
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
 builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryRepository>();

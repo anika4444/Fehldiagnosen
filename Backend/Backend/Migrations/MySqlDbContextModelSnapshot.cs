@@ -152,6 +152,24 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Dosage")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("DurationInDays")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EntryBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Indication")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IntakeFrequency")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateOnly>("IntakeStartDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
