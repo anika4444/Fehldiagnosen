@@ -6,6 +6,7 @@ using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Backend.Application.Services.MedicationNotification;
 namespace Backend.Api.Controller;
 
 [Authorize]
@@ -15,11 +16,13 @@ public class PatientController : ControllerBase
 {
     private readonly ISymptomService _symptomService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
+    private readonly IMedicationNotificationService _medicationNotificationService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService)
     {
         _symptomService = symptomService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
+        _medicationNotificationService = medicationNotificationService;
     }
 
     #region Medication
@@ -36,8 +39,9 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult CreateMedication(int patientId, int medicationId)
+    public async Task<ActionResult> CreateMedication(int patientId, int medicationId)
     {
+        await _medicationNotificationService.NotifyMedicationChanged();
         return Created();
     }
     [HttpPut("{patientId}/medications/{medicationId}")]
