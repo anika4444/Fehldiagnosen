@@ -15,7 +15,6 @@ public class MedicationController : ControllerBase
     public ActionResult<Medication>GetById(int id)
     
     {
-        //Serviceaufrufen
         return Ok();
     }
 

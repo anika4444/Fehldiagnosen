@@ -1,13 +1,14 @@
-﻿using Backend.Application.Services.MedicationService.Dto;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.MedicationService.Dto;
 using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.MedicationService
 {
     public interface IMedicationService
     {
-        Task<IEnumerable<MedicationResponse>> GetMedicationsByPatientIdAsync(int id);
-        Task<MedicationResponse?> GetMedicationByIdAsync(int id);
-        Task<MedicationResponse?> CreateMedication(int patientId, CreateMedicationRequest request);
-        Task DeleteMedication(int medicationId);
+        Task<ServiceResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientIdAsync(int id);
+        Task<ServiceResult<MedicationResponse>> GetMedicationByIdAsync(int id);
+        Task<ServiceResult<MedicationResponse?>> CreateMedication(int patientId, CreateMedicationRequest request);
+        Task<ServiceResult> DeleteMedication(int medicationId);
     }
 }
