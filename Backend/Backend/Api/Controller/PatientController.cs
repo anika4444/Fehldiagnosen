@@ -35,7 +35,7 @@ public class PatientController : ControllerBase
 
     }
 
-    [HttpPost("{patientId}/medications/{medicationId}")]
+    [HttpPost("{patientId}/medications")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,7 +44,7 @@ public class PatientController : ControllerBase
         await _medicationNotificationService.NotifyMedicationChanged();
         return Created();
     }
-    [HttpPut("{patientId}/medications/{medicationId}")]
+    [HttpPut("{patientId}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
