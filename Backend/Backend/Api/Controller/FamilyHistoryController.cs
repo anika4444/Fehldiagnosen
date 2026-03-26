@@ -1,12 +1,16 @@
-﻿using Backend.Application.Repositories;
-using Backend.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Mysqlx.Session;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Repositories;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.FamilyHistoryService.Dto;
+using Backend.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Mysqlx.Session;
 
 namespace Backend.Api.Controller
 {
+    [Authorize]
     [ApiController]
     [Route("api")]
     public class FamilyHistoryController : ControllerBase
@@ -47,10 +51,18 @@ namespace Backend.Api.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FamilyHistoryEntryResponse>> CreateEntry(int patientId, [FromBody] CreateFamilyHistoryEntryRequest request)
         {
-            if (request == null) return BadRequest("Eintrag darf nicht leer sein.");
-            var createdEntry = await _familyHistoryService.CreateAsync(patientId, request);
-            if (createdEntry == null) return NotFound();
-            return CreatedAtAction(nameof(GetEntryByHistoryEntryId), new { historyEntryId = createdEntry.Id }, createdEntry);
+            var result = await _familyHistoryService.CreateAsync(patientId, request);
+
+            if (result.IsSuccess)
+            {
+                return CreatedAtAction(nameof(GetEntryByHistoryEntryId), new { historyEntryId = result.Data.Id }, result.Data);
+            }
+
+            return result.ErrorType switch
+            {
+                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage)
+            };
         }
 
         // PUT /api/patients/{patientId}/family-history-entries/{historyEntryId}

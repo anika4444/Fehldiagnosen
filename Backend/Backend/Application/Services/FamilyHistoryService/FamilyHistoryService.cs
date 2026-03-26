@@ -1,4 +1,5 @@
-﻿using Backend.Application.Mapper;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Domain.Entities;
@@ -31,10 +32,13 @@ namespace Backend.Application.Services.FamilyHistoryService
             return _mapper.ToFamilyHistoryEntryResponse(entry);
         }
 
-        public async Task<FamilyHistoryEntryResponse> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request)
+        public async Task<ServiceResult<FamilyHistoryEntryResponse>> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
-            if (patient == null) return null;
+            if (patient == null)
+            {
+                return ServiceResult<FamilyHistoryEntryResponse>.NotFound($"Patient mit ID {patientId} nicht gefunden.");
+            }
 
             var entry = new FamilyHistoryEntry
             {
@@ -45,7 +49,7 @@ namespace Backend.Application.Services.FamilyHistoryService
             };
 
             var createdEntry = await _familyHistoryRepository.AddAsync(entry);
-            return _mapper.ToFamilyHistoryEntryResponse(createdEntry);
+            return ServiceResult<FamilyHistoryEntryResponse>.Success(_mapper.ToFamilyHistoryEntryResponse(createdEntry));
         }
 
         public async Task<FamilyHistoryEntryResponse> UpdateAsync(int patientId, int historyEntryId, UpdateFamilyHistoryEntryRequest request)

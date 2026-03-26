@@ -1,9 +1,10 @@
-import axiosConfig from "./axiosConfig";
 import {
   CreateFamilyHistoryEntryRequest,
   FamilyHistoryEntryResponse,
   UpdateFamilyHistoryEntryRequest,
 } from "@/types/family-history-type";
+
+import axiosConfig from "./axiosConfig";
 
 export const familyHistoryService = {
   getEntriesByPatientId: async (

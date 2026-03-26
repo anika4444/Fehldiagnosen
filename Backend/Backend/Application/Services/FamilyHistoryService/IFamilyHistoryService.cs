@@ -1,4 +1,5 @@
-﻿using Backend.Application.Services.FamilyHistoryService.Dto;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.FamilyHistoryService.Dto;
 
 namespace Backend.Application.Services.FamilyHistoryService
 {
@@ -6,7 +7,7 @@ namespace Backend.Application.Services.FamilyHistoryService
     {
         Task<IEnumerable<FamilyHistoryEntryResponse>> GetAllByPatientIdAsync(int patientId);
         Task<FamilyHistoryEntryResponse> GetByIdAsync(int historyEntryId);
-        Task<FamilyHistoryEntryResponse> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request);
+        Task<ServiceResult<FamilyHistoryEntryResponse>> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request);
         Task<FamilyHistoryEntryResponse> UpdateAsync(int patientId, int historyEntryId, UpdateFamilyHistoryEntryRequest request);
         Task<FamilyHistoryEntryResponse> DeleteAsync(int historyEntryId);
     }
