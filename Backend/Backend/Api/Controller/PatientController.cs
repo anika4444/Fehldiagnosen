@@ -35,7 +35,6 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<Medication>>> GetMedicationsByPatientId(int patientId)
     {
-        //über Medications Repo holen
         var result = await _medicationService.GetMedicationsByPatientIdAsync(patientId);
         if (result.IsSuccess)
         {

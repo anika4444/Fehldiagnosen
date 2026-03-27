@@ -70,7 +70,9 @@ export default function Medications() {
           ? localStorage.getItem("patientId")
           : await SecureStore.getItemAsync("patientId");
 
-      if (storedId) {
+      console.log("storedId aus Storage:", storedId); // DEBUG
+
+      if (storedId && !isNaN(parseInt(storedId))) {
         setPatientId(parseInt(storedId));
       }
     };
@@ -138,7 +140,12 @@ export default function Medications() {
   };
 
   const handleSave = async () => {
-    if (!validate() || patientId === null) return;
+    console.log("patientId beim Speichern:", patientId); // DEBUG
+
+    if (!validate() || patientId === null) {
+      console.log("Abbruch: patientId ist null oder Validierung fehlgeschlagen"); // DEBUG
+      return;
+    }
 
     const payload: CreateMedicationRequest = {
       name: formData.name.trim(),
@@ -151,6 +158,8 @@ export default function Medications() {
       doctorName: formData.doctorName.trim() || undefined,
       notes: formData.notes.trim() || undefined,
     };
+
+    console.log("payload wird gesendet:", payload); // DEBUG
 
     try {
       if (editingMedication) {
@@ -168,7 +177,8 @@ export default function Medications() {
       if (Platform.OS !== "web") {
         Alert.alert("Erfolg", "Medikament wurde gespeichert.");
       }
-    } catch {
+    } catch (err) {
+      console.log("Fehler beim Speichern:", err); // DEBUG
       Alert.alert("Fehler", "Medikament konnte nicht gespeichert werden.");
     }
   };

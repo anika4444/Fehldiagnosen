@@ -14,7 +14,7 @@ namespace Backend.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "Dosage",
                 table: "Medications",
-                type: "longtext",
+                type: "varchar(255)",
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
@@ -46,8 +46,8 @@ namespace Backend.Migrations
                 name: "IntakeStartDate",
                 table: "Medications",
                 type: "date",
-                nullable: false,
-                defaultValue: new DateOnly(1, 1, 1));
+                nullable: true,
+                defaultValue: null);
         }
 
         /// <inheritdoc />

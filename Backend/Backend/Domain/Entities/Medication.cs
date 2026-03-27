@@ -25,7 +25,6 @@ namespace Backend.Domain.Entities
         [MaxLength(100)]
         public string? IntakeFrequency { get; set; }
 
-        [Required]
         public DateOnly? IntakeStartDate { get; set; }
 
         [Range(0, 3650)]
