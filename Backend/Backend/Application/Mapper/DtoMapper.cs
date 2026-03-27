@@ -62,7 +62,14 @@ namespace Backend.Application.Mapper
             {
                 Id = medication.Id,
                 Name = medication.Name,
-                
+                PatientId = medication.PatientId,
+                Dosage = medication.Dosage,
+                IntakeFrequency = medication.IntakeFrequency,
+                IntakeStartDate = medication.IntakeStartDate,
+                DurationInDays = medication.DurationInDays,
+                Indication = medication.Indication,
+                EntryBy = medication.EntryBy,
+
             };
         }
 

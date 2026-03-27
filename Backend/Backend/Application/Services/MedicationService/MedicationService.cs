@@ -27,30 +27,37 @@ namespace Backend.Application.Services.MedicationService
             {
                 Name = createMedicationRequest.Name,
                 PatientId = patientId,
+                Dosage = createMedicationRequest.Dosage,
+                IntakeFrequency = createMedicationRequest.IntakeFrequency,
+                IntakeStartDate = createMedicationRequest.IntakeStartDate,
+                DurationInDays = createMedicationRequest.DurationInDays,
+                Indication = createMedicationRequest.Indication,
+                EntryBy = createMedicationRequest.EntryBy,
             };
-            
+
             Medication newMedication = await _medicationRepository.AddAsync(medication);
             return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(newMedication));   
         }
         public async Task<ServiceResult<MedicationResponse?>> UpdateMedication(int medicationId, CreateMedicationRequest createMedicationRequest)
         {
-            var medicationInRepo = await _medicationRepository.FindByIdAsync(medicationId);
-            if (medicationId == medicationInRepo.Id)
+            var result = await _medicationRepository.FindByIdAsync(medicationId);
+            if (result == null)
             {
-                //medicationInRepo.Patient = createMedicationRequest.
-                medicationInRepo.Name = createMedicationRequest.Name;
-                medicationInRepo.PatientId = createMedicationRequest.PatientId;
-                medicationInRepo.Dosage = createMedicationRequest.Dosage;
-                medicationInRepo.IntakeFrequency = createMedicationRequest.IntakeFrequency;
-                medicationInRepo.IntakeStartDate = createMedicationRequest.IntakeStartDate;
-                medicationInRepo.DurationInDays = createMedicationRequest.DurationInDays;
-                medicationInRepo.Indication = createMedicationRequest.Indication;
-                medicationInRepo.EntryBy = createMedicationRequest.EntryBy;
-
+                return ServiceResult<MedicationResponse?>.NotFound("Medikation existiert nicht");
             }
-            { return ServiceResult<MedicationResponse?>.NotFound("Medikation existiert nicht"); }
-      
-            //return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(newMedication));
+
+            result.Name = createMedicationRequest.Name;
+            result.PatientId = createMedicationRequest.PatientId;
+            result.Dosage = createMedicationRequest.Dosage;
+            result.IntakeFrequency = createMedicationRequest.IntakeFrequency;
+            result.IntakeStartDate = createMedicationRequest.IntakeStartDate;
+            result.DurationInDays = createMedicationRequest.DurationInDays;
+            result.Indication = createMedicationRequest.Indication;
+            result.EntryBy = createMedicationRequest.EntryBy;
+
+            await _medicationRepository.UpdateAsync(result);
+            return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(result));
+
         }
         public async Task<ServiceResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientIdAsync(int patientId)
         {

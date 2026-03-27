@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { medicationService } from "@/api/medicationService";
+import { Card } from "@/components/card";
 import { FormInput } from "@/components/form-input";
 import { HeaderView } from "@/components/header-view";
 import { ModalCard } from "@/components/modal-card";
@@ -31,7 +32,6 @@ interface FormData {
   indication: string;
   doctorName: string;
   notes: string;
-  intakeStartDate: string;
 }
 
 interface FormErrors {
@@ -47,7 +47,6 @@ const emptyForm: FormData = {
   indication: "",
   doctorName: "",
   notes: "",
-  intakeStartDate: "",
 };
 
 export default function Medications() {
@@ -72,6 +71,8 @@ export default function Medications() {
           ? localStorage.getItem("patientId")
           : await SecureStore.getItemAsync("patientId");
 
+      console.log("storedId aus Storage:", storedId); // DEBUG
+
       if (storedId && !isNaN(parseInt(storedId))) {
         setPatientId(parseInt(storedId));
       }
@@ -95,7 +96,9 @@ export default function Medications() {
   };
 
   useEffect(() => {
-    if (!patientId) return;
+    if (!patientId) {
+      return;
+    }
 
     fetchMedications();
 
@@ -136,7 +139,6 @@ export default function Medications() {
       indication: medication.indication ?? "",
       doctorName: medication.doctorName ?? "",
       notes: medication.notes ?? "",
-      intakeStartDate: medication.intakeStartDate ?? "", // ← neu
     });
     setFormErrors({});
     setIsFormVisible(true);
@@ -162,7 +164,14 @@ export default function Medications() {
   };
 
   const handleSave = async () => {
-    if (!validate() || patientId === null) return;
+    console.log("patientId beim Speichern:", patientId); // DEBUG
+
+    if (!validate() || patientId === null) {
+      console.log(
+        "Abbruch: patientId ist null oder Validierung fehlgeschlagen",
+      ); // DEBUG
+      return;
+    }
 
     const payload: CreateMedicationRequest = {
       name: formData.name.trim(),
@@ -176,6 +185,8 @@ export default function Medications() {
       notes: formData.notes.trim() || undefined,
     };
 
+    console.log("payload wird gesendet:", payload); // DEBUG
+
     try {
       if (editingMedication) {
         await medicationService.updateMedication(
@@ -187,12 +198,13 @@ export default function Medications() {
         await medicationService.createMedication(patientId, payload);
       }
       closeForm();
+      //fetchMedications();
 
       if (Platform.OS !== "web") {
         Alert.alert("Erfolg", "Medikament wurde gespeichert.");
       }
     } catch (err) {
-      console.log("Fehler beim Speichern:", err);
+      console.log("Fehler beim Speichern:", err); // DEBUG
       Alert.alert("Fehler", "Medikament konnte nicht gespeichert werden.");
     }
   };
@@ -222,22 +234,6 @@ export default function Medications() {
       );
     }
   };
-
-  // Label + Wert Zeile wie in Symptom-Karte
-  const DetailRow = ({
-    label,
-    value,
-    last = false,
-  }: {
-    label: string;
-    value: string;
-    last?: boolean;
-  }) => (
-    <View style={[styles.detailRow, !last && styles.detailRowBorder]}>
-      <ThemedText style={styles.detailLabel}>{label}</ThemedText>
-      <ThemedText style={styles.detailValue}>{value}</ThemedText>
-    </View>
-  );
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
@@ -291,19 +287,11 @@ export default function Medications() {
               }
             />
             <FormInput
-              label="Einnahmedauer (in Tagen)"
-              placeholder="z.B. 30"
+              label="Dauer"
+              placeholder="z.B. 4 Wochen"
               value={formData.durationInDays}
               onChangeText={(text) =>
                 setFormData((prev) => ({ ...prev, durationInDays: text }))
-              }
-            />
-            <FormInput
-              label="Einnahme Startdatum (JJJJ-MM-TT)"
-              placeholder="z.B. 2025-01-15"
-              value={formData.intakeStartDate}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, intakeStartDate: text }))
               }
             />
             <FormInput
@@ -355,67 +343,58 @@ export default function Medications() {
         )}
 
         {!isLoading &&
-          medications.map((medication) => {
-            const fields: { label: string; value: string }[] = [];
-            if (medication.dosage)
-              fields.push({
-                label: "Wirkung/Dosierung",
-                value: medication.dosage,
-              });
-            if (medication.intakeFrequency)
-              fields.push({
-                label: "Einnahmehäufigkeit",
-                value: medication.intakeFrequency,
-              });
-            if (medication.durationInDays)
-              fields.push({
-                label: "Dauer",
-                value: `${medication.durationInDays} Tage`,
-              });
-            if (medication.intakeStartDate)
-              fields.push({
-                label: "Einnahme seit",
-                value: String(medication.intakeStartDate),
-              });
-            if (medication.endDate)
-              fields.push({
-                label: "Einnahme bis",
-                value: String(medication.endDate),
-              });
-            if (medication.indication)
-              fields.push({
-                label: "Indikation",
-                value: medication.indication,
-              });
-            if (medication.doctorName)
-              fields.push({
-                label: "Verschrieben von",
-                value: medication.doctorName,
-              });
-            if (medication.notes)
-              fields.push({ label: "Anmerkungen", value: medication.notes });
-
-            return (
-              <ModalCard
-                key={medication.id}
-                title={medication.name}
-                types="secondary"
-                onClose={() => handleDelete(medication.id)}
-                onEdit={() => openEditForm(medication)}
-              >
-                <View style={styles.detailContainer}>
-                  {fields.map((field, index) => (
-                    <DetailRow
-                      key={field.label}
-                      label={field.label}
-                      value={field.value}
-                      last={index === fields.length - 1}
-                    />
-                  ))}
-                </View>
-              </ModalCard>
-            );
-          })}
+          medications.map((medication) => (
+            <ModalCard
+              key={medication.id}
+              title={medication.name}
+              types="secondary"
+              onClose={() => handleDelete(medication.id)}
+              onEdit={() => openEditForm(medication)}
+            >
+              {medication.dosage && (
+                <Card variant="filled" style={styles.detailCard}>
+                  <ThemedText style={styles.fieldLabel}>Dosierung</ThemedText>
+                  <ThemedText style={styles.fieldValue}>
+                    {medication.dosage}
+                  </ThemedText>
+                </Card>
+              )}
+              {medication.intakeFrequency && (
+                <Card variant="filled" style={styles.detailCard}>
+                  <ThemedText style={styles.fieldLabel}>Einnahme</ThemedText>
+                  <ThemedText style={styles.fieldValue}>
+                    {medication.intakeFrequency}
+                  </ThemedText>
+                </Card>
+              )}
+              {medication.indication && (
+                <Card variant="filled" style={styles.detailCard}>
+                  <ThemedText style={styles.fieldLabel}>Indikation</ThemedText>
+                  <ThemedText style={styles.fieldValue}>
+                    {medication.indication}
+                  </ThemedText>
+                </Card>
+              )}
+              {medication.doctorName && (
+                <Card variant="filled" style={styles.detailCard}>
+                  <ThemedText style={styles.fieldLabel}>
+                    Verschrieben von
+                  </ThemedText>
+                  <ThemedText style={styles.fieldValue}>
+                    {medication.doctorName}
+                  </ThemedText>
+                </Card>
+              )}
+              {medication.notes && (
+                <Card variant="filled" style={styles.detailCard}>
+                  <ThemedText style={styles.fieldLabel}>Anmerkungen</ThemedText>
+                  <ThemedText style={styles.fieldValue}>
+                    {medication.notes}
+                  </ThemedText>
+                </Card>
+              )}
+            </ModalCard>
+          ))}
       </View>
     </ScrollView>
   );
@@ -434,30 +413,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
     opacity: 0.6,
   },
+  detailCard: {
+    marginBottom: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    opacity: 0.6,
+    marginBottom: 2,
+  },
+  fieldValue: {
+    fontSize: 15,
+  },
   multilineInput: {
     height: 80,
     textAlignVertical: "top",
     paddingTop: 12,
-  },
-  detailContainer: {
-    paddingHorizontal: 4,
-    paddingTop: 4,
-    paddingBottom: 4,
-  },
-  detailRow: {
-    paddingVertical: 10,
-  },
-  detailRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.06)",
-  },
-  detailLabel: {
-    fontSize: 12,
-    opacity: 0.55,
-    marginBottom: 3,
-  },
-  detailValue: {
-    fontSize: 15,
-    fontWeight: "500",
   },
 });

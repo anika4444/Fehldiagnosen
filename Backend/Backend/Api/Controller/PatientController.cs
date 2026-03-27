@@ -8,11 +8,8 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Backend.Application.Services.MedicationNotification;
-using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.FamilyHistoryService.Dto;
-using Backend.Application.Services.MedicationService.Dto;
 using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controller;
 
