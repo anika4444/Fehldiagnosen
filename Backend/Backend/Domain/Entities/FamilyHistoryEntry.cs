@@ -26,4 +26,3 @@ namespace Backend.Domain.Entities
         public string? Comment { get; set; }
     }
 }
-}

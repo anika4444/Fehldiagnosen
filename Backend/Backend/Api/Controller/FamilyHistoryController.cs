@@ -57,3 +57,5 @@ namespace Backend.Api.Controller
                 _ => BadRequest(result.ErrorMessage)
             };
         }
+    }
+}

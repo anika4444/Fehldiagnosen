@@ -60,7 +60,7 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MedicationResponse>> CreateMedication(int patientId, [FromBody] CreateMedicationRequest request)
     {
-        var result = await _medicationService.CreateMedicationAsync(patientId, request);
+        var result = await _medicationService.CreateMedication(patientId, request);
 
         if (result.IsSuccess)
         {
@@ -78,9 +78,9 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MedicationResponse>> UpdateMedication(int patientId, int medicationId, [FromBody] UpdateMedicationRequest request)
+    public async Task<ActionResult<MedicationResponse>> UpdateMedication(int patientId, int medicationId, [FromBody] CreateMedicationRequest request)
     {
-        var result = await _medicationService.UpdateMedicationAsync(patientId, medicationId, request);
+        var result = await _medicationService.UpdateMedication(medicationId, request);
 
         if (result.IsSuccess)
         {
@@ -93,6 +93,7 @@ public class PatientController : ControllerBase
             _ => BadRequest(result.ErrorMessage)
         };
     }
+
     #endregion
 
     #region Symptoms

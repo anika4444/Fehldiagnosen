@@ -1,6 +1,5 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Services.MedicationService.Dto;
-using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.MedicationService
 {
