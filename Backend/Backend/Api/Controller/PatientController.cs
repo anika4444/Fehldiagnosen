@@ -7,6 +7,7 @@ using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Backend.Application.Services.MedicationNotification;
+using Backend.Application.Services.MedicationService;
 namespace Backend.Api.Controller;
 
 [Authorize]
@@ -15,12 +16,15 @@ namespace Backend.Api.Controller;
 public class PatientController : ControllerBase
 {
     private readonly ISymptomService _symptomService;
+    private readonly IMedicationService _medicationService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
     private readonly IMedicationNotificationService _medicationNotificationService;
+    
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService)
     {
         _symptomService = symptomService;
+        _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
         _medicationNotificationService = medicationNotificationService;
     }
@@ -31,6 +35,7 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<IEnumerable<Medication>> GetMedicationsByPatientId(int patientId)
     {
+        //über Medications Repo holen
         return Ok();
 
     }

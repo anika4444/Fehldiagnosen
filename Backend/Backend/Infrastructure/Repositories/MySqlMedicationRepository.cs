@@ -38,9 +38,10 @@ namespace Backend.Infrastructure.Repositories
             return medication;
         }
 
-        public Task<List<Medication>> GetAllMedications(int patientId)
+        public async Task<List<Medication>> GetAllMedications(int patientId)
         {
-            throw new NotImplementedException();
+            var patientMedication = await _context.Medications.Where(m => m.PatientId == patientId).ToListAsync();
+            return patientMedication;
         }
 
         public async Task<Medication> UpdateAsync(Medication entity)
