@@ -16,5 +16,6 @@ namespace Backend.Application.Services.MedicationService.Dto
         public DateOnly? EndDate { get; set; }
         public string? Indication { get; set; }
         public EntryBy? EntryBy { get; set; }
+        public string? Notes { get; set; }
     }
 }

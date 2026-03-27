@@ -36,5 +36,8 @@ namespace Backend.Domain.Entities
         public string? Indication { get; set; }
 
         public EntryBy? EntryBy { get; set; }
+
+        [MaxLength(500)]
+        public string? Notes { get; set; }
     }
 }

@@ -69,6 +69,7 @@ namespace Backend.Application.Mapper
                 DurationInDays = medication.DurationInDays,
                 Indication = medication.Indication,
                 EntryBy = medication.EntryBy,
+                Notes = medication.Notes
 
             };
         }

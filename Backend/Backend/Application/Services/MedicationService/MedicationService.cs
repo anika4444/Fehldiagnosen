@@ -33,6 +33,7 @@ namespace Backend.Application.Services.MedicationService
                 DurationInDays = createMedicationRequest.DurationInDays,
                 Indication = createMedicationRequest.Indication,
                 EntryBy = createMedicationRequest.EntryBy,
+                Notes = createMedicationRequest.Notes
             };
 
             Medication newMedication = await _medicationRepository.AddAsync(medication);
@@ -54,6 +55,8 @@ namespace Backend.Application.Services.MedicationService
             result.DurationInDays = createMedicationRequest.DurationInDays;
             result.Indication = createMedicationRequest.Indication;
             result.EntryBy = createMedicationRequest.EntryBy;
+            result.Notes = createMedicationRequest.Notes;
+            
 
             await _medicationRepository.UpdateAsync(result);
             return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(result));
