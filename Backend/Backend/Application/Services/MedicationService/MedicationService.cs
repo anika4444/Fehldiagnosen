@@ -29,9 +29,7 @@ namespace Backend.Application.Services.MedicationService
             };
             
             Medication newMedication = await _medicationRepository.AddAsync(medication);
-            return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(newMedication));
-
-            //return _mapper.ToMedicationResponse(newMedication);
+            return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(newMedication));   
         }
 
         public async Task<ServiceResult> DeleteMedication(int medicationId)
@@ -42,8 +40,7 @@ namespace Backend.Application.Services.MedicationService
                 return ServiceResult.Success();
                 }
             await _medicationRepository.DeleteAsync(medication);
-            return ServiceResult.Success();
-            
+            return ServiceResult.Success();            
         }
 
         public async Task<ServiceResult<MedicationResponse>> GetMedicationByIdAsync(int id)
