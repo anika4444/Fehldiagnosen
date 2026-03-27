@@ -26,12 +26,12 @@ namespace Backend.Domain.Entities
         public string? IntakeFrequency { get; set; }
 
         [Required]
-        public DateOnly IntakeStartDate { get; set; }
+        public DateOnly? IntakeStartDate { get; set; }
 
         [Range(0, 3650)]
         public int DurationInDays { get; set; }
 
-        public DateOnly? EndDate => IntakeStartDate.AddDays(DurationInDays);
+        public DateOnly? EndDate => IntakeStartDate?.AddDays(DurationInDays);
 
         [MaxLength(200)]
         public string? Indication { get; set; }

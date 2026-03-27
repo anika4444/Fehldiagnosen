@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
 
-//mögliche Erweiterung Get all medications
 [Authorize]
 [ApiController]
 [Route("api/medications")]

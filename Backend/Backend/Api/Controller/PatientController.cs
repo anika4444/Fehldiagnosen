@@ -33,10 +33,19 @@ public class PatientController : ControllerBase
     [HttpGet("{patientId}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<IEnumerable<Medication>> GetMedicationsByPatientId(int patientId)
+    public async Task<ActionResult<IEnumerable<Medication>>> GetMedicationsByPatientId(int patientId)
     {
         //über Medications Repo holen
-        return Ok();
+        var result = await _medicationService.GetMedicationsByPatientIdAsync(patientId);
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }      
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };        
 
     }
 
@@ -56,6 +65,11 @@ public class PatientController : ControllerBase
 
     public ActionResult UpdateMedication(int medicationId, int patientId)
     {
+        var medicationToChange =_medicationService.GetMedicationByIdAsync(medicationId);
+        if (medicationToChange.Id == medicationId)
+        {
+
+        }
         return Ok();
     }
     #endregion

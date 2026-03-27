@@ -9,6 +9,7 @@ namespace Backend.Application.Services.MedicationService
         Task<ServiceResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientIdAsync(int id);
         Task<ServiceResult<MedicationResponse>> GetMedicationByIdAsync(int id);
         Task<ServiceResult<MedicationResponse?>> CreateMedication(int patientId, CreateMedicationRequest request);
+        Task<ServiceResult<MedicationResponse?>> UpdateMedication(int medicationId, CreateMedicationRequest request);
         Task<ServiceResult> DeleteMedication(int medicationId);
     }
 }
