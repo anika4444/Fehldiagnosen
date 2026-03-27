@@ -1,3 +1,4 @@
+import * as signalR from "@microsoft/signalr";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,7 +23,6 @@ import {
   CreateMedicationRequest,
   MedicationResponse,
 } from "@/types/medication-type";
-import * as signalR from "@microsoft/signalr";
 
 interface FormData {
   name: string;
@@ -95,33 +95,31 @@ export default function Medications() {
     }
   };
 
-
   useEffect(() => {
-    debugger
-    if(!patientId)
-    {
+    if (!patientId) {
       return;
     }
 
     fetchMedications();
 
-    const backendUrl= Platform.OS === "android" ? "http://10.0.2.2:5238" : "http://localhost:5238" ;
+    const backendUrl =
+      Platform.OS === "android"
+        ? "http://10.0.2.2:5238"
+        : "http://localhost:5238";
 
-    const connection = new signalR.HubConnectionBuilder().withUrl(`${backendUrl}/hubs/medication`).build();
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(`${backendUrl}/hubs/medication`)
+      .build();
 
-    connection.on("NotifyMedicationsRefresh",() => 
-    {
+    connection.on("RefreshMedications", () => {
       fetchMedications();
-    })
+    });
 
     connection.start();
 
-    return () => 
-    {
+    return () => {
       connection.stop();
-
-    }
-
+    };
   }, [patientId]);
 
   const openCreateForm = () => {
@@ -169,7 +167,9 @@ export default function Medications() {
     console.log("patientId beim Speichern:", patientId); // DEBUG
 
     if (!validate() || patientId === null) {
-      console.log("Abbruch: patientId ist null oder Validierung fehlgeschlagen"); // DEBUG
+      console.log(
+        "Abbruch: patientId ist null oder Validierung fehlgeschlagen",
+      ); // DEBUG
       return;
     }
 
@@ -251,7 +251,9 @@ export default function Medications() {
           />
         ) : (
           <ModalCard
-            title={editingMedication ? "Medikament bearbeiten" : "Neues Medikament"}
+            title={
+              editingMedication ? "Medikament bearbeiten" : "Neues Medikament"
+            }
             onClose={closeForm}
             onSave={handleSave}
             saveButtonText={editingMedication ? "Aktualisieren" : "Speichern"}
@@ -326,9 +328,7 @@ export default function Medications() {
           Medikamente
         </ThemedText>
 
-        {isLoading && (
-          <ActivityIndicator size="large" color={theme.primary} />
-        )}
+        {isLoading && <ActivityIndicator size="large" color={theme.primary} />}
 
         {error && (
           <ThemedText style={{ color: theme.closeIconColor }}>
