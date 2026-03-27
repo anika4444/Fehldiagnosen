@@ -22,6 +22,7 @@ import {
   CreateMedicationRequest,
   MedicationResponse,
 } from "@/types/medication-type";
+import * as signalR from "@microsoft/signalr";
 
 interface FormData {
   name: string;
@@ -94,8 +95,33 @@ export default function Medications() {
     }
   };
 
+
   useEffect(() => {
+    debugger
+    if(!patientId)
+    {
+      return;
+    }
+
     fetchMedications();
+
+    const backendUrl= Platform.OS === "android" ? "http://10.0.2.2:5238" : "http://localhost:5238" ;
+
+    const connection = new signalR.HubConnectionBuilder().withUrl(`${backendUrl}/hubs/medication`).build();
+
+    connection.on("NotifyMedicationsRefresh",() => 
+    {
+      fetchMedications();
+    })
+
+    connection.start();
+
+    return () => 
+    {
+      connection.stop();
+
+    }
+
   }, [patientId]);
 
   const openCreateForm = () => {
@@ -172,7 +198,7 @@ export default function Medications() {
         await medicationService.createMedication(patientId, payload);
       }
       closeForm();
-      fetchMedications();
+      //fetchMedications();
 
       if (Platform.OS !== "web") {
         Alert.alert("Erfolg", "Medikament wurde gespeichert.");

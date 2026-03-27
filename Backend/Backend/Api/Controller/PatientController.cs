@@ -1,13 +1,14 @@
 ﻿using Backend.Application.Common.Results;
-using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+using Backend.Application.Services.MedicationNotification;
+using Backend.Application.Services.MedicationService;
+using Backend.Application.Services.MedicationService.Dto;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Backend.Application.Services.MedicationNotification;
-using Backend.Application.Services.MedicationService;
+using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controller;
 
 [Authorize]
@@ -52,9 +53,11 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CreateMedication(int patientId, int medicationId)
+    public async Task<ActionResult> CreateMedication(int patientId, [FromBody]CreateMedicationRequest createMedicationRequest)
     {
+        await _medicationService.CreateMedication(patientId, createMedicationRequest);
         await _medicationNotificationService.NotifyMedicationChanged();
+
         return Created();
     }
     [HttpPut("{patientId}/medications")]
