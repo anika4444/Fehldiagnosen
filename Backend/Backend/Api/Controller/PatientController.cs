@@ -8,7 +8,11 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Backend.Application.Services.MedicationNotification;
+using Backend.Application.Services.MedicationService;
+using Backend.Application.Services.FamilyHistoryService;
+using Backend.Application.Services.FamilyHistoryService.Dto;
+using Backend.Application.Services.MedicationService.Dto;
 namespace Backend.Api.Controller;
 
 [Authorize]
@@ -20,33 +24,36 @@ public class PatientController : ControllerBase
     private readonly IMedicationService _medicationService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
     private readonly IMedicationNotificationService _medicationNotificationService;
-    
+    private readonly IFamilyHistoryService _familyHistoryService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryService familyHistoryService)
     {
         _symptomService = symptomService;
         _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
         _medicationNotificationService = medicationNotificationService;
+        _familyHistoryService = familyHistoryService;
     }
 
     #region Medication
+
     [HttpGet("{patientId}/medications")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<Medication>>> GetMedicationsByPatientId(int patientId)
+    public async Task<ActionResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientId(int patientId)
     {
         var result = await _medicationService.GetMedicationsByPatientIdAsync(patientId);
+
         if (result.IsSuccess)
         {
             return Ok(result.Data);
-        }      
+        }
+
         return result.ErrorType switch
         {
             ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
             _ => BadRequest(result.ErrorMessage)
-        };        
-
+        };
     }
 
     [HttpPost("{patientId}/medications")]
@@ -60,20 +67,27 @@ public class PatientController : ControllerBase
 
         return Created();
     }
-    [HttpPut("{patientId}/medications")]
+
+    [HttpPut("{patientId}/medications/{medicationId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-
-    public ActionResult UpdateMedication(int medicationId, int patientId)
+    public async Task<ActionResult<MedicationResponse>> UpdateMedication(int patientId, int medicationId, [FromBody] CreateMedicationRequest request)
     {
-        var medicationToChange =_medicationService.GetMedicationByIdAsync(medicationId);
-        if (medicationToChange.Id == medicationId)
-        {
+        var result = await _medicationService.UpdateMedication(medicationId, request);
 
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
         }
-        return Ok();
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
     }
+
     #endregion
 
     #region Symptoms
@@ -179,5 +193,72 @@ public class PatientController : ControllerBase
 
         return Ok(result);
     }
+    #endregion
+
+    #region Family History Entries
+
+    [HttpGet("{patientId:int}/family-history-entries")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<FamilyHistoryEntryResponse>>> GetFamilyHistoryEntriesByPatientId(int patientId)
+    {
+        var result = await _familyHistoryService.GetAllByPatientIdAsync(patientId);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
+    }
+
+    [HttpPost("{patientId:int}/family-history-entries")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FamilyHistoryEntryResponse>> CreateFamilyHistoryEntry(int patientId, [FromBody] CreateFamilyHistoryEntryRequest request)
+    {
+        var result = await _familyHistoryService.CreateAsync(patientId, request);
+
+        if (result.IsSuccess)
+        {
+            return CreatedAtAction(
+                nameof(FamilyHistoryController.GetEntryByHistoryEntryId),
+                "FamilyHistory",
+                new { historyEntryId = result.Data!.Id },
+                result.Data);
+        }
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
+    }
+
+    [HttpPut("{patientId:int}/family-history-entries/{historyEntryId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FamilyHistoryEntryResponse>> UpdateFamilyHistoryEntry(int patientId, int historyEntryId, [FromBody] UpdateFamilyHistoryEntryRequest request)
+    {
+        var result = await _familyHistoryService.UpdateAsync(patientId, historyEntryId, request);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
+    }
+
     #endregion
 }
