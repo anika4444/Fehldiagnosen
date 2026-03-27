@@ -13,6 +13,7 @@ using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Application.Services.MedicationService.Dto;
+using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controller;
 
 [Authorize]
