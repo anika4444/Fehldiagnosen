@@ -48,7 +48,6 @@ namespace Backend.Application.Services.MedicationService
             }
 
             result.Name = createMedicationRequest.Name;
-            result.PatientId = createMedicationRequest.PatientId;
             result.Dosage = createMedicationRequest.Dosage;
             result.IntakeFrequency = createMedicationRequest.IntakeFrequency;
             result.IntakeStartDate = createMedicationRequest.IntakeStartDate;

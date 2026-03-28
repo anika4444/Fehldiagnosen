@@ -187,6 +187,7 @@ export default function Medications() {
         await medicationService.createMedication(patientId, payload);
       }
       closeForm();
+      await fetchMedications();
 
       if (Platform.OS !== "web") {
         Alert.alert("Erfolg", "Medikament wurde gespeichert.");

@@ -5,8 +5,8 @@ export interface MedicationResponse {
   dosage?: string;
   intakeFrequency?: string;
   durationInDays?: number;
-  intakeStartDate?: string; // ← neu
-  endDate?: string; // ← neu
+  intakeStartDate?: string;
+  endDate?: string;
   indication?: string;
   doctorName?: string;
   notes?: string;
@@ -17,7 +17,7 @@ export interface CreateMedicationRequest {
   dosage?: string;
   intakeFrequency?: string;
   durationInDays?: number;
-  intakeStartDate?: string; // ← neu
+  intakeStartDate?: string;
   indication?: string;
   doctorName?: string;
   notes?: string;
