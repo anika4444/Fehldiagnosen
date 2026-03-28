@@ -4,6 +4,7 @@ using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
+using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.UserService;
 using Backend.Domain.Entities;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
 builder.Services.AddScoped<IMedicalHistoryRepository, MySqlMedicalHistoryRepository>();
 builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
 
+builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ISymptomService, SymptomService>();
 builder.Services.AddScoped<IMedicationService, MedicationService>();
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();

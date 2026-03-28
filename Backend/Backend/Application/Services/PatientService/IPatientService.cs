@@ -1,9 +1,11 @@
-﻿using Backend.Domain.Entities;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.PatientService.Dto;
+using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.PatientService
 {
     public interface IPatientService
     {
-        Task<Patient> GetPatientByIdAsync(int id);
+        Task<ServiceResult<PatientResponse>> GetPatientByIdAsync(int id);
     }
 }
