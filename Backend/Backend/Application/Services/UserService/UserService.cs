@@ -56,7 +56,7 @@ namespace Backend.Application.Services.UserService
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo,
                     userId = user.Id,
-                    patientId = patient.Id
+                    patientId = patient?.Id
                 });
             }
             return ServiceResult<Object>.Unauthorized("Invalid username or password.");

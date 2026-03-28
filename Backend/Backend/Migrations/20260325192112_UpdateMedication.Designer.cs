@@ -3,6 +3,7 @@ using System;
 using Backend.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    partial class MySqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260325192112_UpdateMedication")]
+    partial class UpdateMedication
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,25 +93,20 @@ namespace Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Diagnosis")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<string>("Relative")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
 
                     b.ToTable("FamilyHistoryEntries");
                 });
@@ -158,8 +156,7 @@ namespace Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Dosage")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("DurationInDays")
                         .HasColumnType("int");
@@ -168,24 +165,17 @@ namespace Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Indication")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("IntakeFrequency")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
-                    b.Property<DateOnly?>("IntakeStartDate")
+                    b.Property<DateOnly>("IntakeStartDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
@@ -432,17 +422,6 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
-                {
-                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.MedicalHistoryEntry", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Patient", "Patient")
@@ -456,13 +435,11 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Medication", b =>
                 {
-                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
+                    b.HasOne("Backend.Domain.Entities.Patient", null)
                         .WithMany("MedicationEntries")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>

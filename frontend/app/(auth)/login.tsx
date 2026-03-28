@@ -44,9 +44,9 @@ const LoginScreen = () => {
           localStorage.setItem("tokenExpiration", expiration);
           localStorage.setItem("patientId", patientId);
         } else {
-          await SecureStore.setItemAsync("userToken", token);
-          await SecureStore.setItemAsync("tokenExpiration", expiration);
-          await SecureStore.setItemAsync("patientId", patientId);
+          await SecureStore.setItemAsync("userToken", String(token));
+          await SecureStore.setItemAsync("tokenExpiration", String(expiration));
+          await SecureStore.setItemAsync("patientId", String(patientId));
         }
 
         router.replace("/(tabs)");

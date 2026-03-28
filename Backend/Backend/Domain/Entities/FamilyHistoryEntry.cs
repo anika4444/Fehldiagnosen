@@ -1,16 +1,28 @@
 ﻿using Backend.Domain.Interfaces;
-
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Domain.Entities
 {
-    public class FamilyHistoryEntry : IEntity //Familienanamnese
+    public class FamilyHistoryEntry : IEntity
     {
         public int Id { get; set; }
-        public int PatientId { get; set; } //foreign key to patient, so no need for an attribute like name
+
+        [Required]
+        public int PatientId { get; set; }
+
+        [ForeignKey("PatientId")]
+        public Patient? Patient { get; set; }
+
+        [Required]
+        [MaxLength(100)]
         public string Relative { get; set; } = string.Empty;
 
+        [Required]
+        [MaxLength(200)]
         public string Diagnosis { get; set; } = string.Empty;
 
-        public string? Comment { get; set; } = string.Empty; //optional
+        [MaxLength(1000)]
+        public string? Comment { get; set; }
     }
 }
