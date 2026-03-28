@@ -27,10 +27,10 @@ export function HeaderView({ title, subtitle }: HeaderViewProps) {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: 50,
+    paddingTop: 20,
     paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingHorizontal: 30,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
   },
 });

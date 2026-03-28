@@ -70,6 +70,7 @@ namespace Backend.Application.Mapper
             return new MedicalHistoryEntryResponse
             {
                 Id = medicalHistoryEntry.Id,
+                PatientId = medicalHistoryEntry.PatientId,
                 ICD10Code = medicalHistoryEntry.ICD10Code,
                 Diagnosis = medicalHistoryEntry.Diagnosis,
                 Year = medicalHistoryEntry.Year,

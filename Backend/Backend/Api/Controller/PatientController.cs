@@ -1,11 +1,12 @@
 ﻿using Backend.Application.Common.Results;
-using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
 namespace Backend.Api.Controller;
 
 [Authorize]
@@ -127,32 +128,40 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MedicalHistoryEntryResponse>> CreateMedicalHistoryEntryForPatientId(int patientId, CreateMedicalHistoryEntryRequest request)
+    public async Task<ActionResult<MedicalHistoryEntryResponse>> CreateMedicalHistoryEntryForPatientId(int patientId, [FromBody] CreateMedicalHistoryEntryRequest request)
     {
-        var result = await _medicalHistoryEntryService.CreateAsync(patientId, request);
+        var results = await _medicalHistoryEntryService.CreateAsync(patientId, request);
 
-        if (result == null)
+        if (results.IsSuccess)
         {
-            return NotFound();
+            return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = patientId }, results.Data);
         }
 
-        return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = result.Id }, result);
+        return results.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
+            _ => BadRequest(results.ErrorMessage)
+        };
     }
 
     [HttpPut("{patientId}/medical-history-entries/{medicalHistoryEntryId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MedicalHistoryEntryResponse>> UpdateMedicalHistoryEntryForPatientId(int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
+    public async Task<ActionResult<MedicalHistoryEntryResponse>> UpdateMedicalHistoryEntryForPatientId(int patientId, int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
     {
-        var result = await _medicalHistoryEntryService.UpdateAsync(medicalHistoryEntryId, request);
+        var result = await _medicalHistoryEntryService.UpdateAsync(patientId, medicalHistoryEntryId, request);
 
-        if (result == null)
+        if (result.IsSuccess)
         {
-            return NotFound();
+            return Ok(result.Data);
         }
 
-        return Ok(result);
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
     }
     #endregion
 }

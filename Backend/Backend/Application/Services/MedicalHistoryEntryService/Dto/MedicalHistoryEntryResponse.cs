@@ -7,6 +7,8 @@ namespace Backend.Application.Services.MedicalHistoryEntryService.Dto
     {
         public int Id { get; set; }
 
+        public int PatientId { get; set; }
+
         public string? ICD10Code { get; set; } = string.Empty;
 
         public string Diagnosis { get; set; } = string.Empty;

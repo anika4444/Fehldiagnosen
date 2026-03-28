@@ -1,6 +1,8 @@
-﻿using Backend.Application.Mapper;
+﻿using Backend.Application.Common.Results;
+using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.MedicalHistoryEntryService
@@ -19,33 +21,39 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<MedicalHistoryEntryResponse>> GetAllAsync(int patientId)
+        public async Task<ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>> GetAllAsync(int patientId)
         {
+            var patient = await _patientRepository.FindByIdAsync(patientId);
+            
+            if (patient == null)
+            {
+                return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.NotFound($"Patient {patientId} existiert nicht.");
+            }
+
             var medicalHistoryEntries = await _medicalHistoryEntryRepository.FindAllByPatientIdAsync(patientId);
 
-            return medicalHistoryEntries
-                .Select(entry => _mapper.ToMedicalHistoryEntryResponse(entry))
-                .ToList();
+            return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.Success(_mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntries)); 
         }
 
-        public async Task<MedicalHistoryEntryResponse> GetByIdAsync(int medicalHistoryEntryId)
+        public async Task<ServiceResult<MedicalHistoryEntryResponse>> GetByIdAsync(int medicalHistoryEntryId)
         {
             var medicalHistoryEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryEntryId);
 
             if(medicalHistoryEntry == null)
             {
-                return null;
+                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Verkrankung {medicalHistoryEntryId} existiert nicht.");
             }
 
-            return _mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntry);
+            return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntry));
         }
 
-        public async Task<MedicalHistoryEntryResponse> CreateAsync(int patientId, CreateMedicalHistoryEntryRequest request)
+        public async Task<ServiceResult<MedicalHistoryEntryResponse>> CreateAsync(int patientId, CreateMedicalHistoryEntryRequest request)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
 
-            if (patient == null) {
-                return null;
+            if (patient == null) 
+            {
+                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
             }
 
             var medicalHistoryEntry = new MedicalHistoryEntry()
@@ -61,16 +69,22 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
             var newMedicalHistoryEntry = await _medicalHistoryEntryRepository.AddAsync(medicalHistoryEntry);
 
-            return _mapper.ToMedicalHistoryEntryResponse(newMedicalHistoryEntry);
+            return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(newMedicalHistoryEntry));
         }
 
-        public async Task<MedicalHistoryEntryResponse> UpdateAsync(int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
+        public async Task<ServiceResult<MedicalHistoryEntryResponse>> UpdateAsync(int patientId, int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
         {
+            var patient = await _patientRepository.FindByIdAsync(patientId);
+            if (patient == null)
+            {
+                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
+            }
+
             var existingMedicalHistoryEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryEntryId);
 
-            if (existingMedicalHistoryEntry == null)
+            if (existingMedicalHistoryEntry == null || existingMedicalHistoryEntry.PatientId != patientId)
             {
-                return null;
+                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} existiert nicht.");
             }
 
             existingMedicalHistoryEntry.ICD10Code = request.ICD10Code;
@@ -81,21 +95,21 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
             var updatedMedicalHistoryEntry = await _medicalHistoryEntryRepository.UpdateAsync(existingMedicalHistoryEntry);
 
-            return _mapper.ToMedicalHistoryEntryResponse(existingMedicalHistoryEntry);
+            return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(existingMedicalHistoryEntry));
         }
 
-        public async Task<MedicalHistoryEntryResponse> DeleteAsync(int medicalHistoryId)
+        public async Task<ServiceResult> DeleteAsync(int medicalHistoryEntryId)
         {
-            var existingMedicalHistoryEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryId);
+            var existingMedicalHistoryEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryEntryId);
 
             if (existingMedicalHistoryEntry == null)
             {
-                return null;
+                return ServiceResult.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} existiert nicht.");
             }
 
-            var deletedMedicalHistoryEntry = await _medicalHistoryEntryRepository.DeleteAsync(existingMedicalHistoryEntry);
+            await _medicalHistoryEntryRepository.DeleteAsync(existingMedicalHistoryEntry);
 
-            return _mapper.ToMedicalHistoryEntryResponse(deletedMedicalHistoryEntry);
+            return ServiceResult.Success();
         }
     }
 }

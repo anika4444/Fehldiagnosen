@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Backend.Domain.Entities;
 using Backend.Application.Services.MedicalHistoryEntryService;
+using Microsoft.AspNetCore.Authorization;
+using Backend.Application.Common.Results;
 
 namespace Backend.Api.Controller;
 
+[Authorize]
 [ApiController]
 [Route("api/medical-history-entries")]
 public class MedicalHistoryEntryController : ControllerBase
@@ -20,30 +23,37 @@ public class MedicalHistoryEntryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MedicalHistoryEntry>> GetById(int id)
     {
-        var result = await _medicalHistoryEntryService.GetByIdAsync(id);
+        var results = await _medicalHistoryEntryService.GetByIdAsync(id);
 
-        if(result == null)
+        if (results.IsSuccess)
         {
-            return NotFound();
+            return Ok(results.Data);
         }
 
-        return Ok(result);
+        return results.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
+            _ => BadRequest(results.ErrorMessage)
+        };
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MedicalHistoryEntry>> Delete(int id)
-    //public void Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var result = await _medicalHistoryEntryService.DeleteAsync(id);
+        var results = await _medicalHistoryEntryService.DeleteAsync(id);
 
-        if(result == null)
+        if(results.IsSuccess)
         {
-            return NotFound();
+            return NoContent();
         }
 
-        return Ok(result);
+        return results.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
+            _ => BadRequest(results.ErrorMessage)
+        };
     }
 }
 

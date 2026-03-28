@@ -19,6 +19,7 @@ namespace Backend.Domain.Entities
         public string? ICD10Code { get; set; } = string.Empty;
 
         [MaxLength(2000)]
+        [Required]
         public string Diagnosis { get; set; } = string.Empty;
 
         [Range(1900, int.MaxValue, ErrorMessage = "Bitte ein realistisches Jahr eingeben.")]
