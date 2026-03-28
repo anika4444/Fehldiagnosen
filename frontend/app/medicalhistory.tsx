@@ -1,5 +1,8 @@
 import * as SecureStore from "expo-secure-store";
-import React, { useEffect, useState } from "react";
+import React, {
+    useEffect,
+    useState,
+} from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -8,226 +11,270 @@ import {
     StyleSheet,
     View,
 } from "react-native";
-
 import { medicalHistoryEntryService } from "@/api/medicalHistoryEntryService";
+import { Card } from "@/components/card";
 import { HeaderView } from "@/components/header-view";
+import { ModalCard } from "@/components/modal-card";
 import { PrimaryButton } from "@/components/primary-button";
-import { MedicalHistoryEntryCard } from "@/components/medical-history-entry-card";
-import { MedicalHistoryEntryForm } from "@/components/medical-history-entry-form";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
-import {
-    MedicalHistoryEntryRequest,
-    MedicalHistoryEntryResponse,
-    MedicalHistoryEntryFormData,
-} from "@/types/medical-history-entry-type";
+import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
+import { MedicalHistoryEntryForm } from "@/components/medical-history-entry-form";
 
-const MedicalHistory = () => {
+export default function MedicalHistory() {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
     const [patientId, setPatientId] = useState<number | null>(null);
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [medicalHistoryEntries, setMedicalHistoryEntries] = useState<
-        MedicalHistoryEntryResponse[]
-    >([]);
+    const [entries, setEntries] = useState<MedicalHistoryEntryResponse[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [editingMedicalHistoryEntry, setEditingMedicalHistoryEntry] =
-        useState<MedicalHistoryEntryResponse | null>(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [editingEntry, setEditingEntry] = useState<any>(null);
 
     useEffect(() => {
-        const loadPatientData = async () => {
-            const storedId =
-                Platform.OS === "web"
-                    ? localStorage.getItem("patientId")
-                    : await SecureStore.getItemAsync("patientId");
-
-            if (storedId) {
-                setPatientId(parseInt(storedId));
+        const loadId = async () => {
+            const id = Platform.OS === "web"
+                ? localStorage.getItem("patientId")
+                : await SecureStore.getItemAsync("patientId");
+            if (id) {
+                setPatientId(parseInt(id));
             }
         };
-        loadPatientData();
+        loadId();
     }, []);
 
-    const fetchMedicalHistoryEntries = async () => {
+    const fetchEntries = async () => {
         if (!patientId) return;
-
         setIsLoading(true);
-        setError(null);
         try {
-            const data =
-                await medicalHistoryEntryService.getMedicalHistoryEntries(patientId);
-            setMedicalHistoryEntries(data);
-        } catch (error) {
-            setError("Fehler beim Laden der Vorerkrankungen.");
+            const data = await medicalHistoryEntryService.getEntriesByPatientId(patientId);
+            setEntries(Array.isArray(data) ? data : []);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleSaveMedicalHistoryEntry = async (formData: MedicalHistoryEntryFormData) => {
-        if (patientId === null) {
-            Alert.alert(
-                "Fehler",
-                "Sitzung abgelaufen. Bitte loggen Sie sich neu ein."
-            );
-            return;
+    useEffect(() => {
+        if (patientId) {
+            fetchEntries();
         }
+    }, [patientId]);
 
-        try {
-            const requestPayload: MedicalHistoryEntryRequest = {
-                icd10Code: formData.icd10Code || null,
-                diagnosis: formData.diagnosis,
-                year: formData.year,
-                status: formData.status,
-                comment: formData.comment || null,
-                entryBy: formData.entryBy,
+    const getStatusInfo = (status: any) => {
+        const s = String(status).toLowerCase();
+        if (s === "0" || s === "active") {
+            return {
+                label: "Aktiv",
+                color: "#4CAF50",
             };
-
-            if (editingMedicalHistoryEntry) {
-                await medicalHistoryEntryService.updateMedicalHistoryEntry(
-                    patientId,
-                    editingMedicalHistoryEntry.id,
-                    requestPayload,
-                );
-            } else {
-                await medicalHistoryEntryService.createMedicalHistoryEntry(patientId, requestPayload);
-            }
-
-            setIsFormVisible(false);
-            setEditingMedicalHistoryEntry(null);
-            fetchMedicalHistoryEntries();
-
-            if (Platform.OS !== "web") {
-                Alert.alert("Erfolg", "Eintrag wurde gespeichert.");
-            }
-        } catch (error) {
-            console.error("Konnte Eintrag nicht speichern:", error);
-            Alert.alert("Fehler", "Es gab ein Problem beim Speichern.", [
-                { text: "OK" },
-            ]);
         }
+        if (s === "1" || s === "chronical") {
+            return {
+                label: "Chronisch",
+                color: "#FF9800",
+            };
+        }
+        if (s === "2" || s === "inremission") {
+            return {
+                label: "Remission",
+                color: "#2196F3",
+            };
+        }
+        return {
+            label: "Aktiv",
+            color: "#4CAF50",
+        };
     };
 
-    const handleEditMedicalHistoryEntry = (entry: MedicalHistoryEntryResponse) => {
-        setEditingMedicalHistoryEntry(entry);
-        setIsFormVisible(true);
-    };
-
-    const handleDeleteMedicalHistoryEntry = async (id: number) => {
-        const deleteConfirmed = async () => {
+    const handleDelete = async (entryId: number) => {
+        const doDelete = async () => {
             try {
-                await medicalHistoryEntryService.deleteMedicalHistoryEntry(id);
-                fetchMedicalHistoryEntries();
-            } catch (error) {
+                await medicalHistoryEntryService.deleteEntry(entryId);
+                fetchEntries();
+            } catch {
                 Alert.alert("Fehler", "Löschen fehlgeschlagen.");
             }
         };
 
         if (Platform.OS === "web") {
             if (confirm("Möchten Sie diesen Eintrag wirklich löschen?")) {
-                deleteConfirmed();
+                doDelete();
             }
         } else {
             Alert.alert(
                 "Löschen",
-                "Möchten Sie diese Vorerkrankung wirklich entfernen?",
+                "Möchten Sie diesen Eintrag wirklich entfernen?",
                 [
-                    { text: "Abbrechen", style: "cancel" },
-                    { text: "Löschen", style: "destructive", onPress: deleteConfirmed },
+                    {
+                        text: "Abbrechen",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Löschen",
+                        style: "destructive",
+                        onPress: doDelete,
+                    },
                 ],
             );
         }
     };
 
-    useEffect(() => {
-        fetchMedicalHistoryEntries();
-    }, [patientId]);
-
     return (
-        <ScrollView style={{ backgroundColor: theme.background }}>
+        <ScrollView
+            style={{
+                backgroundColor: theme.background,
+            }}
+        >
             <HeaderView
                 title="Vorerkrankungen"
-                subtitle="Verwalten Sie Ihre medizinischen Daten"
+                subtitle="Historie verwalten"
             />
-
             <View style={styles.content}>
                 {!isFormVisible ? (
                     <PrimaryButton
-                        title="Neue Vorerkrankung hinzufügen"
-                        onPress={() => {
-                            setEditingMedicalHistoryEntry(null);
-                            setIsFormVisible(true);
-                        }}
+                        title="Neuen Eintrag hinzufügen"
+                        icon="plus"
+                        onPress={() => setIsFormVisible(true)}
                     />
                 ) : (
                     <MedicalHistoryEntryForm
-                        initialData={editingMedicalHistoryEntry}
-                        onSave={handleSaveMedicalHistoryEntry}
+                        initialData={editingEntry}
                         onCancel={() => {
                             setIsFormVisible(false);
-                            setEditingMedicalHistoryEntry(null);
+                            setEditingEntry(null);
+                        }}
+                        onSave={async (data) => {
+                            if (!patientId) return;
+                            try {
+                                if (editingEntry) {
+                                    await medicalHistoryEntryService.updateEntry(
+                                        patientId,
+                                        editingEntry.id || editingEntry.Id,
+                                        data
+                                    );
+                                } else {
+                                    await medicalHistoryEntryService.createEntry(patientId, data);
+                                }
+                                setIsFormVisible(false);
+                                setEditingEntry(null);
+                                fetchEntries();
+                            } catch (e) {
+                                Alert.alert("Fehler", "Speichern fehlgeschlagen.");
+                            }
                         }}
                     />
                 )}
 
-                <ThemedText type="subtitle">
-                    Ihre gespeicherten Vorerkrankungen
+                <ThemedText
+                    type="subtitle"
+                    style={styles.sectionTitle}
+                >
+                    Einträge
                 </ThemedText>
 
-                {isLoading && <ActivityIndicator size="large" color={theme.primary} />}
-                {error && <ThemedText style={{ color: "red" }}>{error}</ThemedText>}
+                {isLoading ? (
+                    <ActivityIndicator color={theme.primary} />
+                ) : (
+                    entries.map((entry: any) => {
+                        const statusInfo = getStatusInfo(entry.status ?? entry.Status);
+                        return (
+                            <ModalCard
+                                key={entry.id ?? entry.Id}
+                                title={entry.diagnosis ?? entry.Diagnosis}
+                                types="secondary"
+                                onClose={() => handleDelete(entry.id ?? entry.Id)}
+                                onEdit={() => {
+                                    setEditingEntry(entry);
+                                    setIsFormVisible(true);
+                                }}
+                            >
+                                <Card
+                                    variant="filled"
+                                    style={styles.detailCard}
+                                >
+                                    <ThemedText style={styles.fieldLabel}>
+                                        ICD-10 Code
+                                    </ThemedText>
+                                    <ThemedText style={styles.fieldValue}>
+                                        {entry.icD10Code || entry.ICD10Code || entry.icd10Code || "—"}
+                                    </ThemedText>
+                                </Card>
 
-                {!isLoading && !error && medicalHistoryEntries.length === 0 && (
-                    <ThemedText>
-                        Keine Vorerkrankungen gefunden.
-                    </ThemedText>
+                                <Card
+                                    variant="filled"
+                                    style={styles.detailCard}
+                                >
+                                    <ThemedText style={styles.fieldLabel}>
+                                        Diagnosejahr
+                                    </ThemedText>
+                                    <ThemedText style={styles.fieldValue}>
+                                        {entry.year ?? entry.Year}
+                                    </ThemedText>
+                                </Card>
+
+                                <Card
+                                    variant="filled"
+                                    style={styles.detailCard}
+                                >
+                                    <ThemedText style={styles.fieldLabel}>
+                                        Status
+                                    </ThemedText>
+                                    <ThemedText
+                                        style={[
+                                            styles.fieldValue,
+                                            {
+                                                color: statusInfo.color,
+                                                fontWeight: "700",
+                                            },
+                                        ]}
+                                    >
+                                        {statusInfo.label}
+                                    </ThemedText>
+                                </Card>
+
+                                {(entry.comment || entry.Comment) ? (
+                                    <Card
+                                        variant="filled"
+                                        style={styles.detailCard}
+                                    >
+                                        <ThemedText style={styles.fieldLabel}>
+                                            Anmerkungen
+                                        </ThemedText>
+                                        <ThemedText style={styles.fieldValue}>
+                                            {entry.comment ?? entry.Comment}
+                                        </ThemedText>
+                                    </Card>
+                                ) : null}
+                            </ModalCard>
+                        );
+                    })
                 )}
-
-                {!isLoading &&
-                    medicalHistoryEntries.map((entry) => (
-                        <MedicalHistoryEntryCard
-                            key={entry.id}
-                            entry={entry}
-                            onDelete={handleDeleteMedicalHistoryEntry}
-                            onEdit={() => handleEditMedicalHistoryEntry(entry)}
-                        />
-                    ))}
             </View>
         </ScrollView>
     );
-};
-
-export default MedicalHistory;
+}
 
 const styles = StyleSheet.create({
     content: {
         padding: 20,
     },
-    mainCard: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        marginBottom: 24,
-        borderRadius: 20,
-        borderWidth: 1,
-        shadowColor: "#000000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 12,
-        elevation: 3,
+    sectionTitle: {
+        marginTop: 8,
+        marginBottom: 12,
     },
-    row: {
-        flexDirection: "row",
-        alignItems: "center",
+    detailCard: {
+        marginBottom: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
     },
-    iconBadge: {
-        padding: 12,
-        borderRadius: 14,
-        marginRight: 16,
+    fieldLabel: {
+        fontSize: 12,
+        fontWeight: "600",
+        opacity: 0.6,
+        marginBottom: 2,
     },
-    textColumn: {
-        flex: 1,
+    fieldValue: {
+        fontSize: 15,
     },
 });

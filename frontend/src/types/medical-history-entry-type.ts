@@ -21,16 +21,18 @@ export interface MedicalHistoryEntryRequest {
     icd10Code?: string | null;
     diagnosis: string;
     year: number;
-    status: ConditionStatus;
+    status: number;
     comment?: string | null;
-    entryBy: EntryBy;
+    entryBy: number;
 }
 
-export type ConditionStatus =
-    | "Active"
-    | "Chronical"
-    | "InRemission";
+export enum ConditionStatus {
+    Active = 0,
+    Chronical = 1,
+    InRemission = 2
+}
 
-export type EntryBy =
-    | "Doctor"
-    | "Patient";
+export enum EntryBy {
+    Doctor = 0,
+    Patient = 1
+}

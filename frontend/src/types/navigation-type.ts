@@ -21,7 +21,7 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   {
     id: "family",
-    title: "Familienanamnsese",
+    title: "Familienanamnese",
     subtitle: "1 Eintrag",
     icon: "account-group-outline",
     route: "/familyhistory" as Href,

@@ -36,7 +36,7 @@ builder.Services.AddScoped<IPatientSymptomRepository, MySqlPatientSymptomReposit
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
 builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
-builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryEntryRepository>();
+builder.Services.AddScoped<IMedicalHistoryRepository, MySqlMedicalHistoryRepository>();
 builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
 
 builder.Services.AddScoped<ISymptomService, SymptomService>();

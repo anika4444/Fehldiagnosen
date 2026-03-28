@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class MySqlMedicalHistoryEntryRepository : IMedicalHistoryEntryRepository
+    public class MySqlMedicalHistoryRepository : IMedicalHistoryRepository
     {
         private readonly MySqlDbContext _context;
 
-        public MySqlMedicalHistoryEntryRepository(MySqlDbContext context)
+        public MySqlMedicalHistoryRepository(MySqlDbContext context)
         {
             _context = context;
         }

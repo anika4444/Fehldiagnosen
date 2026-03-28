@@ -3,7 +3,7 @@ using Backend.Domain.Interfaces;
 
 namespace Backend.Application.Repositories
 {
-    public interface IMedicalHistoryEntryRepository : IRepository<MedicalHistoryEntry>
+    public interface IMedicalHistoryRepository : IRepository<MedicalHistoryEntry>
     {
         Task<IEnumerable<MedicalHistoryEntry>> FindAllByPatientIdAsync(int patientId);
     }

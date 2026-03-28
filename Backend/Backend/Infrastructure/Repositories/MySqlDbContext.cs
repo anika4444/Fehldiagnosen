@@ -24,6 +24,8 @@ namespace Backend.Infrastructure.Repositories
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<MedicalHistoryEntry>().ToTable("MedicalHistoryEntries");
+
             var jsonOptions = (JsonSerializerOptions?)null;
 
             // Konfiguration für Aliase in Symptome

@@ -9,12 +9,12 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 {
     public class MedicalHistoryEntryService : IMedicalHistoryEntryService
     {
-        private IMedicalHistoryEntryRepository _medicalHistoryEntryRepository;
+        private IMedicalHistoryRepository _medicalHistoryEntryRepository;
         private IPatientRepository _patientRepository;
 
         private DtoMapper _mapper;
 
-        public MedicalHistoryEntryService(IMedicalHistoryEntryRepository medicalHistoryEntryRepository, IPatientRepository patientRepository, DtoMapper mapper)
+        public MedicalHistoryEntryService(IMedicalHistoryRepository medicalHistoryEntryRepository, IPatientRepository patientRepository, DtoMapper mapper)
         {
             _medicalHistoryEntryRepository = medicalHistoryEntryRepository;
             _patientRepository = patientRepository;
@@ -32,7 +32,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
             var medicalHistoryEntries = await _medicalHistoryEntryRepository.FindAllByPatientIdAsync(patientId);
 
-            return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.Success(_mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntries)); 
+            return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.Success(medicalHistoryEntries.Select(medicalHistoryEntry => _mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntry))); 
         }
 
         public async Task<ServiceResult<MedicalHistoryEntryResponse>> GetByIdAsync(int medicalHistoryEntryId)
