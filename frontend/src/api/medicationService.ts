@@ -28,7 +28,10 @@ export const medicationService = {
   },
 
   // POST /api/patients/{patientId}/medications
-  createMedication: async (patientId: number, data: CreateMedicationRequest) => {
+  createMedication: async (
+    patientId: number,
+    data: CreateMedicationRequest,
+  ) => {
     const response = await axiosConfig.post(
       `/patients/${patientId}/medications`,
       data,
@@ -37,7 +40,11 @@ export const medicationService = {
   },
 
   // PUT /api/patients/{patientId}/medications
-  updateMedication: async (patientId: number, medicationId: number, data: CreateMedicationRequest) => {
+  updateMedication: async (
+    patientId: number,
+    medicationId: number,
+    data: CreateMedicationRequest,
+  ) => {
     const response = await axiosConfig.put(
       `/patients/${patientId}/medications/${medicationId}`,
       data,

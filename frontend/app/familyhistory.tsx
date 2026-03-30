@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
@@ -170,14 +171,10 @@ export default function FamilyHistory() {
         doDelete();
       }
     } else {
-      Alert.alert(
-        "Löschen",
-        "Möchten Sie diesen Eintrag wirklich entfernen?",
-        [
-          { text: "Abbrechen", style: "cancel" },
-          { text: "Löschen", style: "destructive", onPress: doDelete },
-        ],
-      );
+      Alert.alert("Löschen", "Möchten Sie diesen Eintrag wirklich entfernen?", [
+        { text: "Abbrechen", style: "cancel" },
+        { text: "Löschen", style: "destructive", onPress: doDelete },
+      ]);
     }
   };
 
@@ -186,6 +183,7 @@ export default function FamilyHistory() {
       <HeaderView
         title="Familienanamnese"
         subtitle="Erbliche Erkrankungen in Ihrer Familie"
+        onBackPress={() => router.back()}
       />
 
       <View style={styles.content}>
@@ -240,9 +238,7 @@ export default function FamilyHistory() {
           Einträge
         </ThemedText>
 
-        {isLoading && (
-          <ActivityIndicator size="large" color={theme.primary} />
-        )}
+        {isLoading && <ActivityIndicator size="large" color={theme.primary} />}
 
         {error && (
           <ThemedText style={{ color: theme.closeIconColor }}>

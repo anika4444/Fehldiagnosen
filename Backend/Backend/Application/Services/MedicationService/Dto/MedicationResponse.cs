@@ -10,9 +10,9 @@ namespace Backend.Application.Services.MedicationService.Dto
         public int PatientId { get; set; }
         public string? Dosage { get; set; }
         public string? IntakeFrequency { get; set; }
-        public DateOnly? IntakeStartDate { get; set; }
+        public DateTime? IntakeStartDate { get; set; }
         public int? DurationInDays { get; set; }
-        public DateOnly? EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string? Indication { get; set; }
         public EntryBy? EntryBy { get; set; }
         public string? Notes { get; set; }

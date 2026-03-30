@@ -1,4 +1,5 @@
 import * as signalR from "@microsoft/signalr";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
@@ -136,7 +137,7 @@ export default function Medications() {
       indication: medication.indication ?? "",
       doctorName: medication.doctorName ?? "",
       notes: medication.notes ?? "",
-      intakeStartDate: medication.intakeStartDate ?? "", // ← neu
+      intakeStartDate: medication.intakeStartDate?.split("T")[0] ?? "", // ← neu
     });
     setFormErrors({});
     setIsFormVisible(true);
@@ -171,6 +172,7 @@ export default function Medications() {
       durationInDays: formData.durationInDays
         ? parseInt(formData.durationInDays)
         : undefined,
+      intakeStartDate: formData.intakeStartDate.trim() || undefined,
       indication: formData.indication.trim() || undefined,
       doctorName: formData.doctorName.trim() || undefined,
       notes: formData.notes.trim() || undefined,
@@ -245,6 +247,7 @@ export default function Medications() {
       <HeaderView
         title="Aktuelle Medikamente"
         subtitle="Verwalten Sie Ihre medizinischen Daten"
+        onBackPress={() => router.back()}
       />
 
       <View style={styles.content}>
@@ -376,12 +379,12 @@ export default function Medications() {
             if (medication.intakeStartDate)
               fields.push({
                 label: "Einnahme seit",
-                value: String(medication.intakeStartDate),
+                value: String(medication.intakeStartDate.split("T")[0]),
               });
             if (medication.endDate)
               fields.push({
                 label: "Einnahme bis",
-                value: String(medication.endDate),
+                value: String(medication.endDate.split("T")[0]),
               });
             if (medication.indication)
               fields.push({
