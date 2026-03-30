@@ -110,7 +110,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("FamilyHistoryEntries");
+                    b.ToTable("FamilyHistoryEntries", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.MedicalHistoryEntry", b =>
@@ -194,7 +194,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Medications");
+                    b.ToTable("Medications", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
@@ -227,7 +227,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>
@@ -277,7 +277,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SymptomDefinitionId");
 
-                    b.ToTable("PatientSymptoms");
+                    b.ToTable("PatientSymptoms", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.SymptomDefinition", b =>
@@ -301,7 +301,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SymptomsDefinition");
+                    b.ToTable("SymptomsDefinition", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

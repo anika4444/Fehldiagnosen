@@ -19,7 +19,7 @@ namespace Backend.Application.Services.MedicationService.Dto
         [MaxLength(100)]
         public string? IntakeFrequency { get; set; }
      
-        public DateOnly? IntakeStartDate { get; set; }
+        public DateTime? IntakeStartDate { get; set; }
 
         [Range(0, 3650)]
         public int DurationInDays { get; set; }  
