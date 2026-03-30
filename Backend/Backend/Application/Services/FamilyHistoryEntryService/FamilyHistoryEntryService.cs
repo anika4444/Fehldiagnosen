@@ -31,7 +31,7 @@ namespace Backend.Application.Services.FamilyHistoryService
 
             var familyHistoryEntries = await _familyHistoryEntryRepository.FindAllByPatientIdAsync(patientId);
 
-            return ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>.Success(familyHistoryEntries.Select(familyHistoryEntry => _mapper.ToMedicalHistoryEntryResponse(familyHistoryEntry)));
+            return ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>.Success(familyHistoryEntries.Select(familyHistoryEntry => _mapper.ToFamilyHistoryEntryResponse(familyHistoryEntry)));
         }
 
         public async Task<ServiceResult<FamilyHistoryEntryResponse>> GetByIdAsync(int familyHistoryEntryId)
