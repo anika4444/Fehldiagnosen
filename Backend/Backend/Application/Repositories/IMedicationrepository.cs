@@ -5,6 +5,6 @@ namespace Backend.Application.Repositories
 {
     public interface IMedicationRepository: IRepository<Medication>
     {
-        Task<List<Medication>> GetAllMedications(int patientId);
+        Task<IEnumerable<Medication>> FindAllByPatientIdAsync(int patientId);
     }
 }

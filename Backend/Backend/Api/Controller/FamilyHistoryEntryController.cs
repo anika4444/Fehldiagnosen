@@ -9,22 +9,21 @@ namespace Backend.Api.Controller
     [Authorize]
     [ApiController]
     [Route("api/family-history-entries")]
-    public class FamilyHistoryController : ControllerBase
+    public class FamilyHistoryEntryController : ControllerBase
     {
-        private readonly IFamilyHistoryService _familyHistoryService;
+        private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
 
-        public FamilyHistoryController(IFamilyHistoryService familyHistoryService)
+        public FamilyHistoryEntryController(IFamilyHistoryEntryService familyHistoryEntryService)
         {
-            _familyHistoryService = familyHistoryService;
+            _familyHistoryEntryService = familyHistoryEntryService;
         }
 
-        // GET /api/family-history-entries/{historyEntryId}
-        [HttpGet("{historyEntryId:int}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntryResponse>> GetEntryByHistoryEntryId(int historyEntryId)
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> GetById(int id)
         {
-            var result = await _familyHistoryService.GetByIdAsync(historyEntryId);
+            var result = await _familyHistoryEntryService.GetByIdAsync(id);
 
             if (result.IsSuccess)
             {
@@ -38,17 +37,16 @@ namespace Backend.Api.Controller
             };
         }
 
-        // DELETE /api/family-history-entries/{historyEntryId}
-        [HttpDelete("{historyEntryId:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<FamilyHistoryEntryResponse>> DeleteEntry(int historyEntryId)
+        public async Task<ActionResult> Delete(int id)
         {
-            var result = await _familyHistoryService.DeleteAsync(historyEntryId);
+            var result = await _familyHistoryEntryService.DeleteAsync(id);
 
             if (result.IsSuccess)
             {
-                return Ok(result.Data);
+                return NoContent();
             }
 
             return result.ErrorType switch

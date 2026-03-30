@@ -9,12 +9,12 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 {
     public class MedicalHistoryEntryService : IMedicalHistoryEntryService
     {
-        private IMedicalHistoryRepository _medicalHistoryEntryRepository;
+        private IMedicalHistoryEntryRepository _medicalHistoryEntryRepository;
         private IPatientRepository _patientRepository;
 
         private DtoMapper _mapper;
 
-        public MedicalHistoryEntryService(IMedicalHistoryRepository medicalHistoryEntryRepository, IPatientRepository patientRepository, DtoMapper mapper)
+        public MedicalHistoryEntryService(IMedicalHistoryEntryRepository medicalHistoryEntryRepository, IPatientRepository patientRepository, DtoMapper mapper)
         {
             _medicalHistoryEntryRepository = medicalHistoryEntryRepository;
             _patientRepository = patientRepository;
@@ -39,9 +39,9 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
         {
             var medicalHistoryEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryEntryId);
 
-            if(medicalHistoryEntry == null)
+            if (medicalHistoryEntry == null)
             {
-                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Verkrankung {medicalHistoryEntryId} existiert nicht.");
+                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Vorerkrankung {medicalHistoryEntryId} existiert nicht.");
             }
 
             return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntry));
@@ -75,6 +75,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
         public async Task<ServiceResult<MedicalHistoryEntryResponse>> UpdateAsync(int patientId, int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            
             if (patient == null)
             {
                 return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
@@ -95,7 +96,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
             var updatedMedicalHistoryEntry = await _medicalHistoryEntryRepository.UpdateAsync(existingMedicalHistoryEntry);
 
-            return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(existingMedicalHistoryEntry));
+            return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(updatedMedicalHistoryEntry));
         }
 
         public async Task<ServiceResult> DeleteAsync(int medicalHistoryEntryId)

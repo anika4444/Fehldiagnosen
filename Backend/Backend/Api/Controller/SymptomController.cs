@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
+using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -22,37 +23,37 @@ namespace Backend.Api.Controller
 
         [HttpGet("definition")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetAllSymptomsDefinitionByName([FromQuery] string name)
+        public async Task<ActionResult> GetAllSymptomDefinitionsByName([FromQuery] string name)
         {
-            var results = await _symptomService.GetSymptomDefinitionsByNameAsync(name);
+            var result = await _symptomService.GetSymptomDefinitionsByNameAsync(name);
 
-            if (results.IsSuccess)
+            if (result.IsSuccess)
             {
-                return Ok(results.Data);
+                return Ok(result.Data);
             }
             
-            return results.ErrorType switch
+            return result.ErrorType switch
             {
-                _ => BadRequest(results.ErrorMessage)
+                _ => BadRequest(result.ErrorMessage)
             };
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> GetSymptomById(int id)
+        public async Task<ActionResult<PatientSymptom>> GetById(int id)
         {
-            var results = await _symptomService.GetById(id);
+            var result = await _symptomService.GetByIdAsync(id);
 
-            if (results.IsSuccess)
+            if (result.IsSuccess)
             {
-                return Ok(results.Data);
+                return Ok(result.Data);
             }
 
-            return results.ErrorType switch
+            return result.ErrorType switch
             {
-                ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-                _ => BadRequest(results.ErrorMessage)
+                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage)
             };
         }
 
@@ -61,17 +62,17 @@ namespace Backend.Api.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var results = await _symptomService.DeletePatientSymptomAsync(id);
+            var result = await _symptomService.DeleteAsync(id);
 
-            if (results.IsSuccess)
+            if (result.IsSuccess)
             {
                 return NoContent();
             }
 
-            return results.ErrorType switch
+            return result.ErrorType switch
             {
-                ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-                _ => BadRequest(results.ErrorMessage)
+                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage)
             };
         }
     }

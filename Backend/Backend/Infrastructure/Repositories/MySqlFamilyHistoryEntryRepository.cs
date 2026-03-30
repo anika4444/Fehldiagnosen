@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class MySqlFamilyHistoryRepository : IFamilyHistoryRepository
+    public class MySqlFamilyHistoryEntryRepository : IFamilyHistoryEntryRepository
     {
         private readonly MySqlDbContext _context;
 
-        public MySqlFamilyHistoryRepository(MySqlDbContext context)
+        public MySqlFamilyHistoryEntryRepository(MySqlDbContext context)
         {
             _context = context;
         }
@@ -23,7 +23,7 @@ namespace Backend.Infrastructure.Repositories
             return await _context.FamilyHistoryEntries.FindAsync(id);
         }
         
-        public async Task<List<FamilyHistoryEntry>> FindByPatientIdAsync(int patientId)
+        public async Task<IEnumerable<FamilyHistoryEntry>> FindAllByPatientIdAsync(int patientId)
         {
             return await _context.FamilyHistoryEntries
                 .Where(e => e.PatientId == patientId)

@@ -1,6 +1,6 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Services.MedicationService;
-using Backend.Application.Services.MedicationService.Dto;
+using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,14 +21,15 @@ public class MedicationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-    public async Task<ActionResult<MedicationResponse>> GetById(int id)
-
+    public async Task<ActionResult<Medication>> GetById(int id)
     {
-        var result = await _medicationService.GetMedicationByIdAsync(id);
+        var result = await _medicationService.GetByIdAsync(id);
+        
         if (result.IsSuccess)
         {
             return Ok(result.Data);
         }
+        
         return result.ErrorType switch
         {
             ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
@@ -37,16 +38,15 @@ public class MedicationController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeleteById(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var result = await _medicationService.GetMedicationByIdAsync(id);
+        var result = await _medicationService.DeleteAsync(id);
+        
         if (result.IsSuccess)
         {
-            await _medicationService.DeleteMedication(id);
             return NoContent();
-
         }
 
         return result.ErrorType switch

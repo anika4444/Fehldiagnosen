@@ -22,15 +22,15 @@ public class PatientController : ControllerBase
     private readonly IMedicationService _medicationService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
     private readonly IMedicationNotificationService _medicationNotificationService;
-    private readonly IFamilyHistoryService _familyHistoryService;
+    private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryService familyHistoryService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService)
     {
         _symptomService = symptomService;
         _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
         _medicationNotificationService = medicationNotificationService;
-        _familyHistoryService = familyHistoryService;
+        _familyHistoryEntryService = familyHistoryEntryService;
     }
 
     #region Medication
@@ -40,7 +40,7 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientId(int patientId)
     {
-        var result = await _medicationService.GetMedicationsByPatientIdAsync(patientId);
+        var result = await _medicationService.GetAllAsync(patientId);
 
         if (result.IsSuccess)
         {
@@ -58,21 +58,30 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CreateMedication(int patientId, [FromBody]CreateMedicationRequest createMedicationRequest)
-    {
-        await _medicationService.CreateMedication(patientId, createMedicationRequest);
-        await _medicationNotificationService.NotifyMedicationChanged();
+    public async Task<ActionResult<MedicationResponse>> CreateMedicationForPatientId(int patientId, [FromBody] CreateMedicationRequest request)
 
-        return Created();
+    {
+        var result = await _medicationService.CreateAsync(patientId, request);
+
+        if (result.IsSuccess)
+        {
+            return CreatedAtAction(nameof(MedicationController.GetById), "Medication", new { id = patientId }, result.Data);
+        }
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
     }
 
     [HttpPut("{patientId}/medications/{medicationId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MedicationResponse>> UpdateMedication(int patientId, int medicationId, [FromBody] CreateMedicationRequest request)
+    public async Task<ActionResult<MedicationResponse>> UpdateMedicationForPatientId(int patientId, int medicationId, [FromBody] UpdateMedicationRequest request)
     {
-        var result = await _medicationService.UpdateMedication(medicationId, request);
+        var result = await _medicationService.UpdateAsync(patientId, medicationId, request);
 
         if (result.IsSuccess)
         {
@@ -92,19 +101,19 @@ public class PatientController : ControllerBase
     [HttpGet("{patientId}/symptoms")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<PatientSymptomResponse>>> GetSymptomsById(int patientId, [FromQuery] DateTime? date)
+    public async Task<ActionResult<IEnumerable<PatientSymptomResponse>>> GetSymptomsByPatientId(int patientId, [FromQuery] DateTime? date)
     {
-        var results = await (date != null ? _symptomService.GetPatientSymptomsByDateAsync(patientId, date.Value) : _symptomService.GetPatientSymptomsAsync(patientId));
+        var result = await (date != null ? _symptomService.GetAllByDateAsync(patientId, date.Value) : _symptomService.GetAllAsync(patientId));
 
-        if (results.IsSuccess)
+        if (result.IsSuccess)
         {
-            return Ok(results.Data);
+            return Ok(result.Data);
         }
 
-        return results.ErrorType switch
+        return result.ErrorType switch
         {
-            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-            _ => BadRequest(results.ErrorMessage)
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
         };
     }
 
@@ -112,19 +121,19 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PatientSymptomResponse>> CreateSymptom(int patientId, [FromBody] CreatePatientSymptomRequest symptom)
+    public async Task<ActionResult<PatientSymptomResponse>> CreateSymptomForPatientId(int patientId, [FromBody] CreatePatientSymptomRequest request)
     {
-        var results = await _symptomService.CreatePatientSymptomAsync(patientId, symptom);
+        var result = await _symptomService.CreateAsync(patientId, request);
 
-        if (results.IsSuccess)
+        if (result.IsSuccess)
         {
-            return CreatedAtAction(nameof(GetSymptomsById), new { patientId = patientId }, results.Data);
+            return CreatedAtAction(nameof(SymptomController.GetById), "Symptom", new { id = patientId }, result.Data);
         }
 
-        return results.ErrorType switch
+        return result.ErrorType switch
         {
-            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-            _ => BadRequest(results.ErrorMessage)
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
         };
     }
 
@@ -132,9 +141,9 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateSymptom(int patientId, int symptomId, [FromBody] UpdatePatientSymptomRequest symptom)
+    public async Task<ActionResult<PatientSymptomResponse>> UpdateSymptomForPatientId(int patientId, int symptomId, [FromBody] UpdatePatientSymptomRequest request)
     {
-        var result = await _symptomService.UpdatePatientSymptomAsync(patientId, symptomId, symptom);
+        var result = await _symptomService.UpdateAsync(patientId, symptomId, request);
         
         if(result.IsSuccess)
         {
@@ -153,11 +162,20 @@ public class PatientController : ControllerBase
     [HttpGet("{patientId}/medical-history-entries")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<List<MedicalHistoryEntry>>> GetMedicalHistoryEntriesByPatientId(int patientId)
+    public async Task<ActionResult<IEnumerable<MedicalHistoryEntryResponse>>> GetMedicalHistoryEntriesByPatientId(int patientId)
     {
-        var results = await _medicalHistoryEntryService.GetAllAsync(patientId);
+        var result = await _medicalHistoryEntryService.GetAllAsync(patientId);
 
-        return Ok(results);
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+
+        return result.ErrorType switch
+        {
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
+        };
     }
 
     [HttpPost("{patientId}/medical-history-entries")]
@@ -166,17 +184,17 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MedicalHistoryEntryResponse>> CreateMedicalHistoryEntryForPatientId(int patientId, [FromBody] CreateMedicalHistoryEntryRequest request)
     {
-        var results = await _medicalHistoryEntryService.CreateAsync(patientId, request);
+        var result = await _medicalHistoryEntryService.CreateAsync(patientId, request);
 
-        if (results.IsSuccess)
+        if (result.IsSuccess)
         {
-            return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = patientId }, results.Data);
+            return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = patientId }, result.Data);
         }
 
-        return results.ErrorType switch
+        return result.ErrorType switch
         {
-            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-            _ => BadRequest(results.ErrorMessage)
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
         };
     }
 
@@ -184,7 +202,7 @@ public class PatientController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MedicalHistoryEntryResponse>> UpdateMedicalHistoryEntryForPatientId(int patientId, int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request)
+    public async Task<ActionResult<MedicalHistoryEntryResponse>> UpdateMedicalHistoryEntryForPatientId(int patientId, int medicalHistoryEntryId, [FromBody] UpdateMedicalHistoryEntryRequest request)
     {
         var result = await _medicalHistoryEntryService.UpdateAsync(patientId, medicalHistoryEntryId, request);
 
@@ -203,12 +221,12 @@ public class PatientController : ControllerBase
 
     #region Family History Entries
 
-    [HttpGet("{patientId:int}/family-history-entries")]
+    [HttpGet("{patientId}/family-history-entries")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<FamilyHistoryEntryResponse>>> GetFamilyHistoryEntriesByPatientId(int patientId)
     {
-        var result = await _familyHistoryService.GetAllByPatientIdAsync(patientId);
+        var result = await _familyHistoryEntryService.GetAllAsync(patientId);
 
         if (result.IsSuccess)
         {
@@ -222,21 +240,17 @@ public class PatientController : ControllerBase
         };
     }
 
-    [HttpPost("{patientId:int}/family-history-entries")]
+    [HttpPost("{patientId}/family-history-entries")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<FamilyHistoryEntryResponse>> CreateFamilyHistoryEntry(int patientId, [FromBody] CreateFamilyHistoryEntryRequest request)
+    public async Task<ActionResult<FamilyHistoryEntryResponse>> CreateFamilyHistoryEntryForPatientId(int patientId, [FromBody] CreateFamilyHistoryEntryRequest request)
     {
-        var result = await _familyHistoryService.CreateAsync(patientId, request);
+        var result = await _familyHistoryEntryService.CreateAsync(patientId, request);
 
         if (result.IsSuccess)
         {
-            return CreatedAtAction(
-                nameof(FamilyHistoryController.GetEntryByHistoryEntryId),
-                "FamilyHistory",
-                new { historyEntryId = result.Data!.Id },
-                result.Data);
+            return CreatedAtAction(nameof(FamilyHistoryEntryController.GetById), "FamilyHistoryEntry", new { id = patientId }, result.Data);
         }
 
         return result.ErrorType switch
@@ -246,13 +260,13 @@ public class PatientController : ControllerBase
         };
     }
 
-    [HttpPut("{patientId:int}/family-history-entries/{historyEntryId:int}")]
+    [HttpPut("{patientId}/family-history-entries/{familyHistoryEntryId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<FamilyHistoryEntryResponse>> UpdateFamilyHistoryEntry(int patientId, int historyEntryId, [FromBody] UpdateFamilyHistoryEntryRequest request)
+    public async Task<ActionResult<FamilyHistoryEntryResponse>> UpdateFamilyHistoryEntryForPatientId(int patientId, int familyHistoryEntryId, [FromBody] UpdateFamilyHistoryEntryRequest request)
     {
-        var result = await _familyHistoryService.UpdateAsync(patientId, historyEntryId, request);
+        var result = await _familyHistoryEntryService.UpdateAsync(patientId, familyHistoryEntryId, request);
 
         if (result.IsSuccess)
         {
@@ -265,6 +279,5 @@ public class PatientController : ControllerBase
             _ => BadRequest(result.ErrorMessage)
         };
     }
-
     #endregion
 }

@@ -4,13 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class MySqlPatientSymptomRepository : IPatientSymptomRepository
+    public class MySqlSymptomRepository : IPatientSymptomRepository
     {
         private readonly MySqlDbContext _context;
-        public MySqlPatientSymptomRepository(MySqlDbContext context)
+        
+        public MySqlSymptomRepository(MySqlDbContext context)
         {
             _context = context;
         }
+        
         public async Task<PatientSymptom> AddAsync(PatientSymptom entity)
         {
             await _context.PatientSymptoms.AddAsync(entity);
@@ -35,14 +37,14 @@ namespace Backend.Infrastructure.Repositories
             return await _context.PatientSymptoms.FindAsync(id);
         }
 
-        public async Task<IEnumerable<PatientSymptom>> GetByPatientIdAndDateAsync(int patientId, DateTime date)
+        public async Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAndDateAsync(int patientId, DateTime date)
         {
             return await _context.PatientSymptoms
                 .Where(ps => ps.PatientId == patientId && ps.OccurrenceTime.Date == date.Date)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<PatientSymptom>> GetByPatientIdAsync(int patientId)
+        public async Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAsync(int patientId)
         {
             return await _context.PatientSymptoms
                 .Include(ps => ps.SymptomDefinition) // Include related SymptomDefinition

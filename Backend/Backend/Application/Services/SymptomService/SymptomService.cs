@@ -20,9 +20,10 @@ namespace Backend.Application.Services.SymptomService
             _mapper = mapper;
             _patientRepository = patientRepository;
         }
-        public async Task<ServiceResult<PatientSymptomResponse>> CreatePatientSymptomAsync(int patientId, CreatePatientSymptomRequest request)
+        public async Task<ServiceResult<PatientSymptomResponse>> CreateAsync(int patientId, CreatePatientSymptomRequest request)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            
             if (patient == null)
             {
                 return ServiceResult<PatientSymptomResponse>.NotFound($"Patient {patientId} existiert nicht.");
@@ -31,6 +32,7 @@ namespace Backend.Application.Services.SymptomService
             if (request.SymptomId != null)
             {
                 var symptomDefinition = await _symptomDefinitionRepository.FindByIdAsync(request.SymptomId ?? 0);
+                
                 if (symptomDefinition == null)
                 {
                     return ServiceResult<PatientSymptomResponse>.NotFound($"Symptomdefinition mit ID {request.SymptomId} existiert nicht.");
@@ -51,23 +53,25 @@ namespace Backend.Application.Services.SymptomService
              };
 
             var newSymptom = await _patientSymptomRepository.AddAsync(symptom);
+            
             return ServiceResult<PatientSymptomResponse>.Success(_mapper.ToPatientSymptomResponse(newSymptom));
         }
 
-        public async Task<ServiceResult> DeletePatientSymptomAsync(int symptomId)
+        public async Task<ServiceResult> DeleteAsync(int symptomId)
         {
-            var symptom = await _patientSymptomRepository.FindByIdAsync(symptomId);
+            var existingSymptom = await _patientSymptomRepository.FindByIdAsync(symptomId);
 
-            if(symptom == null) {
+            if(existingSymptom == null) 
+            {
                 return ServiceResult.NotFound($"Symptom mit ID {symptomId} existiert nicht.");
             }
 
-            await _patientSymptomRepository.DeleteAsync(symptom);
+            await _patientSymptomRepository.DeleteAsync(existingSymptom);
 
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult<PatientSymptomResponse>> GetById(int symptomId)
+        public async Task<ServiceResult<PatientSymptomResponse>> GetByIdAsync(int symptomId)
         {
             var symptom = await _patientSymptomRepository.FindByIdAsync(symptomId);
 
@@ -79,19 +83,20 @@ namespace Backend.Application.Services.SymptomService
             return ServiceResult<PatientSymptomResponse>.Success(_mapper.ToPatientSymptomResponse(symptom));
         }
 
-        public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetPatientSymptomsAsync(int patientId)
+        public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllAsync(int patientId)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            
             if (patient == null)
             {
                 return ServiceResult<IEnumerable<PatientSymptomResponse>>.NotFound($"Patient {patientId} existiert nicht.");
             }
-
-            var symptoms = await _patientSymptomRepository.GetByPatientIdAsync(patientId);
+            
+            var symptoms = await _patientSymptomRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<PatientSymptomResponse>>.Success(_mapper.ToPatientSymptomResponseList(symptoms));
         }
 
-        public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetPatientSymptomsByDateAsync(int patientId, DateTime date)
+        public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllByDateAsync(int patientId, DateTime date)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
 
@@ -100,27 +105,32 @@ namespace Backend.Application.Services.SymptomService
                 return ServiceResult<IEnumerable<PatientSymptomResponse>>.NotFound($"Patient {patientId} existiert nicht.");
             }
 
-            var symptoms = await _patientSymptomRepository.GetByPatientIdAndDateAsync(patientId, date);
+            var symptoms = await _patientSymptomRepository.FindAllByPatientIdAndDateAsync(patientId, date);
+            
             return ServiceResult<IEnumerable<PatientSymptomResponse>>.Success(_mapper.ToPatientSymptomResponseList(symptoms));
         }
 
         public async Task<ServiceResult<IEnumerable<SymptomDefinitionResponse>>> GetSymptomDefinitionsByNameAsync(string name)
         {
             var definitions = await _symptomDefinitionRepository.SearchByNameAsync(name);
+            
             return ServiceResult<IEnumerable<SymptomDefinitionResponse>>.Success(_mapper.ToSymptomDefinitionList(definitions));
         }
 
-        public async Task<ServiceResult<PatientSymptomResponse>> UpdatePatientSymptomAsync(int patientId, int patientSymptomId, UpdatePatientSymptomRequest request)
+        public async Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patientId, int symptomId, UpdatePatientSymptomRequest request)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            
             if(patient == null)
             {
                 return ServiceResult<PatientSymptomResponse>.NotFound($"Patient {patientId} existiert nicht.");
             }
 
-            var existingSymptom = await _patientSymptomRepository.FindByIdAsync(patientSymptomId);
-            if (existingSymptom == null || existingSymptom.PatientId != patientId) {
-                return ServiceResult<PatientSymptomResponse>.NotFound($"Symptom mit ID {patientSymptomId} existiert nicht.");
+            var existingSymptom = await _patientSymptomRepository.FindByIdAsync(symptomId);
+            
+            if (existingSymptom == null || existingSymptom.PatientId != patientId)
+            {
+                return ServiceResult<PatientSymptomResponse>.NotFound($"Symptom mit ID {symptomId} existiert nicht.");
             }
 
             existingSymptom.SymptomName = request.SymptomName;

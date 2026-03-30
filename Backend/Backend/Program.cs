@@ -33,18 +33,18 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IPatientSymptomRepository, MySqlPatientSymptomRepository>();
+builder.Services.AddScoped<IPatientSymptomRepository, MySqlSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
 builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
-builder.Services.AddScoped<IMedicalHistoryRepository, MySqlMedicalHistoryRepository>();
-builder.Services.AddScoped<IFamilyHistoryRepository, MySqlFamilyHistoryRepository>();
+builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryEntryRepository>();
+builder.Services.AddScoped<IFamilyHistoryEntryRepository, MySqlFamilyHistoryEntryRepository>();
 
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ISymptomService, SymptomService>();
 builder.Services.AddScoped<IMedicationService, MedicationService>();
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
-builder.Services.AddScoped<IFamilyHistoryService, FamilyHistoryService>();
+builder.Services.AddScoped<IFamilyHistoryEntryService, FamilyHistoryEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMedicationNotificationService, MedicationNotificationService>();
 
