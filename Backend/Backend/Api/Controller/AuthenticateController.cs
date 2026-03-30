@@ -41,7 +41,18 @@ namespace Backend.Api.Controller
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            return Ok(await _userService.Login(loginDto));
+            var result = await _userService.Login(loginDto);
+
+            if(result.IsSuccess)
+            {
+                return Ok(result);
+            }
+
+            return result.ErrorType switch
+            {
+                ServiceErrorType.Unauthorized => Unauthorized(result.ErrorMessage),
+                _ => BadRequest(result.ErrorMessage)
+            };
         }
     }
 }
