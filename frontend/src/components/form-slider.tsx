@@ -33,7 +33,7 @@ export function FormSlider({
       </View>
       <Slider
         style={{ width: "100%" }}
-        minimumValue={0}
+        minimumValue={1}
         maximumValue={10}
         step={1}
         value={value}
