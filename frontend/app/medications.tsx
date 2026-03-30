@@ -318,14 +318,7 @@ export default function Medications() {
                 setFormData((prev) => ({ ...prev, indication: text }))
               }
             />
-            <FormInput
-              label="Name des verschriebenden Arztes"
-              placeholder="z.B. Dr. Müller"
-              value={formData.doctorName}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, doctorName: text }))
-              }
-            />
+
             <FormInput
               label="Anmerkungen"
               placeholder="Weitere Anmerkungen..."
