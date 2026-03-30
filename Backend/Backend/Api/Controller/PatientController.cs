@@ -62,6 +62,7 @@ public class PatientController : ControllerBase
 
     {
         var result = await _medicationService.CreateAsync(patientId, request);
+        await _medicationNotificationService.NotifyMedicationChanged();
 
         if (result.IsSuccess)
         {

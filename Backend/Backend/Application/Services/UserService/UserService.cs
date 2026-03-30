@@ -14,12 +14,14 @@ namespace Backend.Application.Services.UserService
     public class UserService : IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly MySqlDbContext _dbContext;
 
-        public UserService(UserManager<ApplicationUser> userManager, IConfiguration configuration, MySqlDbContext context)
+        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, MySqlDbContext context)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _configuration = configuration;
             _dbContext = context;
         }
@@ -84,6 +86,20 @@ namespace Backend.Application.Services.UserService
 
             if (!string.IsNullOrEmpty(registerDto.Role))
             {
+                if (registerDto.Role.Equals("Patient", StringComparison.OrdinalIgnoreCase))
+                {
+                    registerDto.Role = "Patient";
+                }
+                else if (registerDto.Role.Equals("Arzt", StringComparison.OrdinalIgnoreCase))
+                {
+                    registerDto.Role = "Arzt";
+                }
+
+                if (!await _roleManager.RoleExistsAsync(registerDto.Role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(registerDto.Role));
+                }
+
                 await _userManager.AddToRoleAsync(user, registerDto.Role);
             }
 
