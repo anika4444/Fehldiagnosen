@@ -5,10 +5,14 @@ namespace Backend.Application.Services.MedicationService
 {
     public interface IMedicationService
     {
-        Task<ServiceResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientIdAsync(int id);
-        Task<ServiceResult<MedicationResponse>> GetMedicationByIdAsync(int id);
-        Task<ServiceResult<MedicationResponse?>> CreateMedication(int patientId, CreateMedicationRequest request);
-        Task<ServiceResult<MedicationResponse?>> UpdateMedication(int medicationId, CreateMedicationRequest request);
-        Task<ServiceResult> DeleteMedication(int medicationId);
+        Task<ServiceResult<IEnumerable<MedicationResponse>>> GetAllAsync(int patientId);
+        
+        Task<ServiceResult<MedicationResponse>> GetByIdAsync(int medicationId);
+        
+        Task<ServiceResult<MedicationResponse>> CreateAsync(int patientId, CreateMedicationRequest request);
+        
+        Task<ServiceResult<MedicationResponse>> UpdateAsync(int patientId, int medicationId, UpdateMedicationRequest request);
+        
+        Task<ServiceResult> DeleteAsync(int medicationId);
     }
 }

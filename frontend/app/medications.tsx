@@ -253,7 +253,7 @@ export default function Medications() {
       <View style={styles.content}>
         {!isFormVisible ? (
           <PrimaryButton
-            title="Medikament hinzufügen"
+            title="Eintrag hinzufügen"
             icon="plus-circle-outline"
             onPress={openCreateForm}
           />
@@ -318,14 +318,7 @@ export default function Medications() {
                 setFormData((prev) => ({ ...prev, indication: text }))
               }
             />
-            <FormInput
-              label="Name des verschriebenden Arztes"
-              placeholder="z.B. Dr. Müller"
-              value={formData.doctorName}
-              onChangeText={(text) =>
-                setFormData((prev) => ({ ...prev, doctorName: text }))
-              }
-            />
+
             <FormInput
               label="Anmerkungen"
               placeholder="Weitere Anmerkungen..."
@@ -341,7 +334,7 @@ export default function Medications() {
         )}
 
         <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Medikamente
+          Einträge
         </ThemedText>
 
         {isLoading && <ActivityIndicator size="large" color={theme.primary} />}

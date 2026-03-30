@@ -22,7 +22,7 @@ namespace Backend.Application.Services.MedicationService.Dto
         public DateTime? IntakeStartDate { get; set; }
 
         [Range(0, 3650)]
-        public int DurationInDays { get; set; } //automatic default from int is 0     
+        public int DurationInDays { get; set; }  
 
         [MaxLength(200)]
         public string? Indication { get; set; }

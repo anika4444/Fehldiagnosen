@@ -23,17 +23,17 @@ public class MedicalHistoryEntryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MedicalHistoryEntry>> GetById(int id)
     {
-        var results = await _medicalHistoryEntryService.GetByIdAsync(id);
+        var result = await _medicalHistoryEntryService.GetByIdAsync(id);
 
-        if (results.IsSuccess)
+        if (result.IsSuccess)
         {
-            return Ok(results.Data);
+            return Ok(result.Data);
         }
 
-        return results.ErrorType switch
+        return result.ErrorType switch
         {
-            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-            _ => BadRequest(results.ErrorMessage)
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
         };
     }
 
@@ -42,17 +42,17 @@ public class MedicalHistoryEntryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Delete(int id)
     {
-        var results = await _medicalHistoryEntryService.DeleteAsync(id);
+        var result = await _medicalHistoryEntryService.DeleteAsync(id);
 
-        if(results.IsSuccess)
+        if(result.IsSuccess)
         {
             return NoContent();
         }
 
-        return results.ErrorType switch
+        return result.ErrorType switch
         {
-            ServiceErrorType.NotFound => NotFound(results.ErrorMessage),
-            _ => BadRequest(results.ErrorMessage)
+            ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
+            _ => BadRequest(result.ErrorMessage)
         };
     }
 }

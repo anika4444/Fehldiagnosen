@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicationService.Dto;
 using Backend.Domain.Entities;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -18,78 +19,102 @@ namespace Backend.Application.Services.MedicationService
             _patientRepository = patientRepository;
             _mapper = mapper;
         }
-        public async Task<ServiceResult<MedicationResponse?>> CreateMedication(int patientId, CreateMedicationRequest createMedicationRequest)
+        public async Task<ServiceResult<MedicationResponse>> CreateAsync(int patientId, CreateMedicationRequest request)
         {
-            Patient? patient = await _patientRepository.FindByIdAsync(patientId);
-            if (patient == null) 
-            { return ServiceResult<MedicationResponse?>.NotFound("Patient existiert nicht"); }
+            var patient = await _patientRepository.FindByIdAsync(patientId);
+            
+            if (patient == null)
+            {
+                return ServiceResult<MedicationResponse>.NotFound($"Patient {patientId} existiert nicht.");
+            }
+            
             var medication = new Medication()
             {
-                Name = createMedicationRequest.Name,
+                Name = request.Name,
                 PatientId = patientId,
-                Dosage = createMedicationRequest.Dosage,
-                IntakeFrequency = createMedicationRequest.IntakeFrequency,
-                IntakeStartDate = createMedicationRequest.IntakeStartDate,
-                DurationInDays = createMedicationRequest.DurationInDays,
-                Indication = createMedicationRequest.Indication,
-                EntryBy = createMedicationRequest.EntryBy,
-                Notes = createMedicationRequest.Notes
+                Dosage = request.Dosage,
+                IntakeFrequency = request.IntakeFrequency,
+                IntakeStartDate = request.IntakeStartDate,
+                DurationInDays = request.DurationInDays,
+                Indication = request.Indication,
+                EntryBy = request.EntryBy,
+                Notes = request.Notes
             };
 
-            Medication newMedication = await _medicationRepository.AddAsync(medication);
-            return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(newMedication));   
+            var newMedication = await _medicationRepository.AddAsync(medication);
+
+            return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(newMedication));   
         }
-        public async Task<ServiceResult<MedicationResponse?>> UpdateMedication(int medicationId, CreateMedicationRequest createMedicationRequest)
+        public async Task<ServiceResult<MedicationResponse>> UpdateAsync(int patientId, int medicationId, UpdateMedicationRequest request)
         {
-            var result = await _medicationRepository.FindByIdAsync(medicationId);
-            if (result == null)
+            var patient = await _patientRepository.FindByIdAsync(patientId);
+            
+            if (patient == null)
             {
-                return ServiceResult<MedicationResponse?>.NotFound("Medikation existiert nicht");
+                return ServiceResult<MedicationResponse>.NotFound($"Patient {patientId} existiert nicht.");
             }
 
-            result.Name = createMedicationRequest.Name;
-            result.Dosage = createMedicationRequest.Dosage;
-            result.IntakeFrequency = createMedicationRequest.IntakeFrequency;
-            result.IntakeStartDate = createMedicationRequest.IntakeStartDate;
-            result.DurationInDays = createMedicationRequest.DurationInDays;
-            result.Indication = createMedicationRequest.Indication;
-            result.EntryBy = createMedicationRequest.EntryBy;
-            result.Notes = createMedicationRequest.Notes;
+            var existingMedication = await _medicationRepository.FindByIdAsync(medicationId);
+            
+            if (existingMedication == null)
+            {
+                return ServiceResult<MedicationResponse>.NotFound("Medikation existiert nicht");
+            }
+
+            existingMedication.Name = request.Name;
+            existingMedication.Dosage = request.Dosage;
+            existingMedication.IntakeFrequency = request.IntakeFrequency;
+            existingMedication.IntakeStartDate = request.IntakeStartDate;
+            existingMedication.DurationInDays = request.DurationInDays;
+            existingMedication.Indication = request.Indication;
+            existingMedication.EntryBy = request.EntryBy;
+            existingMedication.Notes = request.Notes;
             
 
-            await _medicationRepository.UpdateAsync(result);
-            return ServiceResult<MedicationResponse?>.Success(_mapper.ToMedicationResponse(result));
+            var updatedMedication = await _medicationRepository.UpdateAsync(existingMedication);
+            
+            return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(updatedMedication));
 
         }
-        public async Task<ServiceResult<IEnumerable<MedicationResponse>>> GetMedicationsByPatientIdAsync(int patientId)
+        public async Task<ServiceResult<IEnumerable<MedicationResponse>>> GetAllAsync(int patientId)
         {
-            var patientMedications = await _medicationRepository.GetAllMedications(patientId);
+            var patient = await _patientRepository.FindByIdAsync(patientId);
 
-            var medicationResponses = patientMedications.Select(medication => _mapper.ToMedicationResponse(medication));
-            return ServiceResult<IEnumerable<MedicationResponse>>.Success(medicationResponses);
+            if (patient == null)
+            {
+                return ServiceResult<IEnumerable<MedicationResponse>>.NotFound($"Patient {patientId} existiert nicht.");
+            }
+
+            var medications = await _medicationRepository.FindAllByPatientIdAsync(patientId);
+
+            return ServiceResult<IEnumerable<MedicationResponse>>.Success(medications.Select(medication => _mapper.ToMedicationResponse(medication)));
         }
 
-       
-        public async Task<ServiceResult> DeleteMedication(int medicationId)
+        public async Task<ServiceResult> DeleteAsync(int medicationId)
         {
-            Medication? medication = await _medicationRepository.FindByIdAsync(medicationId);
-                if (medication == null)
-                {
-                return ServiceResult.Success();
-                }
-            await _medicationRepository.DeleteAsync(medication);
+            var existingMedication = await _medicationRepository.FindByIdAsync(medicationId);
+
+
+            if (existingMedication == null)
+            {
+                return ServiceResult.NotFound($"Medikament mit ID {medicationId} existiert nicht.");
+            }
+
+            await _medicationRepository.DeleteAsync(existingMedication);
+            
             return ServiceResult.Success();            
         }
 
-        public async Task<ServiceResult<MedicationResponse>> GetMedicationByIdAsync(int id)
+        public async Task<ServiceResult<MedicationResponse>> GetByIdAsync(int medicationId)
         {
-            var medication = await _medicationRepository.FindByIdAsync(id);
+            var medication = await _medicationRepository.FindByIdAsync(medicationId);
+
             if (medication == null)
-                return ServiceResult<MedicationResponse>.NotFound($"Medication {id} not found");
+            {
+                return ServiceResult<MedicationResponse>.NotFound($"Medikament {medicationId} existiert nicht.");
+            }
 
             return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(medication));
         }
-
-
     }
 }

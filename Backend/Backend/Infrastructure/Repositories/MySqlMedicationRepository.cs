@@ -38,7 +38,7 @@ namespace Backend.Infrastructure.Repositories
             return medication;
         }
 
-        public async Task<List<Medication>> GetAllMedications(int patientId)
+        public async Task<IEnumerable<Medication>> FindAllByPatientIdAsync(int patientId)
         {
             var patientMedication = await _context.Medications.Where(m => m.PatientId == patientId).ToListAsync();
             return patientMedication;
