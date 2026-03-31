@@ -1,7 +1,35 @@
+# --- Visual Studio / .NET ---
 .vs/
 **/.vs/
 bin/
 obj/
 *.user
 *.suo
+
+# --- IDEs (IntelliJ, WebStorm, VS Code) ---
+.idea/
+*.iml
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# --- Node.js / Frontend ---
+node_modules/
+dist/
+build/
+.expo/
+npm-debug.log*
+
+# --- Datenbank & Docker ---
 **/docker/mysql_data/
+*.db
+*.sqlite
+
+# --- Sicherheit ---
+.env
+.env.*
+!.env.example
+
+# --- System ---
+.DS_Store
+Thumbs.db
