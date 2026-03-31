@@ -10,9 +10,6 @@ obj/
 # --- IDEs (IntelliJ, WebStorm, VS Code) ---
 .idea/
 *.iml
-.vscode/
-!.vscode/settings.json
-!.vscode/extensions.json
 
 # --- Node.js / Frontend ---
 node_modules/
