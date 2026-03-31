@@ -123,12 +123,43 @@ Für die App benötigen wir ein robustes, sicheres und performantes Backend. Die
 
 ## Entscheidung
 
+Wir haben uns entschieden, ASP.NET Core Web API (basierend auf dem modernen .NET-Ökosystem) als zentrales Backend-Framework für die Entwicklung unserer API-Services zu verwenden.
+
 ## Begründung
+
+- Sicherheit & Compliance: .NET Core bringt von Haus aus starke, enterprise-erprobte Sicherheitsmechanismen (Authentifizierung, Autorisierung via JWT/OAuth, Data Protection API) mit. Dies ist für die gesetzeskonforme Verarbeitung sensibler Gesundheitsdaten (z. B. DSGVO/HIPAA) unerlässlich.
+
+- Performance: ASP.NET Core gehört zu den schnellsten Web-Frameworks auf dem Markt und verarbeitet Requests ressourcenschonend und asynchron, was eine hohe Skalierbarkeit ermöglicht.
+
+- Typsicherheit & C#: Die Verwendung von C# als streng typisierte, moderne Sprache reduziert Laufzeitfehler erheblich und erleichtert das Refactoring sowie die Pflege großer Codebasen.
+
+- Ausgereiftes Ökosystem: Mit Werkzeugen wie Entity Framework Core (ORM) und einer riesigen Auswahl an gut gepflegten NuGet-Paketen können Standardprobleme schnell und sicher gelöst werden.
+
+- Plattformunabhängigkeit: .NET Core läuft cross-platform (Windows, Linux, macOS) und eignet sich damit hervorragend für containerisierte Deployments (Docker/Kubernetes) in der Cloud.
 
 ## Konsequenzen
 
 ### Positiv (+)
 
+- Hohe Zuverlässigkeit: Reduzierte Fehlerquote durch strenge Typisierung und exzellente Compiler-Unterstützung.
+
+- Hervorragendes Tooling: Sehr gute Entwicklererfahrung (Developer Experience) durch Visual Studio, Rider und umfassende Debugging- sowie Profiling-Tools.
+
+- Zukunftssicherheit: Starke Unterstützung und kontinuierliche Weiterentwicklung durch Microsoft und die Open-Source-Community.
+
+- Effiziente Datenbankanbindung: Nahtlose Integration von Entity Framework Core beschleunigt die Entwicklung der Datenzugriffsschicht.
+
 ### Negativ (-)
 
+- Lernkurve: Für Entwickler, die bisher nur mit dynamischen Sprachen (wie JavaScript/Python) gearbeitet haben, kann die Einarbeitung in C# und die .NET-Architekturmuster anfänglich steil sein.
+
+- Boilerplate-Code: Traditionelle Controller-basierte .NET APIs erfordern manchmal mehr Code-Struktur und Setup als leichtgewichtige Alternativen (wobei dies durch "Minimal APIs" in neueren .NET-Versionen abgemildert wird).
+
+- Ressourcenverbrauch im Leerlauf: Verglichen mit extrem leichtgewichtigen Runtimes (wie Go) kann der initiale Speicherbedarf (Footprint) etwas höher ausfallen.
+
 ## Erwogene Optionen
+
+- Node.js
+- Java mit Spring Boot
+- PHP
+- Python
