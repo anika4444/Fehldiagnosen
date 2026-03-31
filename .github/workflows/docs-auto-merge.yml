@@ -17,11 +17,12 @@ jobs:
 
       - name: Prüfen, ob NUR der docs-Ordner geändert wurde
         id: check_docs
-        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Holt alle geänderten Dateien des aktuellen PRs
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path')
-          
+
           ONLY_DOCS=true
           for FILE in $CHANGED_FILES; do
             # Prüft, ob der Dateipfad NICHT mit "docs/" beginnt
@@ -31,18 +32,20 @@ jobs:
               break
             fi
           done
-          
+
           # Speichert das Ergebnis für die nächsten Schritte
           echo "only_docs=$ONLY_DOCS" >> $GITHUB_OUTPUT
 
-        - name: PR approven (freigeben)
-          if: steps.check_docs.outputs.only_docs == 'true'
-          env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            gh pr review ${{ github.event.pull_request.number }} --approve -b "Automatischer Review: Nur Änderungen im docs-Ordner, daher genehmigt."
+      - name: PR approven (freigeben)
+        if: steps.check_docs.outputs.only_docs == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review ${{ github.event.pull_request.number }} --approve -b "Automatischer Review: Nur Änderungen im docs-Ordner, daher genehmigt."
 
-        - name: PR automatisch mergen
-          if: steps.check_docs.outputs.only_docs == 'true'
-          env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            gh pr merge ${{ github.event.pull_request.number }} --merge --auto
+      - name: PR automatisch mergen
+        if: steps.check_docs.outputs.only_docs == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --merge --auto
