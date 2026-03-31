@@ -5,6 +5,7 @@ bin/
 obj/
 *.user
 *.suo
+*.csproj.user
 
 # --- IDEs (IntelliJ, WebStorm, VS Code) ---
 .idea/
@@ -19,6 +20,14 @@ dist/
 build/
 .expo/
 npm-debug.log*
+
+# --- Expo Spezifisch ---
+.expo/
+web-build/
+*.jks
+*.p12
+*.key
+*.mobileprovision
 
 # --- Datenbank & Docker ---
 **/docker/mysql_data/
