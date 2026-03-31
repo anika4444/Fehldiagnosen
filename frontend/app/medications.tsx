@@ -1,6 +1,5 @@
 import * as signalR from "@microsoft/signalr";
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -19,6 +18,7 @@ import { PrimaryButton } from "@/components/primary-button";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
+import { usePatientId } from "@/hooks/use-patient-id";
 import {
   CreateMedicationRequest,
   MedicationResponse,
@@ -55,7 +55,7 @@ export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const [patientId, setPatientId] = useState<number | null>(null);
+  const { patientId } = usePatientId();
   const [medications, setMedications] = useState<MedicationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,20 +65,6 @@ export default function Medications() {
     useState<MedicationResponse | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
-
-  useEffect(() => {
-    const loadPatientId = async () => {
-      const storedId =
-        Platform.OS === "web"
-          ? localStorage.getItem("patientId")
-          : await SecureStore.getItemAsync("patientId");
-
-      if (storedId && !isNaN(parseInt(storedId))) {
-        setPatientId(parseInt(storedId));
-      }
-    };
-    loadPatientId();
-  }, []);
 
   const fetchMedications = async () => {
     if (!patientId) return;

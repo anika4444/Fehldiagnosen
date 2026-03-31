@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 
 import { symptomService } from "@/api/symptomService";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import {
   PatientSymptomResponse,
   SymptomFieldResponse,
   SymptomFormData,
 } from "@/types/symptom-type";
 
-import { FormInput } from "./form-input";
-import { FormPicker } from "./form-picker";
-import { FormSlider } from "./form-slider";
-import { FormTimePicker } from "./form-time-picker";
-import { ModalCard } from "./modal-card";
+import { FormInput } from "../form-input";
+import { FormPicker } from "../form-picker";
+import { FormSlider } from "../form-slider";
+import { FormTimePicker } from "../form-time-picker";
+import { ModalCard } from "../modal-card";
 
 interface SymptomFormProps {
   selectedDate: Date;
@@ -28,9 +26,6 @@ export function SymptomForm({
   onCancel,
   initialData,
 }: SymptomFormProps) {
-  const colorScheme = useColorScheme() ?? "light";
-  const theme = Colors[colorScheme];
-
   const [symptomName, setSymptomName] = useState("");
   const [time, setTime] = useState(new Date());
   const [intensity, setIntensity] = useState(5);

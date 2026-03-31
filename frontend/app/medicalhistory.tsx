@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,36 +12,24 @@ import {
 import { medicalHistoryEntryService } from "@/api/medicalHistoryEntryService";
 import { Card } from "@/components/card";
 import { HeaderView } from "@/components/header-view";
-import { MedicalHistoryEntryForm } from "@/components/medical-history-entry-form";
+import { MedicalHistoryEntryForm } from "@/components/medicalhistoryentry/medical-history-entry-form";
 import { ModalCard } from "@/components/modal-card";
 import { PrimaryButton } from "@/components/primary-button";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
+import { usePatientId } from "@/hooks/use-patient-id";
 import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
 
 export default function MedicalHistory() {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const [patientId, setPatientId] = useState<number | null>(null);
+  const { patientId } = usePatientId();
   const [entries, setEntries] = useState<MedicalHistoryEntryResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingEntry, setEditingEntry] = useState<any>(null);
-
-  useEffect(() => {
-    const loadId = async () => {
-      const id =
-        Platform.OS === "web"
-          ? localStorage.getItem("patientId")
-          : await SecureStore.getItemAsync("patientId");
-      if (id) {
-        setPatientId(parseInt(id));
-      }
-    };
-    loadId();
-  }, []);
 
   const fetchEntries = async () => {
     if (!patientId) return;
