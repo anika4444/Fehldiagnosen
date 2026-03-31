@@ -127,7 +127,7 @@ Wir haben uns entschieden, ASP.NET Core Web API (basierend auf dem modernen .NET
 
 ## Begründung
 
-- Sicherheit & Compliance: .NET Core bringt von Haus aus starke, enterprise-erprobte Sicherheitsmechanismen (Authentifizierung, Autorisierung via JWT/OAuth, Data Protection API) mit. Dies ist für die gesetzeskonforme Verarbeitung sensibler Gesundheitsdaten (z. B. DSGVO/HIPAA) unerlässlich.
+- Sicherheit & Compliance: .NET Core bringt von Haus aus starke, enterprise-erprobte Sicherheitsmechanismen (Authentifizierung, Autorisierung via JWT/OAuth) mit. Dies ist für die gesetzeskonforme Verarbeitung sensibler Gesundheitsdaten unerlässlich.
 
 - Performance: ASP.NET Core gehört zu den schnellsten Web-Frameworks auf dem Markt und verarbeitet Requests ressourcenschonend und asynchron, was eine hohe Skalierbarkeit ermöglicht.
 
@@ -151,11 +151,11 @@ Wir haben uns entschieden, ASP.NET Core Web API (basierend auf dem modernen .NET
 
 ### Negativ (-)
 
-- Lernkurve: Für Entwickler, die bisher nur mit dynamischen Sprachen (wie JavaScript/Python) gearbeitet haben, kann die Einarbeitung in C# und die .NET-Architekturmuster anfänglich steil sein.
-
 - Boilerplate-Code: Traditionelle Controller-basierte .NET APIs erfordern manchmal mehr Code-Struktur und Setup als leichtgewichtige Alternativen (wobei dies durch "Minimal APIs" in neueren .NET-Versionen abgemildert wird).
 
 - Ressourcenverbrauch im Leerlauf: Verglichen mit extrem leichtgewichtigen Runtimes (wie Go) kann der initiale Speicherbedarf (Footprint) etwas höher ausfallen.
+
+- Einschränkungen im nativen KI-/Data-Science-Ökosystem: Während die Anbindung von fertigen KI-Diensten (via API) in .NET hervorragend unterstützt wird, ist das Ökosystem für das Training und die Entwicklung eigener, tiefer Machine-Learning-Modelle im Vergleich zu Python deutlich kleiner. Für fortgeschrittene Data-Science-Aufgaben fehlen oft native Bibliotheken, was bei Eigenentwicklungen in diesem Bereich zu mehr Komplexität und Zeitaufwand führen kann.
 
 ## Erwogene Optionen
 
@@ -163,3 +163,50 @@ Wir haben uns entschieden, ASP.NET Core Web API (basierend auf dem modernen .NET
 - Java mit Spring Boot
 - PHP
 - Python
+
+# ADR 05: Datenbank: MySQL
+
+- **Status**: Entschieden
+
+## Kontext und Problemstellung
+
+Für unsere App benötigen wir eine persistente, sichere und hochverfügbare Datenspeicherung. Da wir unter anderem mit sensiblen Gesundheitsdaten und Benutzerprofilen arbeiten, stehen Datenintegrität, Transaktionssicherheit und die strikte Einhaltung von Datenstrukturen im Vordergrund. Wir müssen entscheiden, welches Datenbanksystem diese Anforderungen am besten erfüllt und sich nahtlos in unser .NET Core-Backend integrieren lässt.
+
+## Entscheidung
+
+Wir haben uns entschieden, MySQL als primäres relationales Datenbankmanagementsystem (RDBMS) für die Speicherung unserer strukturierten Anwendungs- und Nutzerdaten zu verwenden.
+
+## Begründung
+
+- ACID-Konformität & Datenintegrität: MySQL garantiert vollständige Transaktionssicherheit (Atomicity, Consistency, Isolation, Durability). Dies ist ein zwingendes Kriterium für Gesundheitsdaten, um fehlerhafte oder inkonsistente Datensätze bei Abbrüchen oder parallelen Zugriffen auszuschließen.
+
+- Erprobte Zuverlässigkeit: MySQL ist eine der weltweit am häufigsten genutzten Datenbanken und hat sich in unzähligen Enterprise-Anwendungen als extrem stabil und performant erwiesen.
+
+- Hervorragende .NET-Integration: Durch Entity Framework Core lässt sich MySQL nahtlos, typisiert und performant in unser gewähltes Backend-Framework einbinden.
+
+- Kosten und Hosting: Als Open-Source-Lösung fallen keine teuren Lizenzkosten an. Zudem wird MySQL von jedem großen Cloud-Anbieter als vollständig verwalteter (managed) Service mit automatischen Backups und Verschlüsselung angeboten.
+
+## Konsequenzen
+
+### Positiv (+)
+
+- Hohe Sicherheit: Ausgereifte Rollen- und Rechteverwaltung sowie standardisierte Verschlüsselungsmöglichkeiten unterstützen uns bei der DSGVO/HIPAA-Konformität.
+
+- Großes Ökosystem: Die riesige Community sorgt dafür, dass für fast jedes Problem schnell Lösungen gefunden werden können. Auch das Finden von Entwicklern mit MySQL-Erfahrung ist sehr einfach.
+
+- Gute Lese-Performance: Für typische Web-Workloads mit vielen Lesezugriffen bietet MySQL (insbesondere mit der InnoDB-Engine) exzellente Antwortzeiten.
+
+- Ausgereiftes Tooling: Werkzeuge für Backups, Monitoring, Migrationen und Profiling sind in großer Vielzahl und hoher Qualität vorhanden.
+
+### Negativ (-)
+
+- Horizontale Skalierbarkeit: Wie bei den meisten relationalen Datenbanken ist das Skalieren von Schreiboperationen (Write-Scaling) über mehrere Server hinweg (Sharding/Clustering) deutlich komplexer als bei NoSQL-Datenbanken.
+
+- Starres Schema: Änderungen an der Tabellenstruktur (Migrationen) bei sehr großen Datenmengen können im laufenden Betrieb herausfordernd sein und erfordern sorgfältige Planung.
+
+- JSON/XML-Handling: MySQL bietet zwar mittlerweile guten Support für JSON-Datentypen, ist hierbei aber traditionell nicht ganz so performant und flexibel wie beispielsweise PostgreSQL oder spezialisierte Dokumentendatenbanken.
+
+## Erwogene Optionen
+
+- PostgreSQL
+- MSSQL
