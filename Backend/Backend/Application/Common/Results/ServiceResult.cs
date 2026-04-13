@@ -6,31 +6,37 @@
         public string? ErrorMessage { get; set; }
         public ServiceErrorType ErrorType { get; set; }
         // Helper methods
+        
         public static ServiceResult Success()
         {
             return new ServiceResult { ErrorType = ServiceErrorType.None };
         }
+        
         public static ServiceResult Conflict(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Conflict };
         }
+        
         public static ServiceResult NotFound(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.NotFound };
         }
+        
         public static ServiceResult Invalid(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.ValidationError };
         }
+        
         public static ServiceResult Unauthorized(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Unauthorized };
         }
+        
         public static ServiceResult InternalServerError(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
         }
-
+        
         public static ServiceResult Forbidden(string errorMessage)
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };
@@ -71,6 +77,8 @@
         public static ServiceResult<T> InternalServerError(string errorMessage)
         {
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
+        }
+
         public static ServiceResult<T> Forbidden(string errorMessage)
         {
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };

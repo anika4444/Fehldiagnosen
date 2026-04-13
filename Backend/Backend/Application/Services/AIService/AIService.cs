@@ -1,6 +1,7 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
+using System.Text.Json;
 
 namespace Backend.Application.Services.AIService
 {
@@ -21,7 +22,7 @@ namespace Backend.Application.Services.AIService
             var explainEndpoint = "http://localhost:3000/ai/explain";
             var langLevel = "basic";
 
-            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryId);
+            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryId, userId);
 
             if (entryResult == null)
             {
@@ -62,12 +63,17 @@ namespace Backend.Application.Services.AIService
                 var aiResponse = JsonSerializer.Deserialize<AiExplainResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                return ServiceResult<AiExplainResponse>.Success(aiResponse?.Text ?? string.Empty);
+                if (aiResponse == null)
+                {
+                    return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
+                }
+
+                return ServiceResult<AiExplainResponse>.Success(aiResponse);
             }
             catch (Exception ex)
             {
                 //_logger.LogError(ex, "Fehler bei der Weiterleitung an den KI-Service");
-                return ServiceResult.InternalServerError("KI-Service aktuell nicht erreichbar");
+                return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
     }

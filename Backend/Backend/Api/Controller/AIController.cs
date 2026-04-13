@@ -5,7 +5,7 @@ namespace Backend.Api.Controller;
 
 [ApiController]
 [Route("api/ai")]
-public class AIController : ControllerBase
+public class AIController : BaseApiController
 {
     private readonly IAIService _aiService;
     private readonly IConfiguration _configuration;
@@ -36,7 +36,7 @@ public class AIController : ControllerBase
 
         if (result.IsSuccess)
         {
-            return Ok(new { text = result.Data });
+            return Ok(new { text = result.Data?.Text });
         }
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
