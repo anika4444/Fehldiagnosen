@@ -14,7 +14,7 @@ namespace Backend.Application.Services.SymptomService
         
         Task<ServiceResult<PatientSymptomResponse>> CreateAsync(int patientId, CreatePatientSymptomRequest request, string? userId);
         
-        Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patiendId, int patientSymptomId, UpdatePatientSymptomRequest request, string? userId);
+        Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patientId, int patientSymptomId, UpdatePatientSymptomRequest request, string? userId);
         
         Task<ServiceResult> DeleteAsync(int symptomId, string? userId);
         
