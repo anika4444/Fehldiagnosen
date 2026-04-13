@@ -27,6 +27,9 @@ namespace Backend.Application.Services.MedicationService.Dto
         [MaxLength(200)]
         public string? Indication { get; set; }
 
+        [MaxLength(20)]
+        public string? AtcCode { get; set; }
+
         public EntryBy? EntryBy { get; set; }
 
         public string? Notes { get; set; }

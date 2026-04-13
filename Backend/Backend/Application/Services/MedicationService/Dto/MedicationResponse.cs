@@ -22,7 +22,8 @@ namespace Backend.Application.Services.MedicationService.Dto
         public DateTime? EndDate { get; set; }
         
         public string? Indication { get; set; }
-        
+
+        public string? AtcCode { get; set; }
         public EntryBy? EntryBy { get; set; }
         
         public string? Notes { get; set; }

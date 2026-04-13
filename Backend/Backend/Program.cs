@@ -1,5 +1,6 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
+using Backend.Application.Services;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicationNotification;
@@ -47,6 +48,8 @@ builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryServi
 builder.Services.AddScoped<IFamilyHistoryEntryService, FamilyHistoryEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMedicationNotificationService, MedicationNotificationService>();
+builder.Services.AddScoped<IKnownMedicationRepository, MySqlKnownMedicationRepository>();
+builder.Services.AddScoped<IKnownMedicationService, KnownMedicationService>();
 
 builder.Services.AddSignalR();
 
