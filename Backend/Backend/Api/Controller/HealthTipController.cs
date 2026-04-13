@@ -26,7 +26,7 @@ namespace Backend.Api.Controller
                 });
             }
 
-            return BadRequest();
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
     }
 }
