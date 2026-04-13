@@ -11,9 +11,9 @@ import {
   View,
 } from "react-native";
 
-import { Card } from "@/components/card";
-import { HeaderView } from "@/components/header-view";
-import { ThemedText } from "@/components/themed-text";
+import { Card } from "@/components/ui/card";
+import { HeaderView } from "@/components/ui/header-view";
+import { ThemedText } from "@/components/ui/themed-text";
 import { Colors } from "@/constants/theme";
 import { MENU_ITEMS } from "@/types/navigation-type";
 

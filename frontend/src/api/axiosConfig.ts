@@ -2,13 +2,27 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const BASE_URL =
-  Platform.OS === "android"
-    ? "http://10.0.2.2:5238/api"
+const LAN_IP = "10.142.162.45";
+
+const getBaseURL = () => {
+  if (__DEV__) {
+    // je nach dem ob Android oder iOS, muss hier das jeweilige auskommentiert werden, damit Android Emulator funktioniert
+    if (Platform.OS === "android") {
+      return `http://${LAN_IP}:5238/api`;
+    }
+
+    if (Platform.OS === "ios") {
+      return `http://${LAN_IP}:5238/api`;
+    }
+  }
+
+  return Platform.OS === "android"
+    ? "http://10.0.2.2:5238/api" // android emulator
     : "http://127.0.0.1:5238/api";
+};
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
