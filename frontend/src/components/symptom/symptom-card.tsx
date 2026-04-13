@@ -5,8 +5,9 @@ import { StyleSheet, useColorScheme, View } from "react-native";
 import { Colors } from "@/constants/theme";
 import { PatientSymptomResponse } from "@/types/symptom-type";
 
-import { ModalCard } from "./modal-card";
-import { ThemedText } from "./themed-text";
+import { DetailField } from "../ui/detail-field";
+import { ModalCard } from "../ui/modal-card";
+import { ThemedText } from "../ui/themed-text";
 
 interface SymptomCardProps {
   symptom: PatientSymptomResponse;
@@ -30,23 +31,6 @@ const getIntensityLabel = (intensity: number) => {
   if (intensity <= 7) return "Mäßig";
   return "Stark";
 };
-
-const DetailField = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) => {
-  if (!value) return null;
-  return (
-    <View style={styles.detailContainer}>
-      <ThemedText style={styles.detailLabel}>{label}:</ThemedText>
-      <ThemedText style={styles.detailValue}>{value}</ThemedText>
-    </View>
-  );
-};
-
 export const SymptomCard: React.FC<SymptomCardProps> = ({
   symptom,
   onDelete,
@@ -79,10 +63,10 @@ export const SymptomCard: React.FC<SymptomCardProps> = ({
       </View>
       <View style={styles.intensitySection}>
         <View style={styles.intensityTextRow}>
-          <ThemedText style={[styles.detailLabel, { opacity: 0.8 }]}>
+          <ThemedText style={{ fontSize: 14, opacity: 0.8 }}>
             Intensität:
           </ThemedText>
-          <ThemedText style={styles.detailValue}>
+          <ThemedText style={{ fontSize: 16 }}>
             {symptom.intensity}/10-{intensityLabel}
           </ThemedText>
         </View>
@@ -143,15 +127,5 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: "100%",
     borderRadius: 4,
-  },
-  detailContainer: {
-    marginTop: 12,
-  },
-  detailLabel: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  detailValue: {
-    fontSize: 16,
   },
 });
