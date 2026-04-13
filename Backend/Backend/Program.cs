@@ -10,6 +10,7 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.CommunicationLevelService;
 using Backend.Infrastructure.Repositories;
 using Backend.Application.Services.UserService;
+using Backend.Application.Services.AIService;
 using Backend.Domain.Entities;
 using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -52,6 +53,7 @@ builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryServi
 builder.Services.AddScoped<IFamilyHistoryEntryService, FamilyHistoryEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMedicationNotificationService, MedicationNotificationService>();
+builder.Services.AddScoped<IAIService, AIService>();
 
 builder.Services.AddSignalR();
 
