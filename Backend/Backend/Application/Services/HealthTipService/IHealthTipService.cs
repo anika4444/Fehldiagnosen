@@ -4,6 +4,6 @@ namespace Backend.Application.Services.HealthTipService
 {
     public interface IHealthTipService
     {
-        ServiceResult<string> GetTodayHealthTipAsync();
+        ServiceResult<string> GetTodayHealthTip();
     }
 }
