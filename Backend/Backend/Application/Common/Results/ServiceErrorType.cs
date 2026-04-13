@@ -7,5 +7,6 @@
         Conflict, // Conflict with current state (409)
         ValidationError, // Validation failed (400)
         Unauthorized, // Unauthorized access (401)
+        Forbidden, // Forbidden access (403)
     }
 }
