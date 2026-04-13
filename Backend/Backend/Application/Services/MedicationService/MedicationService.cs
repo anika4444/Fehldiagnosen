@@ -92,6 +92,8 @@ namespace Backend.Application.Services.MedicationService
             if (existingMedication == null)
                 return ServiceResult<MedicationResponse>.NotFound("Medikation existiert nicht.");
 
+            if (existingMedication.PatientId != patientId)
+                return ServiceResult<MedicationResponse>.NotFound("Medikation existiert nicht.");
             existingMedication.Name = request.Name;
             existingMedication.Dosage = request.Dosage;
             existingMedication.IntakeFrequency = request.IntakeFrequency;
