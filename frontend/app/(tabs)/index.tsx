@@ -1,9 +1,9 @@
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 
-import { Card } from "@/components/card";
-import { HeaderView } from "@/components/header-view";
-import { ThemedText } from "@/components/themed-text";
+import { Card } from "@/components/ui/card";
+import { HeaderView } from "@/components/ui/header-view";
+import { ThemedText } from "@/components/ui/themed-text";
 import { Colors } from "@/constants/theme";
 
 const Dashboard = () => {

@@ -31,6 +31,11 @@
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
         }
 
+        public static ServiceResult Forbidden(string errorMessage)
+        {
+            return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };
+        }
+
     }
     public class ServiceResult<T> : ServiceResult
     {
@@ -66,6 +71,9 @@
         public static ServiceResult<T> InternalServerError(string errorMessage)
         {
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
+        public static ServiceResult<T> Forbidden(string errorMessage)
+        {
+            return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };
         }
     }
 }

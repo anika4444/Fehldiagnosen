@@ -9,7 +9,7 @@ namespace Backend.Api.Controller
     [Authorize]
     [ApiController]
     [Route("api/family-history-entries")]
-    public class FamilyHistoryEntryController : ControllerBase
+    public class FamilyHistoryEntryController : BaseApiController
     {
         private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
 
@@ -23,7 +23,7 @@ namespace Backend.Api.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FamilyHistoryEntryResponse>> GetById(int id)
         {
-            var result = await _familyHistoryEntryService.GetByIdAsync(id);
+            var result = await _familyHistoryEntryService.GetByIdAsync(id, GetCurrentUserId());
 
             if (result.IsSuccess)
             {
@@ -42,7 +42,7 @@ namespace Backend.Api.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var result = await _familyHistoryEntryService.DeleteAsync(id);
+            var result = await _familyHistoryEntryService.DeleteAsync(id, GetCurrentUserId());
 
             if (result.IsSuccess)
             {

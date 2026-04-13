@@ -8,5 +8,6 @@
         ValidationError, // Validation failed (400)
         Unauthorized, // Unauthorized access (401)
         InternalServerError, // Internal server error (500)
+        Forbidden, // Forbidden access (403)
     }
 }

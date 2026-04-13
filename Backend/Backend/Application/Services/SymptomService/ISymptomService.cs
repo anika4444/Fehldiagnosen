@@ -6,18 +6,18 @@ namespace Backend.Application.Services.SymptomService
 {
     public interface ISymptomService
     {
-        Task<ServiceResult<PatientSymptomResponse>> GetByIdAsync(int symptomId);
+        Task<ServiceResult<PatientSymptomResponse>> GetByIdAsync(int symptomId, string? userId);
         
-        Task<ServiceResult<IEnumerable<SymptomDefinitionResponse>>> GetSymptomDefinitionsByNameAsync(string name);
+        Task<ServiceResult<IEnumerable<SymptomDefinitionResponse>>> GetSymptomDefinitionsByNameAsync(string? name);
         
-        Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllAsync(int patientId);
+        Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllAsync(int patientId, string? userId);
         
-        Task<ServiceResult<PatientSymptomResponse>> CreateAsync(int patientId, CreatePatientSymptomRequest request);
+        Task<ServiceResult<PatientSymptomResponse>> CreateAsync(int patientId, CreatePatientSymptomRequest request, string? userId);
         
-        Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patiendId, int patientSymptomId, UpdatePatientSymptomRequest request);
+        Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patientId, int patientSymptomId, UpdatePatientSymptomRequest request, string? userId);
         
-        Task<ServiceResult> DeleteAsync(int symptomId);
+        Task<ServiceResult> DeleteAsync(int symptomId, string? userId);
         
-        Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllByDateAsync(int patientId, DateTime date);
+        Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllByDateAsync(int patientId, DateTime date, string? userId);
     }
 }
