@@ -157,7 +157,7 @@ public class PatientController : BaseApiController
         var result = await _medicalHistoryEntryService.CreateAsync(patientId, request, userId);
 
         if (result.IsSuccess)
-            return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = patientId }, result.Data);
+            return CreatedAtAction(nameof(MedicalHistoryEntryController.GetById), "MedicalHistoryEntry", new { id = result.Data.Id }, result.Data);
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
