@@ -109,7 +109,7 @@ public class PatientController : BaseApiController
         var result = await _symptomService.CreateAsync(patientId, request, userId);
 
         if (result.IsSuccess)
-            return CreatedAtAction(nameof(SymptomController.GetById), "Symptom", new { id = patientId }, result.Data);
+            return CreatedAtAction(nameof(SymptomController.GetById), "Symptom", new { id = result.Data.Id }, result.Data);
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
