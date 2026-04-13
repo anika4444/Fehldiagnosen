@@ -26,6 +26,10 @@
         {
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Unauthorized };
         }
+        public static ServiceResult InternalServerError(string errorMessage)
+        {
+            return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
+        }
 
     }
     public class ServiceResult<T> : ServiceResult
@@ -57,6 +61,11 @@
         public static ServiceResult<T> Unauthorized(string errorMessage)
         {
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Unauthorized };
+        }
+
+        public static ServiceResult<T> InternalServerError(string errorMessage)
+        {
+            return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.InternalServerError };
         }
     }
 }
