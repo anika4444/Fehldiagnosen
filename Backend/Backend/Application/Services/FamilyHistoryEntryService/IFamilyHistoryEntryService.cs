@@ -5,14 +5,14 @@ namespace Backend.Application.Services.FamilyHistoryService
 {
     public interface IFamilyHistoryEntryService
     {
-        Task<ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>> GetAllAsync(int patientId);
-        
-        Task<ServiceResult<FamilyHistoryEntryResponse>> GetByIdAsync(int familyHistoryEntryId);
-        
-        Task<ServiceResult<FamilyHistoryEntryResponse>> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request);
-        
-        Task<ServiceResult<FamilyHistoryEntryResponse>> UpdateAsync(int patientId, int familyHistoryEntryId, UpdateFamilyHistoryEntryRequest request);
-        
-        Task<ServiceResult> DeleteAsync(int familyHistoryEntryId);
+        Task<ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>> GetAllAsync(int patientId, string? userId);
+
+        Task<ServiceResult<FamilyHistoryEntryResponse>> GetByIdAsync(int familyHistoryEntryId, string? userId);
+
+        Task<ServiceResult<FamilyHistoryEntryResponse>> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request, string? userId);
+
+        Task<ServiceResult<FamilyHistoryEntryResponse>> UpdateAsync(int patientId, int familyHistoryEntryId, UpdateFamilyHistoryEntryRequest request, string? userId);
+
+        Task<ServiceResult> DeleteAsync(int familyHistoryEntryId, string? userId);
     }
 }
