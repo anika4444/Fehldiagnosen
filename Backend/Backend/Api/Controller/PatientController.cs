@@ -61,7 +61,7 @@ public class PatientController : BaseApiController
         await _medicationNotificationService.NotifyMedicationChanged();
 
         if (result.IsSuccess)
-            return CreatedAtAction(nameof(MedicationController.GetById), "Medication", new { id = patientId }, result.Data);
+            return CreatedAtAction(nameof(MedicationController.GetById), "Medication", new { id = result.Data.Id }, result.Data);
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
