@@ -1,11 +1,14 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
+using Backend.Application.Services.CommunicationLevelService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
+using Backend.Application.Services.CommunicationLevelService;
+using Backend.Infrastructure.Repositories;
 using Backend.Application.Services.UserService;
 using Backend.Domain.Entities;
 using Backend.Infrastructure.Repositories;
@@ -39,6 +42,8 @@ builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionR
 builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
 builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryEntryRepository>();
 builder.Services.AddScoped<IFamilyHistoryEntryRepository, MySqlFamilyHistoryEntryRepository>();
+builder.Services.AddScoped<ICommunicationLevelRepository, MySqlCommunicationLevelRepository>();
+builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
 
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ISymptomService, SymptomService>();

@@ -25,5 +25,7 @@ namespace Backend.Domain.Entities
         public List<Medication> MedicationEntries { get; set; } = new();
 
         public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = new();
+
+        public CommunicationLevel? CommunicationLevel { get; set; }
     }
 }
