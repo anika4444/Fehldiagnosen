@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-
+import axiosConfig from "@/api/axiosConfig";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
-
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
-import { ThemedText } from "../ui/themed-text";
+import { ThemedText } from "../themed-text";
+import { PrimaryButton } from "../ui/primary-button";
 
 interface MedicalHistoryEntryCardProps {
+  patientId: number | null;
   entry: MedicalHistoryEntryResponse;
   onDelete: (id: number) => void;
   onEdit: (entry: MedicalHistoryEntryResponse) => void;
+  onSave: (payload: any, id?: number) => Promise<void>;
 }
 
 const getStatusInfo = (status: any) => {
@@ -27,27 +29,51 @@ const getStatusInfo = (status: any) => {
 
 export const MedicalHistoryEntryCard: React.FC<
   MedicalHistoryEntryCardProps
-> = ({ entry, onDelete, onEdit }) => {
+> = ({ patientId, entry, onDelete, onEdit, onSave }) => {
   const colorScheme = useColorScheme() ?? "light";
-  const theme = Colors[colorScheme];
+  const [aiExplanation, setAiExplanation] = useState<string | null>(
+    entry.aiExplanation || null,
+  );
 
-  const id = entry.id;
-  const title = entry.diagnosis;
-  const icd10 = entry.icd10Code || "—";
-  const year = entry.year;
-  const comment = entry.comment;
+  useEffect(() => {
+    setAiExplanation(entry.aiExplanation || null);
+  }, [entry.aiExplanation]);
+
   const statusInfo = getStatusInfo(entry.status);
+
+  const explainMedicalHistory = async () => {
+    try {
+      const response = await axiosConfig.get<any>(
+        `ai/${patientId}/explain-medical-history/${entry.id}`,
+      );
+      const explanationText =
+        response.data.data?.text || response.data.text || response.data;
+
+      const payload = {
+        diagnosis: entry.diagnosis,
+        icd10Code: entry.icd10Code,
+        year: entry.year,
+        status: entry.status,
+        comment: entry.comment,
+        aiExplanation: explanationText,
+      };
+
+      await onSave(payload, entry.id);
+      setAiExplanation(explanationText);
+    } catch (error) {
+      console.error("Fehler beim Laden oder Speichern der Erklärung:", error);
+    }
+  };
 
   return (
     <ModalCard
-      title={title}
+      title={entry.diagnosis}
       types="secondary"
-      onClose={() => onDelete(id)}
+      onClose={() => onDelete(entry.id)}
       onEdit={() => onEdit(entry)}
     >
-      <DetailField label="ICD-10 Code" value={icd10} />
-      <DetailField label="Diagnosejahr" value={year} />
-
+      <DetailField label="ICD-10 Code" value={entry.icd10Code || "—"} />
+      <DetailField label="Diagnosejahr" value={entry.year} />
       <View style={styles.detailContainer}>
         <ThemedText style={styles.detailLabel}>Status:</ThemedText>
         <ThemedText
@@ -59,22 +85,20 @@ export const MedicalHistoryEntryCard: React.FC<
           {statusInfo.label}
         </ThemedText>
       </View>
-
-      <DetailField label="Anmerkungen" value={comment} />
+      <DetailField label="Anmerkungen" value={entry.comment} />
+      {aiExplanation && (
+        <DetailField label="KI-Erklärung" value={aiExplanation} />
+      )}
+      <PrimaryButton
+        title="Mit KI erklären lassen"
+        onPress={explainMedicalHistory}
+      />
     </ModalCard>
   );
 };
 
 const styles = StyleSheet.create({
-  detailContainer: {
-    marginTop: 12,
-  },
-  detailLabel: {
-    fontSize: 14,
-    marginBottom: 4,
-    opacity: 0.8,
-  },
-  detailValue: {
-    fontSize: 16,
-  },
+  detailContainer: { marginTop: 12 },
+  detailLabel: { fontSize: 14, marginBottom: 4, opacity: 0.8 },
+  detailValue: { fontSize: 16 },
 });

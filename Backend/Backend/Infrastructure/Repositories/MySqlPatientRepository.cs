@@ -16,5 +16,12 @@ namespace Backend.Infrastructure.Repositories
         {
             return await _context.Patients.FindAsync(id);
         }
+
+        public async Task<Patient> UpdateAsync(Patient patient)
+        {
+            _context.Patients.Update(patient);
+            await _context.SaveChangesAsync();
+            return patient;
+        }
     }
 }

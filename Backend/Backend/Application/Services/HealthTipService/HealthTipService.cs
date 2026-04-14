@@ -14,7 +14,7 @@ namespace Backend.Application.Services.HealthTipService
             "Reduziere deinen Zuckerkonsum."
         };
 
-        public ServiceResult<string> GetTodayHealthTipAsync()
+        public ServiceResult<string> GetTodayHealthTip()
         {
             int seed = DateTime.Today.Year * 1000 + DateTime.Today.DayOfYear;
             var random = new Random(seed);
