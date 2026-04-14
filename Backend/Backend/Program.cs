@@ -38,6 +38,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<IPatientSymptomRepository, MySqlSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();

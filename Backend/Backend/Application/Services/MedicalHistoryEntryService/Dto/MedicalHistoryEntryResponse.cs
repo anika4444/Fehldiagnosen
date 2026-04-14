@@ -20,5 +20,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService.Dto
         public string? Comment { get; set; } = string.Empty;
 
         public EntryBy EntryBy { get; set; }
+
+        public string? AiExplanation { get; set; }
     }
 }

@@ -17,10 +17,12 @@ const model = new ChatOpenAI({
     baseURL: process.env.AI_BASE_URL,
   },
   defaultHeaders: {
-    "HTTP-Referer": "http://localhost:3000",
+    "HTTP-Referer": process.env.AI_SCRIPT_URL,
     "X-Title": "adam-med-app-prototype",
   },
 });
+
+// Sprachniveau: 
 
 const medicalPrompt = ChatPromptTemplate.fromMessages([
   [
@@ -43,9 +45,7 @@ REGELN:
 - Keine medizinische Beratung oder Therapieempfehlungen.
 - Sprich den Nutzer mit du an.
 - Halte die Erklärung kurz und direkt.
- 
-ABSCHLUSS:
-Beende den Text immer mit dem Satz: KI-generierte Erklärung – kein Ersatz für ein persönliches Arztgespräch.`
+- Erwähne nicht, dass dies eine KI-generierte Erklärung ist und es keinen Ersatz für ein persönliches Arztgespräch darstellt.`
   ],
   [
     "human",
@@ -82,7 +82,7 @@ app.post("/ai/explain", async (req, res) => {
       langLevel: langLevel || "standard"
     });
 
-    const cleanResponse = response.replace(/\n+/g, ' ').trim();
+    const cleanResponse = response.replace(/\n+/g, ' ').trim() + ' KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.';
 
     res.json({ text: cleanResponse });
 

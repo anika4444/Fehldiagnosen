@@ -2,6 +2,7 @@ using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace Backend.Application.Services.AIService
 {
@@ -10,26 +11,31 @@ namespace Backend.Application.Services.AIService
         private readonly IPatientRepository _patientRepository;
 
         private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
+        
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AIService(IPatientRepository patientRepository, IMedicalHistoryEntryService medicalHistoryEntryService)
+        private readonly string _explanationEndpoint;
+
+        public AIService(IPatientRepository patientRepository, IMedicalHistoryEntryService medicalHistoryEntryService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _patientRepository = patientRepository;
             _medicalHistoryEntryService = medicalHistoryEntryService;
+            _httpClientFactory = httpClientFactory;
+            _explanationEndpoint = configuration["AiServiceOptions:ExplanationEndpoint"];
         }
 
-        public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryId)
+        public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId)
         {
-            var explainEndpoint = "http://localhost:3000/ai/explain";
             var langLevel = "basic";
 
-            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryId, userId);
+            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryEntryId, userId);
 
-            if (entryResult == null)
+            var entry = entryResult?.Data ?? null;
+
+            if (entry == null)
             {
-                return ServiceResult<AiExplainResponse>.NotFound($"Vorerkrankung mit ID {medicalHistoryId} nicht gefunden");
+                return ServiceResult<AiExplainResponse>.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} nicht gefunden");
             }
-
-            var entry = entryResult.Data;
 
             var patient = await _patientRepository.FindByIdAsync(entry.PatientId);
 
@@ -38,17 +44,36 @@ namespace Backend.Application.Services.AIService
                 return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
             }
 
+            // all communicationLevels - basic [0]
+
+            //var communicationLevel = await _communicationRepository.FindByIdAsync(patient.CommunicationLevelId);
+
+            //var langLevel = communicationLevel?.Title ?? "basic";
+
+            var payload = new {
+                langLevel,
+                //prompt: 
+                diagnosis = entry.Diagnosis,
+                icd10Code = entry.ICD10Code ?? string.Empty,
+                year = entry.Year,
+                status = (int)entry.Status,
+                entryBy = (int)entry.EntryBy,
+                comment = entry.Comment ?? string.Empty
+            };
+            var json = JsonSerializer.Serialize(payload);
+            Console.WriteLine(json);
+
             try
             {
-                using var httpClient = new HttpClient();
-                using var response = await httpClient.PostAsJsonAsync(explainEndpoint, new
+                var httpClient = _httpClientFactory.CreateClient();
+                using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, new
                 {
                     langLevel,
                     diagnosis = entry.Diagnosis,
                     icd10Code = entry.ICD10Code ?? string.Empty,
-                    year = entry.Year.ToString(),
-                    status = entry.Status.ToString(),
-                    entryBy = entry.EntryBy.ToString(),
+                    year = entry.Year,
+                    status = (int)entry.Status,
+                    entryBy = (int)entry.EntryBy,
                     comment = entry.Comment ?? string.Empty
                 });
                 var responseBody = await response.Content.ReadAsStringAsync();

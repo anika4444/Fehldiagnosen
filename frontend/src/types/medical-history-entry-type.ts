@@ -4,6 +4,7 @@ export interface MedicalHistoryEntryFormData {
     year: number;
     status: ConditionStatus;
     comment?: string | null;
+    aiExplanation?: string | null;
 }
 
 export interface MedicalHistoryEntryResponse {
@@ -15,6 +16,7 @@ export interface MedicalHistoryEntryResponse {
     status: ConditionStatus;
     comment?: string | null;
     entryBy: EntryBy;
+    aiExplanation?: string | null;
 }
 
 export interface MedicalHistoryEntryRequest {
@@ -24,6 +26,7 @@ export interface MedicalHistoryEntryRequest {
     status: number;
     comment?: string | null;
     entryBy: number;
+    aiExplanation?: string | null;
 }
 
 export enum ConditionStatus {
