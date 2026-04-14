@@ -11,7 +11,7 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
 import { PrimaryButton } from "./primary-button";
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 import { ThemedView } from "./themed-view";
 
 interface ModalCardProps {

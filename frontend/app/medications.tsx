@@ -7,7 +7,7 @@ import { MedicationForm } from "@/components/medication/medication-form";
 import { DataList } from "@/components/ui/data-list";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ThemedText } from "@/components/ui/themed-text";
+import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useFormState } from "@/hooks/use-form-state";
