@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    [Migration("20260414114301_addAiExplanationToMedicalHistoryEntries")]
-    partial class addAiExplanationToMedicalHistoryEntries
+    [Migration("20260414153244_InitinalCreate")]
+    partial class InitinalCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -86,27 +86,57 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.Backend.Domain.Entities.KnownMedication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("AtcCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Dosage")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PrescriptionRequired")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Substance")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KnownMedications");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
+                    b.Property<string>("ActionRecommendation")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<string>("Level")
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("KiPrompt")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)");
 
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PatientId")
-                        .IsUnique();
 
                     b.ToTable("CommunicationLevels");
                 });
@@ -188,6 +218,10 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("AtcCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<string>("Dosage")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -234,6 +268,9 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int?>("CommunicationLevelId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime(6)");
 
@@ -257,6 +294,8 @@ namespace Backend.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommunicationLevelId");
 
                     b.ToTable("Patients");
                 });
@@ -463,17 +502,6 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
-                {
-                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
-                        .WithOne("CommunicationLevel")
-                        .HasForeignKey("Backend.Domain.Entities.CommunicationLevel", "PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Patient", "Patient")
@@ -505,6 +533,15 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.CommunicationLevel", "CommunicationLevel")
+                        .WithMany()
+                        .HasForeignKey("CommunicationLevelId");
+
+                    b.Navigation("CommunicationLevel");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>
@@ -577,8 +614,6 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
                 {
-                    b.Navigation("CommunicationLevel");
-
                     b.Navigation("MedicalHistoryEntries");
 
                     b.Navigation("MedicationEntries");

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import { KnownMedicationResult } from "@/api/knownMedicationService";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
@@ -6,9 +7,9 @@ import {
   MedicationResponse,
 } from "@/types/medication-type";
 
-import { MedicationAutocomplete } from "./medication-autocomplete";
 import { FormInput } from "../ui/form-input";
 import { ModalCard } from "../ui/modal-card";
+import { MedicationAutocomplete } from "./medication-autocomplete";
 
 interface MedicationFormProps {
   initialData?: MedicationResponse | null;
