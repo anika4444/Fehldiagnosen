@@ -5,7 +5,7 @@ import { Platform, StyleSheet, View } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 interface FormPickerProps {
   label: string;

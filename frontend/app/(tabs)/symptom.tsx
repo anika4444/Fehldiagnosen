@@ -9,7 +9,7 @@ import { DataList } from "@/components/ui/data-list";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ThemedText } from "@/components/ui/themed-text";
+import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useDatePicker } from "@/hooks/use-date-picker";

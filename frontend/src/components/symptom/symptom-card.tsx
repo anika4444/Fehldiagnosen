@@ -7,7 +7,7 @@ import { PatientSymptomResponse } from "@/types/symptom-type";
 
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
-import { ThemedText } from "../ui/themed-text";
+import { ThemedText } from "../themed-text";
 
 interface SymptomCardProps {
   symptom: PatientSymptomResponse;

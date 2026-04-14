@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 import { ThemedView } from "./themed-view";
 
 interface HeaderViewProps {

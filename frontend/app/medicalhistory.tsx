@@ -7,7 +7,7 @@ import { MedicalHistoryEntryForm } from "@/components/medicalhistoryentry/medica
 import { DataList } from "@/components/ui/data-list";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ThemedText } from "@/components/ui/themed-text";
+import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useFormState } from "@/hooks/use-form-state";
@@ -33,8 +33,8 @@ export default function MedicalHistory() {
 
   const handleSave = async (payload: any) => {
     try {
-      const updatedPayload = editingItem 
-        ? { ...editingItem, ...payload } 
+      const updatedPayload = editingItem
+        ? { ...editingItem, ...payload }
         : payload;
 
       await saveEntry(updatedPayload, editingItem?.id);

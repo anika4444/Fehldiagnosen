@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 interface DatePickerFieldProps {
   label: string;

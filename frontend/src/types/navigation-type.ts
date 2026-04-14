@@ -33,4 +33,11 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "history",
     route: "/medicalhistory" as Href,
   },
+  {
+    id: "communication",
+    title: "Kommunikationstool",
+    subtitle: "Kommunikationslevel einstellen",
+    icon: "message-text-outline",
+    route: "/communicationlevel" as Href,
+  },
 ];
