@@ -2,24 +2,36 @@
 using Backend.Application.Repositories;
 using Backend.Application.Services.CommunicationLevelService.Dto;
 using Backend.Domain.Entities;
-using Backend.src.CommunicationLevel;
+using System.Text.Json;
 
 namespace Backend.Application.Services.CommunicationLevelService
 {
     public class CommunicationLevelService : ICommunicationLevelService
     {
-        private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IPatientRepository _patientRepository;
+        private readonly ICommunicationLevelRepository _levelRepository;
+        private readonly List<CommunicationQuestion> _questions;
 
-        public CommunicationLevelService(ICommunicationLevelRepository communicationLevelRepository, IPatientRepository patientRepository)
+        public CommunicationLevelService(IPatientRepository patientRepository, ICommunicationLevelRepository levelRepository)
         {
-            _communicationLevelRepository = communicationLevelRepository;
             _patientRepository = patientRepository;
+            _levelRepository = levelRepository;
+
+            var filePath = Path.Combine(AppContext.BaseDirectory, "src", "CommunicationLevel", "communication_questions.json");
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Could not find the questions file at: {filePath}");
+            }
+
+            var json = File.ReadAllText(filePath);
+            _questions = JsonSerializer.Deserialize<List<CommunicationQuestion>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
         }
 
         public Task<ServiceResult<IEnumerable<CommunicationQuestionResponse>>> GetQuestionsAsync()
         {
-            var questions = CommunicationLevelQuestions.Questions.Select(q => new CommunicationQuestionResponse
+            var response = _questions.Select(q => new CommunicationQuestionResponse
             {
                 Id = q.Id,
                 Text = q.Text,
@@ -30,93 +42,66 @@ namespace Backend.Application.Services.CommunicationLevelService
                 }).ToList()
             });
 
-            return Task.FromResult(ServiceResult<IEnumerable<CommunicationQuestionResponse>>.Success(questions));
+            return Task.FromResult(ServiceResult<IEnumerable<CommunicationQuestionResponse>>.Success(response));
         }
+
 
         public async Task<ServiceResult<CommunicationLevelResponse>> CreateAsync(int patientId, CreateCommunicationLevelRequest request, string userId)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            if (patient == null) return ServiceResult<CommunicationLevelResponse>.NotFound("Patient not found.");
+            if (patient.UserId != userId) return ServiceResult<CommunicationLevelResponse>.Forbidden("Access denied.");
 
-            if (patient == null)
-                return ServiceResult<CommunicationLevelResponse>.NotFound($"Patient {patientId} existiert nicht.");
+            // Calculate key (L1, L2, or L3) based on average points
+            var levelKey = CalculateLevelKey(request.SelectedAnswerIds);
 
-            if (patient.UserId != userId)
-                return ServiceResult<CommunicationLevelResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            // Find the corresponding Entity in our Lookup table
+            var levelEntity = await _levelRepository.FindByNameAsync(levelKey);
+            if (levelEntity == null) return ServiceResult<CommunicationLevelResponse>.Conflict("Database error: Level not defined.");
 
-            var level = CalculateLevel(request.SelectedAnswerIds);
+            // Update the patient's foreign key
+            patient.CommunicationLevelId = levelEntity.Id;
+            await _patientRepository.UpdateAsync(patient);
 
-            var existing = await _communicationLevelRepository.FindByPatientIdAsync(patientId);
-
-            CommunicationLevel result;
-
-            if (existing == null)
+            return ServiceResult<CommunicationLevelResponse>.Success(new CommunicationLevelResponse
             {
-                result = await _communicationLevelRepository.AddAsync(new CommunicationLevel
-                {
-                    PatientId = patientId,
-                    Level = level,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
-            else
-            {
-                existing.Level = level;
-                existing.CreatedAt = DateTime.UtcNow;
-                result = await _communicationLevelRepository.UpdateAsync(existing);
-            }
-
-            return ServiceResult<CommunicationLevelResponse>.Success(ToResponse(result));
+                Id = levelEntity.Id,
+                PatientId = patient.Id,
+                Level = levelEntity.Name,
+                ActionRecommendation = levelEntity.ActionRecommendation
+            });
         }
 
         public async Task<ServiceResult<CommunicationLevelResponse>> GetByPatientIdAsync(int patientId, string userId)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
+            if (patient == null) return ServiceResult<CommunicationLevelResponse>.NotFound("Patient not found.");
+            if (patient.UserId != userId) return ServiceResult<CommunicationLevelResponse>.Forbidden("Access denied.");
 
-            if (patient == null)
-                return ServiceResult<CommunicationLevelResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (patient.UserId != userId)
-                return ServiceResult<CommunicationLevelResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
-
-            var communicationLevel = await _communicationLevelRepository.FindByPatientIdAsync(patientId);
-
+            var communicationLevel = await _levelRepository.FindByPatientIdAsync(patientId);
             if (communicationLevel == null)
-                return ServiceResult<CommunicationLevelResponse>.NotFound($"Kein Kommunikationslevel für Patient {patientId} gefunden.");
+                return ServiceResult<CommunicationLevelResponse>.NotFound("No level assigned.");
 
-            return ServiceResult<CommunicationLevelResponse>.Success(ToResponse(communicationLevel));
-        }
-
-        private string CalculateLevel(List<int> selectedAnswerIds)
-        {
-            var allAnswers = CommunicationLevelQuestions.Questions
-                .SelectMany(q => q.Answers);
-
-            var selectedAnswers = allAnswers
-                .Where(a => selectedAnswerIds.Contains(a.Id))
-                .ToList();
-
-            if (selectedAnswers.Count == 0)
-                return "L1";
-
-            var average = selectedAnswers.Average(a => a.Points);
-
-            return average switch
-            {
-                <= 1.6 => "L1",
-                <= 2.3 => "L2",
-                _ => "L3"
-            };
-        }
-
-        private CommunicationLevelResponse ToResponse(CommunicationLevel communicationLevel)
-        {
-            return new CommunicationLevelResponse
+            return ServiceResult<CommunicationLevelResponse>.Success(new CommunicationLevelResponse
             {
                 Id = communicationLevel.Id,
-                PatientId = communicationLevel.PatientId,
-                Level = communicationLevel.Level,
-                CreatedAt = communicationLevel.CreatedAt
-            };
+                PatientId = patient.Id,
+                Level = communicationLevel.Name,
+                ActionRecommendation = communicationLevel.ActionRecommendation
+            });
         }
+
+        private string CalculateLevelKey(List<int> selectedAnswerIds)
+        {
+            var selectedPoints = _questions.SelectMany(q => q.Answers)
+                .Where(a => selectedAnswerIds.Contains(a.Id))
+                .Select(a => a.Points).ToList();
+
+            if (!selectedPoints.Any()) return "L1";
+            var avg = selectedPoints.Average();
+
+            return avg <= 1.6 ? "L1" : avg <= 2.3 ? "L2" : "L3";
+        }
+
     }
 }

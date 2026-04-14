@@ -9,15 +9,13 @@ namespace Backend.Domain.Entities
         public int Id { get; set; }
 
         [Required]
-        public int PatientId { get; set; }
-
-        [ForeignKey("PatientId")]
-        public Patient? Patient { get; set; }
-
-        [Required]
         [MaxLength(10)]
-        public string Level { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Description { get; set; } = string.Empty;
+        public string KiPrompt { get; set; } = string.Empty;
+
+        public string ActionRecommendation { get; set; } = string.Empty;
+
     }
 }

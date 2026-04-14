@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -17,14 +18,32 @@ namespace Backend.Infrastructure.Repositories
                 {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
-
-                if (!context.SymptomsDefinition.Any())
-                {
-                    var definitions = GetInitialSymptomDefinitions();
-                    context.SymptomsDefinition.AddRange(definitions);
-                    await context.SaveChangesAsync();
-                }
             }
+
+            if (!context.SymptomsDefinition.Any())
+            {
+                var definitions = GetInitialSymptomDefinitions();
+                context.SymptomsDefinition.AddRange(definitions);
+                await context.SaveChangesAsync();
+            }
+
+            var existingLevels = await context.CommunicationLevels.ToListAsync<CommunicationLevel>();
+
+            if (existingLevels.Count < 3)
+            {
+                context.CommunicationLevels.AddRange(new List<CommunicationLevel>
+                {
+                    new CommunicationLevel {
+                        Name = "L1",
+                        Description = "Basic",
+                        KiPrompt = "Explain everything in very simple terms...",
+                        ActionRecommendation = "Use simple language..."
+                    },
+                    new CommunicationLevel { Name = "L2", Description = "Medium", KiPrompt = "Explain with moderate detail...", ActionRecommendation = "Use clear language..." },
+                    new CommunicationLevel { Name = "L3", Description = "Advanced", KiPrompt = "Explain with technical detail...", ActionRecommendation = "Use precise language..." }
+                });
+                            await context.SaveChangesAsync();
+                        }
         }
         private static List<SymptomDefinition> GetInitialSymptomDefinitions()
         {
