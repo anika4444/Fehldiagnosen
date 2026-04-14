@@ -46,6 +46,12 @@ namespace Backend.Application.Services.UserService
                     authClaims.Add(new Claim("PatientId", patient.Id.ToString()));
                 }
 
+                var doctor = await _dbContext.Doctors.FirstOrDefaultAsync(d => d.UserId == user.Id);
+                if (doctor != null)
+                {
+                    authClaims.Add(new Claim("DoctorId", doctor.Id.ToString()));
+                }
+
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings")["Secret"]));
 
                 var token = new JwtSecurityToken(
@@ -56,7 +62,8 @@ namespace Backend.Application.Services.UserService
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     userId = user.Id,
-                    patientId = patient?.Id
+                    patientId = patient?.Id,
+                    doctorId = doctor?.Id
                 });
             }
             return ServiceResult<Object>.Unauthorized("Invalid username or password.");
@@ -87,23 +94,17 @@ namespace Backend.Application.Services.UserService
             if (!string.IsNullOrEmpty(registerDto.Role))
             {
                 if (registerDto.Role.Equals("Patient", StringComparison.OrdinalIgnoreCase))
-                {
                     registerDto.Role = "Patient";
-                }
                 else if (registerDto.Role.Equals("Arzt", StringComparison.OrdinalIgnoreCase))
-                {
                     registerDto.Role = "Arzt";
-                }
 
                 if (!await _roleManager.RoleExistsAsync(registerDto.Role))
-                {
                     await _roleManager.CreateAsync(new IdentityRole(registerDto.Role));
-                }
 
                 await _userManager.AddToRoleAsync(user, registerDto.Role);
             }
 
-            if(registerDto.Role == "Patient")
+            if (registerDto.Role == "Patient")
             {
                 var newPatient = new Patient
                 {
@@ -116,6 +117,23 @@ namespace Backend.Application.Services.UserService
                 };
 
                 _dbContext.Patients.Add(newPatient);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            if (registerDto.Role == "Arzt")
+            {
+                var newDoctor = new Doctor
+                {
+                    UserId = user.Id,
+                    ApplicationUser = user,
+                    UserName = registerDto.UserName,
+                    FirstName = registerDto.FirstName,
+                    LastName = registerDto.LastName,
+                    Specialization = registerDto.Specialization ?? string.Empty,
+                    LicenseNumber = registerDto.LicenseNumber ?? string.Empty
+                };
+
+                _dbContext.Doctors.Add(newDoctor);
                 await _dbContext.SaveChangesAsync();
             }
 

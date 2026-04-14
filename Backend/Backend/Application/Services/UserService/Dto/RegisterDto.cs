@@ -21,5 +21,8 @@ namespace Backend.Application.Services.UserService.Dto
         public DateTime DateOfBirth { get; set; }
 
         public Gender? Gender { get; set; }
+
+        public string? Specialization { get; set; }
+        public string? LicenseNumber { get; set; }
     }
 }
