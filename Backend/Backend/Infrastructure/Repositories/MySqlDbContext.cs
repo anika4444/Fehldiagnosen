@@ -1,4 +1,5 @@
 ﻿using Backend.Domain.Entities;
+using Backend.Domain.Entities.Backend.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -19,6 +20,7 @@ namespace Backend.Infrastructure.Repositories
         public DbSet<MedicalHistoryEntry> MedicalHistoryEntries { get; set; }
         
         public DbSet<FamilyHistoryEntry> FamilyHistoryEntries { get; set; }
+        public DbSet<KnownMedication> KnownMedications { get; set; }
 
         public DbSet<CommunicationLevel> CommunicationLevels { get; set; }
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
