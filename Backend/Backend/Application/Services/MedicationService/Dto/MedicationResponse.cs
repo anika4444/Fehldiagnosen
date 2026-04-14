@@ -24,8 +24,13 @@ namespace Backend.Application.Services.MedicationService.Dto
         public string? Indication { get; set; }
 
         public string? AtcCode { get; set; }
+
         public EntryBy? EntryBy { get; set; }
         
         public string? Notes { get; set; }
+
+        public string? Substance { get; set; }
+
+        public bool? PrescriptionRequired { get; set; }
     }
 }

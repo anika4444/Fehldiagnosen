@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    [Migration("20260413152616_AddKnownMedications")]
-    partial class AddKnownMedications
+    [Migration("20260414114137_AddKnownMedication")]
+    partial class AddKnownMedication
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,20 +95,17 @@ namespace Backend.Migrations
                     b.Property<string>("AtcCode")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Darreichungsform")
+                    b.Property<string>("Dosage")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Rezeptpflichtig")
+                    b.Property<string>("PrescriptionRequired")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Staerke")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Wirkstoff")
+                    b.Property<string>("Substance")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -189,6 +186,10 @@ namespace Backend.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("AtcCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Dosage")
                         .HasMaxLength(100)

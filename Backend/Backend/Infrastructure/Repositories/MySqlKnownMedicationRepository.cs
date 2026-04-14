@@ -41,11 +41,10 @@ namespace Backend.Infrastructure.Repositories
                 medications.Add(new KnownMedication
                 {
                     Name = name,
-                    Wirkstoff = cols[7].Trim('"').Trim(),
+                    Substance = cols[7].Trim('"').Trim(),
                     AtcCode = cols[8].Trim('"').Trim(),
-                    Staerke = cols[19].Trim('"').Trim(),
-                    Darreichungsform = cols[21].Trim('"').Trim(),
-                    Rezeptpflichtig = cols[24].Trim('"').Trim(),
+                    Dosage = cols[19].Trim('"').Trim(),
+                    PrescriptionRequired = cols[24].Trim('"').Trim(),
                 });
             }
 

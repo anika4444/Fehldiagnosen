@@ -92,20 +92,17 @@ namespace Backend.Migrations
                     b.Property<string>("AtcCode")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Darreichungsform")
+                    b.Property<string>("Dosage")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Rezeptpflichtig")
+                    b.Property<string>("PrescriptionRequired")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Staerke")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Wirkstoff")
+                    b.Property<string>("Substance")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

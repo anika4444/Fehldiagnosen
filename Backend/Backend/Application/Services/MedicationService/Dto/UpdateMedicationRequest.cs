@@ -31,5 +31,9 @@ namespace Backend.Application.Services.MedicationService.Dto
         public EntryBy? EntryBy { get; set; }
 
         public string? Notes { get; set; }
+
+        public string? Substance { get; set; }
+
+        public bool? PrescriptionRequired { get; set; }
     }
 }

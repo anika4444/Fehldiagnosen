@@ -1,5 +1,4 @@
-﻿using Backend.Domain.Entities;
-using Backend.Domain.Entities.Backend.Domain.Entities;
+﻿using Backend.Domain.Entities.Backend.Domain.Entities;
 
 namespace Backend.Application.Services
 {
