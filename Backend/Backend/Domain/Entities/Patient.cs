@@ -8,6 +8,7 @@ namespace Backend.Domain.Entities
         public int Id { get; set; }
 
         public string UserId { get; set; } = string.Empty;
+
         public ApplicationUser ApplicationUser;
 
         public string UserName { get; set; } = string.Empty;
@@ -20,10 +21,10 @@ namespace Backend.Domain.Entities
         
         public Gender? Gender { get; set; }
 
-        public List<PatientSymptom> SymptomEntries { get; set; } = new();
+        public List<PatientSymptom> SymptomEntries { get; set; } = [];
         
-        public List<Medication> MedicationEntries { get; set; } = new();
+        public List<Medication> MedicationEntries { get; set; } = [];
 
-        public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = new();
+        public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = [];
     }
 }

@@ -17,7 +17,7 @@ namespace Backend.Api.Controller
         [HttpGet("today")]
         public IActionResult GetTodayHealthTip()
         {
-            var result = _healthTipService.GetTodayHealthTipAsync();
+            var result = _healthTipService.GetTodayHealthTip();
             if (result.IsSuccess)
             {
                 return Ok(new

@@ -4,6 +4,7 @@ using Backend.Application.Services.SymptomService.Dto;
 using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Domain.Entities;
 using Org.BouncyCastle.Asn1;
+using Backend.Application.Services.DiagnosisService.Dto;
 
 
 namespace Backend.Application.Mapper
@@ -114,6 +115,29 @@ namespace Backend.Application.Mapper
                 Relative = request.Relative,
                 Diagnosis = request.Diagnosis,
                 Comment = request.Comment
+            };
+        }
+
+        public DiagnosisResponse ToDiagnosisResponse(Diagnosis diagnosis)
+        {
+            return new DiagnosisResponse
+            {
+                Id = diagnosis.Id,
+                PatientId = diagnosis.PatientId,
+                Title = diagnosis.Title,
+                Description = diagnosis.Description,
+                IcdCode = diagnosis.IcdCode,
+                Severity = diagnosis.Severity,
+                SideLocalization = diagnosis.SideLocalization,
+                Status = diagnosis.Status,
+                MedicationText = diagnosis.MedicationText,
+                Symptoms = diagnosis.Symptoms,
+                Findings = diagnosis.Findings,
+                TherapeuticMeasures = diagnosis.TherapeuticMeasures,
+                Note = diagnosis.Note,
+                DiagnosisDate = diagnosis.DiagnosisDate,
+                CreatedAt = diagnosis.CreatedAt,
+                UpdatedAt = diagnosis.UpdatedAt
             };
         }
     }

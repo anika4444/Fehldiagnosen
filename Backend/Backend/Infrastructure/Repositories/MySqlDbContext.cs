@@ -22,6 +22,8 @@ namespace Backend.Infrastructure.Repositories
         public DbSet<FamilyHistoryEntry> FamilyHistoryEntries { get; set; }
         public DbSet<KnownMedication> KnownMedications { get; set; }
 
+        public DbSet<Diagnosis> Diagnoses { get; set; }
+
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
