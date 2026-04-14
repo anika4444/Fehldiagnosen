@@ -22,23 +22,19 @@ const model = new ChatOpenAI({
   },
 });
 
-// Sprachniveau: 
-
 const medicalPrompt = ChatPromptTemplate.fromMessages([
   [
     "system",
     `Du bist ein präziser medizinischer KI-Assistent. Deine Aufgabe ist es, einen Eintrag aus der Historie des Nutzers in einem kurzen, harmonischen Fließtext zu erklären.
- 
+
 SPRACHNIVEAU:
-- basic: Nutze einfachste Alltagssprache ohne Fachwörter. Erkläre die Krankheit so, dass jeder sie sofort versteht.
-- medium: Nutze eine Mischung aus Alltagssprache und medizinischen Grundbegriffen.
-- advanced: Nutze kompakten Klinik-Jargon und medizinische Fakten.
- 
+{kiPrompt}
+
 INHALT:
 - Verknüpfe Diagnose, Jahr, Status, Quelle und Anmerkung zu einer Einheit.
 - Gehe direkt auf die Quelle ein: Erwähne bei Patienten-Einträgen, dass es eine Eigenauskunft ist, bei Ärzten, dass es eine gesicherte Diagnose ist.
 - Integriere den Status und die Anmerkung sinnvoll in den zeitlichen Ablauf seit dem Diagnosejahr.
- 
+
 REGELN:
 - Keine Listen, keine Aufzählungspunkte, keine harten Zeilenumbrüche.
 - Erfinde keine Symptome oder Medikamente.
@@ -62,7 +58,8 @@ app.post("/ai/explain", async (req, res) => {
       status,
       entryBy,
       comment,
-      langLevel
+      langLevel,
+      kiPrompt,
     } = req.body;
 
     if (!diagnosis) {
@@ -79,7 +76,8 @@ app.post("/ai/explain", async (req, res) => {
       status: status || "bestehend",
       entryBy: entryBy || "deiner Angabe",
       comment: comment || "",
-      langLevel: langLevel || "standard"
+      langLevel: langLevel || "L1",
+      kiPrompt: kiPrompt || "Verwende eine einfache Sprache.",
     });
 
     const cleanResponse = response.replace(/\n+/g, ' ').trim() + ' KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.';

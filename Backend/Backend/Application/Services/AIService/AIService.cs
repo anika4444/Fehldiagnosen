@@ -3,6 +3,8 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
+using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.AIService
 {
@@ -11,22 +13,25 @@ namespace Backend.Application.Services.AIService
         private readonly IPatientRepository _patientRepository;
 
         private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
-        
+
+        private readonly ICommunicationLevelRepository _communicationLevelRepository;
+
         private readonly IHttpClientFactory _httpClientFactory;
 
         private readonly string _explanationEndpoint;
 
-        public AIService(IPatientRepository patientRepository, IMedicalHistoryEntryService medicalHistoryEntryService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public AIService(IPatientRepository patientRepository, IMedicalHistoryEntryService medicalHistoryEntryService, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _patientRepository = patientRepository;
             _medicalHistoryEntryService = medicalHistoryEntryService;
+            _communicationLevelRepository = communicationLevelRepository;
             _httpClientFactory = httpClientFactory;
             _explanationEndpoint = configuration["AiServiceOptions:ExplanationEndpoint"];
         }
 
         public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId)
         {
-            var langLevel = "basic";
+            //var langLevel = "basic";
 
             var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryEntryId, userId);
 
@@ -44,15 +49,14 @@ namespace Backend.Application.Services.AIService
                 return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
             }
 
-            // all communicationLevels - basic [0]
+            var communicationLevels = await _communicationLevelRepository.GetAllAsync();
 
-            //var communicationLevel = await _communicationRepository.FindByIdAsync(patient.CommunicationLevelId);
-
-            //var langLevel = communicationLevel?.Title ?? "basic";
+            var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
+                         ?? communicationLevels?.FirstOrDefault();
 
             var payload = new {
-                langLevel,
-                //prompt: 
+                langLevel = communicationLevel?.Name ?? "L1",
+                kiPrompt = communicationLevel?.KiPrompt ?? "",
                 diagnosis = entry.Diagnosis,
                 icd10Code = entry.ICD10Code ?? string.Empty,
                 year = entry.Year,
@@ -60,22 +64,13 @@ namespace Backend.Application.Services.AIService
                 entryBy = (int)entry.EntryBy,
                 comment = entry.Comment ?? string.Empty
             };
+
             var json = JsonSerializer.Serialize(payload);
-            Console.WriteLine(json);
 
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
-                using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, new
-                {
-                    langLevel,
-                    diagnosis = entry.Diagnosis,
-                    icd10Code = entry.ICD10Code ?? string.Empty,
-                    year = entry.Year,
-                    status = (int)entry.Status,
-                    entryBy = (int)entry.EntryBy,
-                    comment = entry.Comment ?? string.Empty
-                });
+                using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, payload);
                 var responseBody = await response.Content.ReadAsStringAsync();
 
                 /*if (!response.IsSuccessStatusCode)

@@ -36,11 +36,11 @@ namespace Backend.Infrastructure.Repositories
                     new CommunicationLevel {
                         Name = "L1",
                         Description = "Basic",
-                        KiPrompt = "Explain everything in very simple terms...",
+                        KiPrompt = "Nutze einfachste Alltagssprache ohne Fachwörter. Erkläre die Krankheit so, dass jeder sie sofort versteht.",
                         ActionRecommendation = "Use simple language..."
                     },
-                    new CommunicationLevel { Name = "L2", Description = "Medium", KiPrompt = "Explain with moderate detail...", ActionRecommendation = "Use clear language..." },
-                    new CommunicationLevel { Name = "L3", Description = "Advanced", KiPrompt = "Explain with technical detail...", ActionRecommendation = "Use precise language..." }
+                    new CommunicationLevel { Name = "L2", Description = "Medium", KiPrompt = "Nutze eine Mischung aus Alltagssprache und medizinischen Grundbegriffen", ActionRecommendation = "Use clear language..." },
+                    new CommunicationLevel { Name = "L3", Description = "Advanced", KiPrompt = "Nutze kompakten Klinik-Jargon und medizinische Fakten.", ActionRecommendation = "Use precise language..." }
                 });
                             await context.SaveChangesAsync();
                         }
