@@ -1,5 +1,4 @@
 import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
-
 import axiosConfig from "./axiosConfig";
 
 const mapStatusToEnum = (status: any): number => {
@@ -31,6 +30,7 @@ export const medicalHistoryEntryService = {
       Status: mapStatusToEnum(data.status || data.Status),
       Comment: data.comment || data.Comment || "",
       EntryBy: 1,
+      AiExplanation: data.aiExplanation || data.AiExplanation || "",
     };
     const response = await axiosConfig.post<any>(
       `/patients/${patientId}/medical-history-entries`,
@@ -51,6 +51,7 @@ export const medicalHistoryEntryService = {
       Status: mapStatusToEnum(data.status || data.Status),
       Comment: data.comment || data.Comment || "",
       EntryBy: 1,
+      AiExplanation: data.aiExplanation || data.AiExplanation || data.AiExplanation === "" ? data.aiExplanation : "",
     };
     const response = await axiosConfig.put<any>(
       `/patients/${patientId}/medical-history-entries/${entryId}`,

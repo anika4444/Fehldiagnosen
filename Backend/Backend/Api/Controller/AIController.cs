@@ -21,18 +21,18 @@ public class AIController : BaseApiController
         _logger = logger;
     }
 
-    [HttpPost("{id}/explain-medical-history/{medicalHistoryId}")]
+    [HttpGet("{id}/explain-medical-history/{medicalHistoryEntryId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExplainMedicalHistory(
         [FromRoute] int id,
-        [FromRoute] int medicalHistoryId,
+        [FromRoute] int medicalHistoryEntryId,
         [FromBody] ExplainMedicalHistoryRequest? request)
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
 
-        var result = await _aiService.ExplainMedicalHistory(id, userId, medicalHistoryId);
+        var result = await _aiService.ExplainMedicalHistory(id, userId, medicalHistoryEntryId);
 
         if (result.IsSuccess)
         {

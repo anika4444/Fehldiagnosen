@@ -86,6 +86,7 @@ namespace Backend.Application.Mapper
                 Status = medicalHistoryEntry.Status,
                 Comment = medicalHistoryEntry.Comment,
                 EntryBy = medicalHistoryEntry.EntryBy,
+                AiExplanation = medicalHistoryEntry.AiExplanation,
             };
         }
 

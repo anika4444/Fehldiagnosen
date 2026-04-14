@@ -33,5 +33,7 @@ namespace Backend.Domain.Entities
 
         [Required]
         public EntryBy EntryBy { get; set; }
+
+        public string? AiExplanation { get; set; }
     }
 }
