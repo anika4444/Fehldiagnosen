@@ -1,10 +1,3 @@
-import {
-  knownMedicationService,
-  KnownMedicationResult,
-} from "@/api/knownMedicationService";
-import { ThemedText } from "@/components/ui/themed-text";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -14,6 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
+import {
+  KnownMedicationResult,
+  knownMedicationService,
+} from "@/api/knownMedicationService";
+import { ThemedText } from "@/components/themed-text";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
 interface Props {
   value: string;

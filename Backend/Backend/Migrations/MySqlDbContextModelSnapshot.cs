@@ -83,8 +83,34 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
             modelBuilder.Entity("Backend.Domain.Entities.Backend.Domain.Entities.KnownMedication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("AtcCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Dosage")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PrescriptionRequired")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Substance")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KnownMedications");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -100,10 +126,6 @@ namespace Backend.Migrations
 
                     b.Property<string>("KiPrompt")
                         .IsRequired()
-                    b.Property<string>("AtcCode")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Dosage")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
@@ -114,17 +136,6 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CommunicationLevels");
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PrescriptionRequired")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Substance")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("KnownMedications");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
