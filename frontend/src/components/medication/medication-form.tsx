@@ -1,11 +1,12 @@
-import React from "react";
-
+import React, { useState } from "react";
+import { KnownMedicationResult } from "@/api/knownMedicationService";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
   CreateMedicationRequest,
   MedicationResponse,
 } from "@/types/medication-type";
 
+import { MedicationAutocomplete } from "./medication-autocomplete";
 import { FormInput } from "../ui/form-input";
 import { ModalCard } from "../ui/modal-card";
 
@@ -24,6 +25,7 @@ interface FormValues {
   indication: string;
   doctorName: string;
   notes: string;
+  atcCode: string;
 }
 
 export function MedicationForm({
@@ -31,6 +33,8 @@ export function MedicationForm({
   onSave,
   onCancel,
 }: MedicationFormProps) {
+  const [isMedicationValid, setIsMedicationValid] = useState(!!initialData);
+
   const mappedInitialData: FormValues | null = initialData
     ? {
         name: initialData.name,
@@ -41,6 +45,7 @@ export function MedicationForm({
         indication: initialData.indication ?? "",
         doctorName: initialData.doctorName ?? "",
         notes: initialData.notes ?? "",
+        atcCode: initialData.atcCode ?? "",
       }
     : null;
 
@@ -56,15 +61,21 @@ export function MedicationForm({
         indication: "",
         doctorName: "",
         notes: "",
+        atcCode: "",
       },
       (vals) => {
         const errs: Record<string, string> = {};
-        if (!vals.name.trim()) errs.name = "Bitte geben Sie den Namen an.";
-        if (!vals.dosage.trim())
-          errs.dosage = "Bitte geben Sie die Dosierung an.";
+        if (!vals.name.trim() || !isMedicationValid)
+          errs.name = "Bitte wählen Sie ein Medikament aus der Liste.";
         return errs;
       },
     );
+
+  const handleMedicationSelect = (medication: KnownMedicationResult) => {
+    handleChange("name", medication.name);
+    handleChange("dosage", medication.staerke ?? "");
+    handleChange("atcCode", medication.atcCode ?? "");
+  };
 
   const onFinalSave = async (validatedData: FormValues) => {
     await onSave({
@@ -78,6 +89,7 @@ export function MedicationForm({
       indication: validatedData.indication.trim() || undefined,
       doctorName: validatedData.doctorName.trim() || undefined,
       notes: validatedData.notes.trim() || undefined,
+      atcCode: validatedData.atcCode || undefined,
     });
   };
 
@@ -88,16 +100,15 @@ export function MedicationForm({
       onSave={() => handleSubmit(onFinalSave)}
       saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
     >
-      <FormInput
-        label="Medikamentenname"
-        isRequired
+      <MedicationAutocomplete
         value={values.name}
         onChangeText={(v) => handleChange("name", v)}
+        onSelect={handleMedicationSelect}
+        onValidChange={setIsMedicationValid}
         errorText={errors.name}
       />
       <FormInput
         label="Wirkung/Dosierung"
-        isRequired
         value={values.dosage}
         onChangeText={(v) => handleChange("dosage", v)}
         errorText={errors.dosage}

@@ -22,6 +22,8 @@ import {
   showErrorAlert,
   showSuccessAlert,
 } from "@/utils/alerts";
+import { MedicationAutocomplete } from "@/components/medication/medication-autocomplete";
+import { KnownMedicationResult } from "@/api/knownMedicationService";
 
 export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";

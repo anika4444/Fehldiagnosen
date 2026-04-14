@@ -35,6 +35,9 @@ namespace Backend.Domain.Entities
         [MaxLength(200)]
         public string? Indication { get; set; }
 
+        [MaxLength(20)]
+        public string? AtcCode { get; set; }
+
         public EntryBy? EntryBy { get; set; }
 
         [MaxLength(500)]

@@ -83,6 +83,33 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.Backend.Domain.Entities.KnownMedication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("AtcCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Dosage")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PrescriptionRequired")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Substance")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KnownMedications");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -110,7 +137,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("FamilyHistoryEntries", (string)null);
+                    b.ToTable("FamilyHistoryEntries");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.MedicalHistoryEntry", b =>
@@ -157,6 +184,10 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("AtcCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<string>("Dosage")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -194,7 +225,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Medications", (string)null);
+                    b.ToTable("Medications");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
@@ -227,7 +258,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patients", (string)null);
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>
@@ -277,7 +308,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SymptomDefinitionId");
 
-                    b.ToTable("PatientSymptoms", (string)null);
+                    b.ToTable("PatientSymptoms");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.SymptomDefinition", b =>
@@ -301,7 +332,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SymptomsDefinition", (string)null);
+                    b.ToTable("SymptomsDefinition");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
