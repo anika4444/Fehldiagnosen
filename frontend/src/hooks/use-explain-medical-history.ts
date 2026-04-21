@@ -1,12 +1,15 @@
 import { useState } from "react";
 
 import axiosConfig from "@/api/axiosConfig";
-import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
+import {
+  MedicalHistoryEntryRequest,
+  MedicalHistoryEntryResponse,
+} from "@/types/medical-history-entry-type";
 
 export const useExplainMedicalHistory = (
   patientId: number | null,
   entry: MedicalHistoryEntryResponse,
-  onSave: (payload: any, id?: number) => Promise<void>,
+  onSave: (payload: MedicalHistoryEntryRequest, id?: number) => Promise<void>,
 ) => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(
@@ -25,13 +28,14 @@ export const useExplainMedicalHistory = (
       const explanationText =
         response.data.data?.text || response.data.text || response.data;
 
-      const payload = {
+      const payload: MedicalHistoryEntryRequest = {
         diagnosis: entry.diagnosis,
         icd10Code: entry.icd10Code,
         year: entry.year,
         status: entry.status,
         comment: entry.comment,
         aiExplanation: explanationText,
+        entryBy: 0,
       };
 
       await onSave(payload, entry.id);

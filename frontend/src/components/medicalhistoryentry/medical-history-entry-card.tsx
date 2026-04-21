@@ -68,7 +68,7 @@ export const MedicalHistoryEntryCard: React.FC<
         icon="chat-processing"
         onPress={explain}
         isLoading={isExplaining}
-        isLoadingText="Wird generiert ..."
+        isLoadingText="Wird generiert..."
       />
     </ModalCard>
   );
