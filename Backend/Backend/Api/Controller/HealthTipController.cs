@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controller
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/health-tip")]
     public class HealthTipController : BaseApiController
     {
         private readonly IHealthTipService _healthTipService;
