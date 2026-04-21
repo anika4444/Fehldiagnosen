@@ -54,21 +54,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 20,
   },
-  mainCard: {
-    marginBottom: 24,
-    borderRadius: 16,
-    borderWidth: 1,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 20,
-    elevation: 4,
-  },
-  innerCard: {
-    marginBottom: 0,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
   row: {
     flexDirection: "row",
     alignItems: "flex-start",

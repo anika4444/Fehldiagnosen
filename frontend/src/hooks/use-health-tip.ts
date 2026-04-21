@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { healthTipService } from "@/api/healthTipService";
 
 export const useHealthTip = () => {
-  const [tip, setTip] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [tip, setTip] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchHealthTip = useCallback(async () => {
