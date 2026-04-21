@@ -67,7 +67,8 @@ namespace Backend.Application.Services.CommunicationLevelService
             {
                 Id = levelEntity.Id,
                 PatientId = patient.Id,
-                Level = levelEntity.Name,
+                LevelName = levelEntity.Name,
+                LevelDescription = levelEntity.Description,
                 ActionRecommendation = levelEntity.ActionRecommendation
             });
         }
@@ -86,7 +87,8 @@ namespace Backend.Application.Services.CommunicationLevelService
             {
                 Id = communicationLevel.Id,
                 PatientId = patient.Id,
-                Level = communicationLevel.Name,
+                LevelName = communicationLevel.Name,
+                LevelDescription = communicationLevel.Description,
                 ActionRecommendation = communicationLevel.ActionRecommendation
             });
         }

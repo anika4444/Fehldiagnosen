@@ -40,8 +40,6 @@ export const CommunicationLevelModal = ({
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  // State: Speichert pro Frage die ID der gewählten Antwort
-  // Key: QuestionID, Value: AnswerID
   const [selections, setSelections] = useState<Record<number, number>>({});
 
   const handleSelect = (questionId: number, answerId: number) => {
@@ -54,16 +52,27 @@ export const CommunicationLevelModal = ({
   };
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent={true}>
+    <Modal visible={isVisible} animationType="fade" transparent={true}>
       <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: theme.background, borderColor: theme.primary },
+          ]}
+        >
           {/* Header */}
           <View style={styles.header}>
-            <ThemedText style={styles.headerTitle}>
+            <ThemedText style={[styles.headerTitle, { color: theme.text }]}>
               Kommunikationslevel
             </ThemedText>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Feather name="x" size={20} color="#F87171" />
+            <TouchableOpacity
+              onPress={onClose}
+              style={[
+                styles.closeButton,
+                { backgroundColor: theme.closeBgColor },
+              ]}
+            >
+              <Feather name="x" size={20} color={theme.closeIconColor} />
             </TouchableOpacity>
           </View>
 
@@ -72,17 +81,25 @@ export const CommunicationLevelModal = ({
             contentContainerStyle={styles.scrollContent}
           >
             {/* Info Box */}
-            <View style={styles.infoBox}>
-              <Feather name="message-square" size={18} color="#11A17A" />
-              <ThemedText style={styles.infoText}>
-                Beantworten Sie die folgenden Fragen ehrlich
+            <View
+              style={[
+                styles.infoBox,
+                { backgroundColor: theme.surface, borderColor: theme.primary },
+              ]}
+            >
+              <Feather name="info" size={20} color={theme.primary} />
+              <ThemedText style={[styles.infoText, { color: theme.text }]}>
+                Beantworten Sie die folgenden Fragen bitte ehrlich, damit wir
+                die App perfekt auf Sie abstimmen können.
               </ThemedText>
             </View>
 
             {/* Fragen-Schleife */}
             {questions.map((question) => (
               <View key={question.id} style={styles.questionContainer}>
-                <ThemedText style={styles.questionText}>
+                <ThemedText
+                  style={[styles.questionText, { color: theme.text }]}
+                >
                   {question.text}
                 </ThemedText>
 
@@ -96,11 +113,23 @@ export const CommunicationLevelModal = ({
                       activeOpacity={0.7}
                     >
                       <View
-                        style={[styles.radioOuter, { borderColor: "#0F5B4A" }]}
+                        style={[
+                          styles.radioOuter,
+                          { borderColor: theme.primary },
+                        ]}
                       >
-                        {isSelected && <View style={styles.radioInner} />}
+                        {isSelected && (
+                          <View
+                            style={[
+                              styles.radioInner,
+                              { backgroundColor: theme.primary },
+                            ]}
+                          />
+                        )}
                       </View>
-                      <ThemedText style={styles.answerText}>
+                      <ThemedText
+                        style={[styles.answerText, { color: theme.text }]}
+                      >
                         {answer.text}
                       </ThemedText>
                     </TouchableOpacity>
@@ -110,11 +139,13 @@ export const CommunicationLevelModal = ({
             ))}
 
             {/* Save Button */}
-            <PrimaryButton
-              title="Fragen speichern"
-              icon="content-save"
-              onPress={handleSave}
-            />
+            <View style={styles.saveButtonWrapper}>
+              <PrimaryButton
+                title="Antworten speichern"
+                icon="content-save"
+                onPress={handleSave}
+              />
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -125,16 +156,20 @@ export const CommunicationLevelModal = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)", // Etwas dunkler für mehr Fokus
     justifyContent: "center",
-    padding: 20,
+    padding: 16,
   },
   container: {
-    borderRadius: 30,
-    borderWidth: 1.5,
-    borderColor: "#11A17A",
-    maxHeight: "90%",
+    borderRadius: 24,
+    borderWidth: 1,
+    maxHeight: "85%",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
   },
   header: {
     flexDirection: "row",
@@ -145,12 +180,10 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#0F5B4A",
+    fontSize: 22,
+    fontWeight: "700",
   },
   closeButton: {
-    backgroundColor: "#FEE2E2",
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -166,54 +199,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     borderWidth: 1,
-    borderColor: "#11A17A",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 24,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 32,
   },
   infoText: {
     fontSize: 14,
-    color: "#0F5B4A",
     flex: 1,
+    lineHeight: 20,
   },
   questionContainer: {
-    marginBottom: 28,
+    marginBottom: 32,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
-    color: "#0F5B4A",
     marginBottom: 16,
-    lineHeight: 22,
+    lineHeight: 26,
   },
   radioRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     marginBottom: 16,
-    gap: 12,
+    gap: 14,
+    paddingVertical: 4,
   },
   radioOuter: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1.5,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 2,
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#0F5B4A",
   },
   answerText: {
-    fontSize: 15,
-    color: "#0F5B4A",
+    fontSize: 16,
     flex: 1,
-    lineHeight: 20,
+    lineHeight: 22,
   },
-  saveButton: {
+  saveButtonWrapper: {
     marginTop: 8,
   },
 });
