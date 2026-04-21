@@ -23,10 +23,8 @@ namespace Backend.Api.Controller
         public async Task<ActionResult<IEnumerable<DoctorResponse>>> GetAll()
         {
             var result = await _doctorService.GetAllAsync();
-
             if (result.IsSuccess)
                 return Ok(result.Data);
-
             return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
 
@@ -36,10 +34,18 @@ namespace Backend.Api.Controller
         public async Task<ActionResult<DoctorResponse>> GetById(int id)
         {
             var result = await _doctorService.GetByIdAsync(id);
-
             if (result.IsSuccess)
                 return Ok(result.Data);
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        }
 
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<DoctorResponse>> Create([FromBody] CreateDoctorRequest request)
+        {
+            var result = await _doctorService.CreateAsync(request, GetCurrentUserId(), GetCurrentUserName());
+            if (result.IsSuccess)
+                return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
             return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
 
@@ -50,10 +56,20 @@ namespace Backend.Api.Controller
         public async Task<ActionResult<DoctorResponse>> Update(int id, [FromBody] UpdateDoctorRequest request)
         {
             var result = await _doctorService.UpdateAsync(id, request, GetCurrentUserId());
-
             if (result.IsSuccess)
                 return Ok(result.Data);
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        }
 
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _doctorService.DeleteAsync(id, GetCurrentUserId());
+            if (result.IsSuccess)
+                return NoContent();
             return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
     }

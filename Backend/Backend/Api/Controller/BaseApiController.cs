@@ -11,6 +11,12 @@ namespace Backend.Api.Controller
             return User.FindFirstValue(ClaimTypes.NameIdentifier)
                 ?? throw new InvalidOperationException("Kein authentifizierter Benutzer gefunden.");
         }
+        protected string GetCurrentUserName()
+        {
+            return User.FindFirstValue(ClaimTypes.Name)
+                ?? throw new InvalidOperationException("Kein authentifizierter Benutzer gefunden.");
+        }
+
         protected bool IsArzt()
         {
             return User.IsInRole("Arzt");

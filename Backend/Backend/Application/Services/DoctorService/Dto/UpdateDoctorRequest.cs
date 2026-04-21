@@ -1,6 +1,6 @@
-namespace Backend.Application.Services.DoctorService.Dto
+﻿namespace Backend.Application.Services.DoctorService.Dto
 {
-    public class CreateDoctorRequest
+    public class UpdateDoctorRequest
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
@@ -8,4 +8,3 @@ namespace Backend.Application.Services.DoctorService.Dto
         public string LicenseNumber { get; set; } = string.Empty;
     }
 }
-
