@@ -19,7 +19,7 @@ const CommunicationLevel = () => {
   const theme = Colors[colorScheme];
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const { questions, currentLevel, saveLevel, isLoading } =
+  const { questions, currentLevel, saveLevel } =
     useCommunicationLevel(patientId);
 
   const handleSave = async (ids: number[]) => {
@@ -91,7 +91,7 @@ const CommunicationLevel = () => {
 
             <ThemedText
               style={[
-                styles.recommendationText,
+                styles.descriptionText,
                 { color: theme.text, paddingLeft: 30 },
               ]}
             >
@@ -142,9 +142,9 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 16,
   },
-  recommendationText: {
+  descriptionText: {
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
     fontStyle: "italic",
     opacity: 0.8,
   },

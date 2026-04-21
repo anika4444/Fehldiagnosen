@@ -1,14 +1,17 @@
-// @/hooks/use-communication-level.ts
 import { useCallback, useEffect, useState } from "react";
 
 import { communicationService } from "@/api/communicationService";
-
-// Tipp: Wenn du die Typen hast, importiere sie hier und ersetze die "any"s
-// import { Question, CommunicationLevelResponse } from "@/types/communication-type";
+import {
+  CommunicationLevelResponse,
+  CommunicationQuestionResponse,
+} from "@/types/communication-type";
 
 export const useCommunicationLevel = (patientId: number | null) => {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [currentLevel, setCurrentLevel] = useState<any | null>(null);
+  const [questions, setQuestions] = useState<CommunicationQuestionResponse[]>(
+    [],
+  );
+  const [currentLevel, setCurrentLevel] =
+    useState<CommunicationLevelResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,13 +23,16 @@ export const useCommunicationLevel = (patientId: number | null) => {
     try {
       const [qData, lData] = await Promise.all([
         communicationService.getQuestions(),
-        // catch(() => null) bleibt hier sinnvoll, falls noch kein Level für den Patienten existiert
-        communicationService.getByPatientId(patientId).catch(() => null),
+        communicationService
+          .getByPatientId(patientId)
+          .catch((_error: unknown) => null),
       ]);
       setQuestions(qData);
       setCurrentLevel(lData);
-    } catch (err: any) {
-      setError(err.message || "Fehler beim Laden des Kommunikationslevels.");
+    } catch (err: unknown) {
+      setError(
+        (err as Error).message || "Fehler beim Laden des Kommunikationslevels.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -39,11 +45,15 @@ export const useCommunicationLevel = (patientId: number | null) => {
   const saveLevel = async (ids: number[]) => {
     if (!patientId) throw new Error("Sitzung abgelaufen.");
 
-    await communicationService.create(patientId, {
+    const createdLevel = await communicationService.create(patientId, {
       selectedAnswerIds: ids,
     });
 
-    // Nach dem Speichern laden wir die Daten direkt neu
+    if (createdLevel) {
+      setCurrentLevel(createdLevel);
+      return;
+    }
+
     await fetchData();
   };
 
