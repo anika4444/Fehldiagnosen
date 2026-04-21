@@ -80,7 +80,7 @@ app.post("/ai/explain", async (req, res) => {
       kiPrompt: kiPrompt || "Verwende eine einfache Sprache.",
     });
 
-    const cleanResponse = response.replace(/\n+/g, ' ').trim() + ' KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.';
+    const cleanResponse = response.replace(/\n+/g, ' ').trim() + ' Dies ist eine KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.';
 
     res.json({ text: cleanResponse });
 
