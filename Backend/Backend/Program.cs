@@ -55,6 +55,7 @@ builder.Services.AddScoped<IKnownMedicationService, KnownMedicationService>();
 builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
 builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
+builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 
 builder.Services.AddSignalR();
 

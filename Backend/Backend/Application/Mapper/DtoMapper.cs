@@ -1,10 +1,11 @@
-﻿using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+﻿using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Application.Services.FamilyHistoryService.Dto;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
+using Backend.Application.Services.MedicalLetterService.Dto;
 using Backend.Application.Services.MedicationService.Dto;
 using Backend.Application.Services.SymptomService.Dto;
-using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Domain.Entities;
 using Org.BouncyCastle.Asn1;
-using Backend.Application.Services.DiagnosisService.Dto;
 
 
 namespace Backend.Application.Mapper
@@ -138,6 +139,23 @@ namespace Backend.Application.Mapper
                 DiagnosisDate = diagnosis.DiagnosisDate,
                 CreatedAt = diagnosis.CreatedAt,
                 UpdatedAt = diagnosis.UpdatedAt
+            };
+        }
+
+        public MedicalLetterResponse ToMedicalLetterResponse(MedicalLetter letter)
+        {
+            return new MedicalLetterResponse
+            {
+                Id = letter.Id,
+                PatientId = letter.PatientId,
+                Subject = letter.Subject,
+                ReciverName = letter.ReciverName,
+                AiSuggestion = letter.AiSuggestion,
+                ReworkedText = letter.ReworkedText,
+                Status = letter.Status.ToString(),
+                Startdate = letter.Startdate,
+                CreatedAt = letter.CreatedAt,
+                UpdatedAt = letter.UpdatedAt
             };
         }
     }
