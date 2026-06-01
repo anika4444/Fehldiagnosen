@@ -68,7 +68,8 @@ namespace Backend.Application.Services.DiagnosisService
                 IcdCode = request.IcdCode ?? string.Empty,
                 Severity = request.Severity ?? string.Empty,
                 SideLocalization = request.SideLocalization ?? string.Empty,
-                Status = request.Status ?? string.Empty,
+                ConditionStatus = request.ConditionStatus,
+                EntryBy = request.EntryBy,
                 MedicationText = request.MedicationText ?? string.Empty,
                 Symptoms = request.Symptoms ?? string.Empty,
                 Findings = request.Findings ?? string.Empty,
@@ -100,7 +101,8 @@ namespace Backend.Application.Services.DiagnosisService
             existing.IcdCode = request.IcdCode ?? existing.IcdCode;
             existing.Severity = request.Severity ?? existing.Severity;
             existing.SideLocalization = request.SideLocalization ?? existing.SideLocalization;
-            existing.Status = request.Status ?? existing.Status;
+            existing.ConditionStatus = request.ConditionStatus ?? existing.ConditionStatus;
+            existing.EntryBy = request.EntryBy ?? existing.EntryBy;
             existing.MedicationText = request.MedicationText ?? existing.MedicationText;
             existing.Symptoms = request.Symptoms ?? existing.Symptoms;
             existing.Findings = request.Findings ?? existing.Findings;
