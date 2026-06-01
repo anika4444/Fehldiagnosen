@@ -184,25 +184,25 @@ const data = response.data;
       />
       <FormInput
         label="ICD-Code"
-        placeholder="z. B. E11"
+        placeholder="z.B. E11"
         value={values.icdCode}
         onChangeText={(value) => handleChange("icdCode", value)}
       />
       <FormInput
         label="Schweregrad"
-        placeholder="z. B. leicht, mittel, schwer"
+        placeholder="z.B. mild, moderat, schwerwiegend"
         value={values.severity}
         onChangeText={(value) => handleChange("severity", value)}
       />
       <FormInput
         label="Seite"
-        placeholder="z. B. links, rechts, bilateral"
+        placeholder="z.B. links, rechts, bilateral"
         value={values.sideLocalization}
         onChangeText={(value) => handleChange("sideLocalization", value)}
       />
       <FormInput
         label="Status"
-        placeholder="z. B. aktiv, abgeschlossen"
+        placeholder="z.B. aktiv, abgeschlossen"
         value={values.status}
         onChangeText={(value) => handleChange("status", value)}
       />

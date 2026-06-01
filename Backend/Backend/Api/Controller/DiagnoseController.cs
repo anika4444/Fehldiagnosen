@@ -32,48 +32,6 @@ public class DiagnosisController : BaseApiController
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
 
-    [HttpGet("patient/{patientId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetByPatientId(int patientId)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.GetByPatientIdAsync(patientId, userId);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Create([FromBody] CreateDiagnosisRequest request)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.CreateAsync(request, userId);
-
-        if (result.IsSuccess)
-            return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> Update(int id, [FromBody] UpdateDiagnosisRequest request)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.UpdateAsync(id, request, userId);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

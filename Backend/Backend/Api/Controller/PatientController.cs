@@ -1,4 +1,8 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.DiagnosisService;
+using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Application.Services.FamilyHistoryService;
+using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicationNotification;
@@ -8,8 +12,6 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Backend.Application.Services.FamilyHistoryService;
-using Backend.Application.Services.FamilyHistoryService.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
@@ -24,14 +26,16 @@ public class PatientController : BaseApiController
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
     private readonly IMedicationNotificationService _medicationNotificationService;
     private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
+    private readonly IDiagnosisService _diagnosisService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService, IDiagnosisService diagnosisService)
     {
         _symptomService = symptomService;
         _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
         _medicationNotificationService = medicationNotificationService;
         _familyHistoryEntryService = familyHistoryEntryService;
+        _diagnosisService = diagnosisService;
     }
 
     #region Medication
@@ -218,6 +222,54 @@ public class PatientController : BaseApiController
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _familyHistoryEntryService.UpdateAsync(patientId, familyHistoryEntryId, request, userId);
+
+        if (result.IsSuccess)
+            return Ok(result.Data);
+
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+    }
+
+    #endregion
+
+    #region Diagnoses
+
+    [HttpGet("{patientId}/diagnoses")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<DiagnosisResponse>>> GetDiagnosesByPatientId(int patientId)
+    {
+        var userId = IsArzt() ? null : GetCurrentUserId();
+        var result = await _diagnosisService.GetAllAsync(patientId, userId);
+
+        if (result.IsSuccess)
+            return Ok(result.Data);
+
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+    }
+
+    [HttpPost("{patientId}/diagnoses")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DiagnosisResponse>> CreateDiagnosisForPatientId(int patientId, [FromBody] CreateDiagnosisRequest request)
+    {
+        var userId = IsArzt() ? null : GetCurrentUserId();
+        var result = await _diagnosisService.CreateAsync(patientId, request, userId);
+
+        if (result.IsSuccess)
+            return CreatedAtAction(nameof(DiagnosisController.GetById), "Diagnosis", new { id = result.Data.Id }, result.Data);
+
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+    }
+
+    [HttpPut("{patientId}/diagnoses/{diagnosisId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DiagnosisResponse>> UpdateDiagnosisForPatientId(int patientId, int diagnosisId, [FromBody] UpdateDiagnosisRequest request)
+    {
+        var userId = IsArzt() ? null : GetCurrentUserId();
+        var result = await _diagnosisService.UpdateAsync(patientId, diagnosisId, request, userId);
 
         if (result.IsSuccess)
             return Ok(result.Data);

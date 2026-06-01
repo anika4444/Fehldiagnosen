@@ -11,7 +11,7 @@ export const diagnosisService = {
     patientId: number,
   ): Promise<DiagnosisEntryResponse[]> => {
     const response = await axiosConfig.get<DiagnosisEntryResponse[]>(
-      `/diagnoses/patient/${patientId}`,
+      `/patients/${patientId}/diagnoses`,
     );
     return response.data;
   },
@@ -21,8 +21,8 @@ export const diagnosisService = {
     data: CreateDiagnosisEntryRequest,
   ): Promise<DiagnosisEntryResponse> => {
     const response = await axiosConfig.post<DiagnosisEntryResponse>(
-      `/diagnoses`,
-      { ...data, patientId },
+      `/patients/${patientId}/diagnoses`,
+      { ...data },
     );
     return response.data;
   },
@@ -33,8 +33,8 @@ export const diagnosisService = {
     data: UpdateDiagnosisEntryRequest,
   ): Promise<DiagnosisEntryResponse> => {
     const response = await axiosConfig.put<DiagnosisEntryResponse>(
-      `/diagnoses/${diagnosisId}`,
-      { ...data, patientId },
+      `/patients/${patientId}/diagnoses/${diagnosisId}`,
+      { ...data },
     );
     return response.data;
   },

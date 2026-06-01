@@ -19,11 +19,11 @@ interface MedicalHistoryEntryCardProps {
 
 const getStatusInfo = (status: any) => {
   const s = String(status).toLowerCase();
-  if (s === "0" || s === "active") return { label: "Aktiv", color: "#4CAF50" };
-  if (s === "1" || s === "chronical")
+  // Backend enum order: Chronical = 0, Active = 1, InRemission = 2
+  if (s === "0" || s === "chronical")
     return { label: "Chronisch", color: "#FF9800" };
-  if (s === "2" || s === "inremission")
-    return { label: "Remission", color: "#2196F3" };
+  if (s === "1" || s === "active") return { label: "Aktiv", color: "#4CAF50" };
+  if (s === "2" || s === "inremission") return { label: "In Remission", color: "#2196F3" };
   return { label: "Aktiv", color: "#4CAF50" };
 };
 
