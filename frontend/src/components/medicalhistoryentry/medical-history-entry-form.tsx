@@ -3,6 +3,7 @@ import React from "react";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
   ConditionStatus,
+  EntryBy,
   MedicalHistoryEntryFormData,
 } from "@/types/medical-history-entry-type";
 
@@ -22,6 +23,7 @@ interface FormValues {
   year: string;
   status: ConditionStatus;
   comment: string;
+  entryBy: EntryBy;
 }
 
 export function MedicalHistoryEntryForm({
@@ -36,6 +38,13 @@ export function MedicalHistoryEntryForm({
   };
   const statusOptions = Object.keys(statusMap);
 
+  const entryByMap: Record<string, EntryBy> = {
+    Patient: EntryBy.Patient,
+    Arzt: EntryBy.Doctor,
+  };
+  const entryByOptions = Object.keys(entryByMap);
+
+  // status kommt vom Backend bereits als korrekter Enum-Wert (0/1/2)
   let mappedStatus: ConditionStatus = ConditionStatus.Active;
   if (initialData) {
     const rawStatus =
@@ -43,14 +52,20 @@ export function MedicalHistoryEntryForm({
         ? initialData.Status
         : initialData.status;
     if (typeof rawStatus === "number") {
-      mappedStatus =
-        rawStatus === 1
-          ? ConditionStatus.Chronical
-          : rawStatus === 2
-            ? ConditionStatus.InRemission
-            : ConditionStatus.Active;
+      mappedStatus = rawStatus as ConditionStatus;
     } else {
-      mappedStatus = (rawStatus as ConditionStatus) || ConditionStatus.Active;
+      mappedStatus = (rawStatus as ConditionStatus) ?? ConditionStatus.Active;
+    }
+  }
+
+  let mappedEntryBy: EntryBy = EntryBy.Patient;
+  if (initialData) {
+    const rawEntryBy =
+      initialData.EntryBy !== undefined
+        ? initialData.EntryBy
+        : initialData.entryBy;
+    if (typeof rawEntryBy === "number") {
+      mappedEntryBy = rawEntryBy as EntryBy;
     }
   }
 
@@ -67,6 +82,7 @@ export function MedicalHistoryEntryForm({
           new Date().getFullYear().toString(),
         status: mappedStatus,
         comment: initialData.Comment || initialData.comment || "",
+        entryBy: mappedEntryBy,
       }
     : null;
 
@@ -79,6 +95,7 @@ export function MedicalHistoryEntryForm({
         year: new Date().getFullYear().toString(),
         status: ConditionStatus.Active,
         comment: "",
+        entryBy: EntryBy.Patient,
       },
       (vals) => {
         const errs: Record<string, string> = {};
@@ -93,15 +110,16 @@ export function MedicalHistoryEntryForm({
       year: parseInt(validatedData.year) || new Date().getFullYear(),
       status: validatedData.status,
       comment: validatedData.comment.trim(),
+      entryBy: validatedData.entryBy,
     });
   };
 
   return (
     <ModalCard
-      title={initialData ? "Vorerkrankung bearbeiten" : "Neue Vorerkrankung"}
+      title={initialData ? "Diagnose bearbeiten" : "Neue Diagnose"}
       onClose={onCancel}
       onSave={() => handleSubmit(onFinalSave)}
-      saveButtonText="Vorerkrankung speichern"
+      saveButtonText="Diagnose speichern"
     >
       <FormInput
         label="Erkrankung"
@@ -133,6 +151,19 @@ export function MedicalHistoryEntryForm({
           handleChange("status", statusMap[itemValue] || ConditionStatus.Active)
         }
         options={statusOptions}
+      />
+      <FormPicker
+        label="Erfasst von"
+        isRequired
+        selectedValue={
+          Object.keys(entryByMap).find(
+            (key) => entryByMap[key] === values.entryBy,
+          ) || "Patient"
+        }
+        onValueChange={(itemValue) =>
+          handleChange("entryBy", entryByMap[itemValue] ?? EntryBy.Patient)
+        }
+        options={entryByOptions}
       />
       <FormInput
         label="Anmerkungen"

@@ -1,6 +1,5 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
-using Backend.Application.Services.MedicalHistoryEntryService;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace Backend.Application.Services.AIService
     {
         private readonly IPatientRepository _patientRepository;
 
-        private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
+        private readonly IDiagnosisRepository _diagnosisRepository;
 
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
 
@@ -20,65 +19,53 @@ namespace Backend.Application.Services.AIService
 
         private readonly string _explanationEndpoint;
 
-        public AIService(IPatientRepository patientRepository, IMedicalHistoryEntryService medicalHistoryEntryService, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _patientRepository = patientRepository;
-            _medicalHistoryEntryService = medicalHistoryEntryService;
+            _diagnosisRepository = diagnosisRepository;
             _communicationLevelRepository = communicationLevelRepository;
             _httpClientFactory = httpClientFactory;
             _explanationEndpoint = configuration["AiServiceOptions:ExplanationEndpoint"];
         }
 
-        public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId)
+        public async Task<ServiceResult<AiExplainResponse>> ExplainDiagnosis(int id, string? userId, int diagnosisId)
         {
-            //var langLevel = "basic";
+            var diagnosis = await _diagnosisRepository.FindByIdAsync(diagnosisId);
 
-            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryEntryId, userId);
-
-            var entry = entryResult?.Data ?? null;
-
-            if (entry == null)
+            if (diagnosis == null)
             {
-                return ServiceResult<AiExplainResponse>.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} nicht gefunden");
+                return ServiceResult<AiExplainResponse>.NotFound($"Diagnose mit ID {diagnosisId} nicht gefunden");
             }
 
-            var patient = await _patientRepository.FindByIdAsync(entry.PatientId);
+            var patient = await _patientRepository.FindByIdAsync(diagnosis.PatientId);
 
             if (userId != null && (patient == null || patient.UserId != userId))
             {
-                return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
+                return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
             }
 
             var communicationLevels = await _communicationLevelRepository.GetAllAsync();
 
-            var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
-                         ?? communicationLevels?.FirstOrDefault();
+            var communicationLevel = communicationLevels?.ToList()?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
+                         ?? communicationLevels?.ToList()?.FirstOrDefault();
 
+            // Mapping Diagnose-Entität -> Node.js /ai/explain API
             var payload = new {
                 langLevel = communicationLevel?.Name ?? "L1",
                 kiPrompt = communicationLevel?.KiPrompt ?? "",
-                diagnosis = entry.Diagnosis,
-                icd10Code = entry.ICD10Code ?? string.Empty,
-                year = entry.Year,
-                status = (int)entry.Status,
-                entryBy = (int)entry.EntryBy,
-                comment = entry.Comment ?? string.Empty
+                diagnosis = diagnosis.Title,
+                icd10Code = diagnosis.IcdCode ?? string.Empty,
+                year = diagnosis.DiagnosisDate.Year,
+                status = (int)diagnosis.ConditionStatus,
+                entryBy = (int)diagnosis.EntryBy,
+                comment = diagnosis.Note ?? string.Empty
             };
-
-            var json = JsonSerializer.Serialize(payload);
 
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, payload);
                 var responseBody = await response.Content.ReadAsStringAsync();
-
-                /*if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogError("AI explain call failed with status {StatusCode}: {Body}", (int)response.StatusCode, responseBody);
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new { error = "KI-Service aktuell nicht erreichbar" });
-                }*/
 
                 var aiResponse = JsonSerializer.Deserialize<AiExplainResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -92,14 +79,13 @@ namespace Backend.Application.Services.AIService
             }
             catch (Exception ex)
             {
-                //_logger.LogError(ex, "Fehler bei der Weiterleitung an den KI-Service");
                 return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
     }
 }
 
-public sealed class ExplainMedicalHistoryRequest
+public sealed class ExplainDiagnosisRequest
 {
     public string? LangLevel { get; set; }
 }
@@ -107,4 +93,5 @@ public sealed class ExplainMedicalHistoryRequest
 public sealed class AiExplainResponse
 {
     public string? Text { get; set; }
+    public string? Disclaimer { get; set; }
 }

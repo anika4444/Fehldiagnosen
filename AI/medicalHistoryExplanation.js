@@ -1,55 +1,81 @@
-import express from "express";
-import dotenv from "dotenv";
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { Router } from "express";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { HumanMessage } from "@langchain/core/messages";
 
-dotenv.config();
+import { MistralProviderFactory } from "./providers/MistralProviderFactory.js";
+import { getIcdContext } from "./icd10Lookup.js";
+import { ChainBuilder } from "./chainBuilder.js";
 
-const app = express();
-app.use(express.json());
+const router = Router();
 
-const model = new ChatOpenAI({
-  model: process.env.AI_MODEL_NAME,
-  apiKey: process.env.AI_API_KEY,
-  temperature: 0.3,
-  configuration: {
-    baseURL: process.env.AI_BASE_URL,
-  },
-  defaultHeaders: {
-    "HTTP-Referer": process.env.AI_SCRIPT_URL,
-    "X-Title": "adam-med-app-prototype",
-  },
-});
+const MAX_ATTEMPTS = parseInt(process.env.MAX_VALIDATION_ATTEMPTS || "3");
 
-const medicalPrompt = ChatPromptTemplate.fromMessages([
-  [
-    "system",
-    `Du bist ein präziser medizinischer KI-Assistent. Deine Aufgabe ist es, einen Eintrag aus der Historie des Nutzers in einem kurzen, harmonischen Fließtext zu erklären.
+// ─── Abstract Factory: Provider wählen ──────────────────────────────────────
+// Für einen Provider-Wechsel reicht es, diese eine Zeile zu tauschen:
+//   import { OpenAIProviderFactory } from "./providers/OpenAIProviderFactory.js";
+//   const factory = new OpenAIProviderFactory();
+const factory = new MistralProviderFactory();
 
-SPRACHNIVEAU:
-{kiPrompt}
+// ─── Factory Method: Modelle ─────────────────────────────────────────────────
+const model = factory.createModel();
+const validatorModel = factory.createValidatorModel();
 
-INHALT:
-- Verknüpfe Diagnose, Jahr, Status, Quelle und Anmerkung zu einer Einheit.
-- Gehe direkt auf die Quelle ein: Erwähne bei Patienten-Einträgen, dass es eine Eigenauskunft ist, bei Ärzten, dass es eine gesicherte Diagnose ist.
-- Integriere den Status und die Anmerkung sinnvoll in den zeitlichen Ablauf seit dem Diagnosejahr.
+// ─── Factory Method: Prompts ─────────────────────────────────────────────────
+const medicalPrompt = factory.createPrompt("medicalHistory");
+const validatorPrompt = factory.createPrompt("validator");
 
-REGELN:
-- Keine Listen, keine Aufzählungspunkte, keine harten Zeilenumbrüche.
-- Erfinde keine Symptome oder Medikamente.
-- Keine medizinische Beratung oder Therapieempfehlungen.
-- Sprich den Nutzer mit du an.
-- Halte die Erklärung kurz und direkt.
-- Erwähne nicht, dass dies eine KI-generierte Erklärung ist und es keinen Ersatz für ein persönliches Arztgespräch darstellt.`
-  ],
-  [
-    "human",
-    `Erkläre mir bitte diesen Eintrag: Diagnose {diagnosis}, ICD-Code {icd10Code}, Jahr {year}, Status {status}, Quelle {entryBy}, Anmerkung {comment}. Sprachniveau {langLevel}.`
-  ]
-]);
+// ─── Builder: Validator-Chain ────────────────────────────────────────────────
+const validatorChain = new ChainBuilder()
+  .withPrompt(validatorPrompt)
+  .withModel(validatorModel)
+  .withParser(new StringOutputParser())
+  .build();
 
-app.post("/ai/explain", async (req, res) => {
+// ─── Enum-Mappings (passend zum C#-Backend) ──────────────────────────────────
+// ConditionStatus: Chronical=0, Active=1, InRemission=2
+const STATUS_MAP = {
+  0: "chronisch",     // Chronical
+  1: "aktiv",         // Active
+  2: "in Remission",  // InRemission
+};
+
+// EntryBy: Patient=0, Doctor=1
+const ENTRY_BY_MAP = {
+  0: "patient",
+  1: "doctor",
+};
+
+// CommunicationLevel.Name aus der DB → langLevel für den Prompt
+const LANG_LEVEL_MAP = {
+  L1: "basic",
+  L2: "mittel",
+  L3: "medizinisch",
+};
+
+// ─── Validierungsfunktion ────────────────────────────────────────────────────
+async function validateExplanation(text, inputData) {
+  const raw = await validatorChain.invoke({ text, ...inputData });
+
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) {
+    console.warn("⚠️  Validator hat kein valides JSON geliefert:", raw);
+    return { score: 0, feedback: "Interner Fehler: Validator-Antwort konnte nicht ausgewertet werden." };
+  }
+
+  try {
+    const result = JSON.parse(match[0]);
+    return {
+      score: result.score === 1 ? 1 : 0,
+      feedback: result.feedback || "",
+    };
+  } catch (e) {
+    console.warn("⚠️  JSON-Parse-Fehler vom Validator:", e.message);
+    return { score: 0, feedback: "Interner Fehler: Validator-Antwort ist ungültig." };
+  }
+}
+
+// ─── Endpoint: POST /ai/explain ──────────────────────────────────────────────
+router.post("/ai/explain", async (req, res) => {
   try {
     const {
       diagnosis,
@@ -59,37 +85,85 @@ app.post("/ai/explain", async (req, res) => {
       entryBy,
       comment,
       langLevel,
-      kiPrompt,
+      // kiPrompt wird aktuell noch nicht genutzt, aber als Parameter akzeptiert
+      // kiPrompt,
     } = req.body;
 
     if (!diagnosis) {
       return res.status(400).json({ error: "Fehlende Diagnose" });
     }
 
-    const parser = new StringOutputParser();
-    const chain = medicalPrompt.pipe(model).pipe(parser);
+    const rawIcdContext = getIcdContext(icd10Code);
+    // Geschweifte Klammern escapen damit LangChain sie nicht als Template-Variablen wertet
+    const escapedContext = rawIcdContext
+      ? rawIcdContext.replace(/\{/g, "{{").replace(/\}/g, "}}")
+      : null;
+    const icdContext = escapedContext
+      ? `MEDIZINISCHER KONTEXT (kuratierte Quelle, darf verwendet werden):\n${escapedContext}\n\n`
+      : "";
 
-    const response = await chain.invoke({
+    if (rawIcdContext) {
+      console.log(`📚 Wissenskontext geladen für ICD-Code: ${icd10Code}`);
+    }
+
+    const inputData = {
       diagnosis,
-      icd10Code,
-      year: year || "unbekannt",
-      status: status || "bestehend",
-      entryBy: entryBy || "deiner Angabe",
-      comment: comment || "",
-      langLevel: langLevel || "L1",
-      kiPrompt: kiPrompt || "Verwende eine einfache Sprache.",
+      icd10Code: icd10Code || "[NICHT ANGEGEBEN]",
+      year: year != null ? String(year) : "[NICHT ANGEGEBEN]",
+      status: STATUS_MAP[status] ?? "[NICHT ANGEGEBEN]",
+      sourceType: ENTRY_BY_MAP[entryBy] ?? "patient",
+      comment: comment || "[NICHT ANGEGEBEN]",
+      langLevel: LANG_LEVEL_MAP[langLevel] || langLevel || "basic",
+      icdContext,
+    };
+
+    let responseText = "";
+    let attempts = 0;
+    let validated = false;
+    let lastFeedback = "";
+    let validatorLogs = [];
+
+    // ── Retry-Loop ───────────────────────────────────────────────────────────
+    while (attempts < MAX_ATTEMPTS) {
+      attempts++;
+
+      const messages = await medicalPrompt.formatMessages(inputData);
+
+      if (attempts > 1 && lastFeedback) {
+        messages.push(
+          new HumanMessage(
+            `Deine vorherige Antwort war leider nicht korrekt. Fehler:\n\n${lastFeedback}\n\nBitte generiere die Erklärung erneut und behebe diese Fehler.`
+          )
+        );
+      }
+
+      console.log(`▶️  Versuch ${attempts}/${MAX_ATTEMPTS} – Hauptmodell generiert...`);
+      const aiMessage = await model.invoke(messages);
+      responseText = aiMessage.content.replace(/\n+/g, " ").trim();
+
+      console.log(`🔍 Validator prüft Versuch ${attempts}...`);
+      const validation = await validateExplanation(responseText, inputData);
+
+      if (validation.score === 1) {
+        validated = true;
+        console.log(`✅ Validator: OK nach ${attempts} Versuch(en)`);
+        break;
+      }
+
+      lastFeedback = validation.feedback;
+      validatorLogs.push(`Versuch ${attempts}: ${lastFeedback}`);
+      console.log(`❌ Validator: FAIL (Versuch ${attempts}) → ${lastFeedback}`);
+    }
+
+    // ── Response ─────────────────────────────────────────────────────────────
+    res.json({
+      text: responseText,
+      disclaimer: "Dies ist eine KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.",
     });
-
-    const cleanResponse = response.replace(/\n+/g, ' ').trim() + ' KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.';
-
-    res.json({ text: cleanResponse });
-
   } catch (error) {
     console.error("AI Error:", error.message);
     res.status(500).json({ error: "KI-Service aktuell nicht erreichbar" });
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Med-AI-Service läuft auf Port 3000");
-});
+export default router;

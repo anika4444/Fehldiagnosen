@@ -2,8 +2,9 @@
   "name": "ai",
   "version": "1.0.0",
   "description": "",
-  "main": "medicalHistoryExplanation.js",
+  "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@langchain/core": "^1.0.0",
     "@langchain/openai": "^1.4.4",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

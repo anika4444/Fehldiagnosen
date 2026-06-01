@@ -2,6 +2,7 @@ using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.CommunicationLevelService;
 using Backend.Application.Services;
+using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.HealthTipService;
 using Backend.Application.Services.MedicalHistoryEntryService;
@@ -59,10 +60,13 @@ builder.Services.AddScoped<IMedicationNotificationService, MedicationNotificatio
 builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddScoped<IKnownMedicationRepository, MySqlKnownMedicationRepository>();
 builder.Services.AddScoped<IKnownMedicationService, KnownMedicationService>();
+builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
+builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
 builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
 builder.Services.AddScoped<IDrugInteractionService, DrugInteractionService>();
 
+builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 
 builder.Services.AddSignalR();
 
