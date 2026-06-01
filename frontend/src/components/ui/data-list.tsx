@@ -1,6 +1,6 @@
 import { ActivityIndicator, View } from "react-native";
 
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 interface DataListProps<T> {
   data: T[];

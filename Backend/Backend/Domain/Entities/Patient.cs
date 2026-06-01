@@ -1,5 +1,6 @@
-﻿using Backend.Domain.Interfaces;
-using Backend.Domain.Enums;
+﻿using Backend.Domain.Enums;
+using Backend.Domain.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Domain.Entities
 {
@@ -26,5 +27,10 @@ namespace Backend.Domain.Entities
         public List<Medication> MedicationEntries { get; set; } = [];
 
         public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = [];
+        public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = new();
+
+        public int? CommunicationLevelId { get; set; }
+        [ForeignKey("CommunicationLevelId")]
+        public CommunicationLevel? CommunicationLevel { get; set; }
     }
 }

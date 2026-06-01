@@ -11,7 +11,7 @@ import {
 
 import { Colors } from "@/constants/theme";
 
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 interface FormTimePickerProps {
   label: string;

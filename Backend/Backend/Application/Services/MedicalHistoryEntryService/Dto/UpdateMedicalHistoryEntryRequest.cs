@@ -14,5 +14,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService.Dto
         public ConditionStatus Status { get; set; }
 
         public string? Comment { get; set; } = string.Empty;
+
+        public string? AiExplanation { get; set; }
     }
 }

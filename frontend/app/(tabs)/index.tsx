@@ -1,14 +1,17 @@
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, useColorScheme, View } from "react-native";
 
+import { ThemedText } from "@/components/themed-text";
 import { Card } from "@/components/ui/card";
 import { HeaderView } from "@/components/ui/header-view";
-import { ThemedText } from "@/components/ui/themed-text";
 import { Colors } from "@/constants/theme";
+import { useHealthTip } from "@/hooks/use-health-tip";
 
 const Dashboard = () => {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+
+  const { tip, isLoading, error } = useHealthTip();
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
@@ -17,28 +20,6 @@ const Dashboard = () => {
         subtitle="Ihr Gesundheits-Dashboard"
       />
       <View style={styles.content}>
-        <Card style={[styles.mainCard, { borderColor: theme.surface }]}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Heutige Zusammenfassung
-          </ThemedText>
-          <Card variant="filled" style={styles.innerCard}>
-            <View style={styles.row}>
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons
-                  name="clipboard-text-outline"
-                  size={24}
-                  color={theme.primary}
-                />
-              </View>
-              <View style={styles.textContainer}>
-                <ThemedText type="defaultSemiBold">Symptome heute</ThemedText>
-                <ThemedText type="smallText" style={styles.subtitleText}>
-                  Keine Symptome gemeldet
-                </ThemedText>
-              </View>
-            </View>
-          </Card>
-        </Card>
         <Card variant="filled">
           <View style={styles.row}>
             <View style={styles.iconContainer}>
@@ -49,7 +30,12 @@ const Dashboard = () => {
                 Gesundheitstipp des Tages
               </ThemedText>
               <ThemedText type="smallText" style={styles.subtitleText}>
-                Trinken Sie ausreichend Wasser, um hydratisiert zu bleiben!
+                {tip ||
+                  (isLoading
+                    ? "Lädt Gesundheitstipp..."
+                    : error
+                      ? "Fehler beim Laden des Tipps."
+                      : "Kein Tipp verfügbar.")}
               </ThemedText>
             </View>
           </View>
@@ -67,21 +53,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: 20,
-  },
-  mainCard: {
-    marginBottom: 24,
-    borderRadius: 16,
-    borderWidth: 1,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 20,
-    elevation: 4,
-  },
-  innerCard: {
-    marginBottom: 0,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
   },
   row: {
     flexDirection: "row",

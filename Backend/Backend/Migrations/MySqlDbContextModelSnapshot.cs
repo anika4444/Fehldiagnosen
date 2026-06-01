@@ -110,6 +110,34 @@ namespace Backend.Migrations
                     b.ToTable("KnownMedications");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActionRecommendation")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("KiPrompt")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommunicationLevels");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -145,6 +173,9 @@ namespace Backend.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("AiExplanation")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Comment")
                         .HasMaxLength(2000)
@@ -234,6 +265,9 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int?>("CommunicationLevelId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime(6)");
 
@@ -257,6 +291,8 @@ namespace Backend.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommunicationLevelId");
 
                     b.ToTable("Patients");
                 });
@@ -494,6 +530,15 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.CommunicationLevel", "CommunicationLevel")
+                        .WithMany()
+                        .HasForeignKey("CommunicationLevelId");
+
+                    b.Navigation("CommunicationLevel");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>

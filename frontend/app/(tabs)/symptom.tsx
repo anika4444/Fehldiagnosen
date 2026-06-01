@@ -4,12 +4,12 @@ import { Platform, ScrollView, StyleSheet, View } from "react-native";
 
 import { SymptomCard } from "@/components/symptom/symptom-card";
 import { SymptomForm } from "@/components/symptom/symptom-form";
+import { ThemedText } from "@/components/themed-text";
 import { Card } from "@/components/ui/card";
 import { DataList } from "@/components/ui/data-list";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ThemedText } from "@/components/ui/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useDatePicker } from "@/hooks/use-date-picker";

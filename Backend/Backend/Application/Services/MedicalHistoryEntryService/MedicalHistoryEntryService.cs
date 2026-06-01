@@ -95,6 +95,7 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
             existingEntry.Year = request.Year;
             existingEntry.Status = request.Status;
             existingEntry.Comment = request.Comment;
+            existingEntry.AiExplanation = request.AiExplanation;
 
             var updatedEntry = await _medicalHistoryEntryRepository.UpdateAsync(existingEntry);
             return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(updatedEntry));

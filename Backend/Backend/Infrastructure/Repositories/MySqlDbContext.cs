@@ -27,9 +27,12 @@ namespace Backend.Infrastructure.Repositories
 
         public DbSet<MedicalLetter> MedicalLetters { get; set; }
 
+        public DbSet<CommunicationLevel> CommunicationLevels { get; set; }
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
+
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
