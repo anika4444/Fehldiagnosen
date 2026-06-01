@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
+using static Google.Protobuf.Compiler.CodeGeneratorResponse.Types;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -21,6 +22,10 @@ namespace Backend.Infrastructure.Repositories
         
         public DbSet<FamilyHistoryEntry> FamilyHistoryEntries { get; set; }
         public DbSet<KnownMedication> KnownMedications { get; set; }
+
+        public DbSet<Diagnosis> Diagnoses { get; set; }
+
+        public DbSet<MedicalLetter> MedicalLetters { get; set; }
 
         public DbSet<CommunicationLevel> CommunicationLevels { get; set; }
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
