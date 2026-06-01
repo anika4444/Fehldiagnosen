@@ -1,4 +1,6 @@
-﻿namespace Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Domain.Enums;
+
+namespace Backend.Application.Services.DiagnosisService.Dto;
 
 public class DiagnosisResponse
 {
@@ -9,7 +11,9 @@ public class DiagnosisResponse
     public string? IcdCode { get; set; }
     public string? Severity { get; set; }
     public string? SideLocalization { get; set; }
-    public string? Status { get; set; }
+    public ConditionStatus ConditionStatus { get; set; }
+    public EntryBy EntryBy { get; set; }
+    public string? AiExplanation { get; set; }
     public string? MedicationText { get; set; }
     public string? Symptoms { get; set; }
     public string? Findings { get; set; }

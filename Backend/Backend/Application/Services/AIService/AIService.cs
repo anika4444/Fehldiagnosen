@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Backend.Domain.Entities;
+using System.Diagnostics;
 
 namespace Backend.Application.Services.AIService
 {
@@ -31,7 +32,6 @@ namespace Backend.Application.Services.AIService
 
         public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId)
         {
-            //var langLevel = "basic";
 
             var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryEntryId, userId);
 
@@ -51,8 +51,8 @@ namespace Backend.Application.Services.AIService
 
             var communicationLevels = await _communicationLevelRepository.GetAllAsync();
 
-            var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
-                         ?? communicationLevels?.FirstOrDefault();
+            var communicationLevel = communicationLevels?.ToList()?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
+                         ?? communicationLevels?.ToList()?.FirstOrDefault();
 
             var payload = new {
                 langLevel = communicationLevel?.Name ?? "L1",

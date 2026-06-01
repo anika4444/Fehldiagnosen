@@ -1,4 +1,5 @@
 ﻿using Backend.Domain.Interfaces;
+using Backend.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -29,8 +30,13 @@ public class Diagnosis : IEntity
     [MaxLength(50)]
     public string SideLocalization { get; set; } = string.Empty;
 
-    [MaxLength(50)]
-    public string Status { get; set; } = string.Empty;
+    [Required]
+    public ConditionStatus ConditionStatus { get; set; }
+
+    [Required]
+    public EntryBy EntryBy { get; set; }
+
+    public string? AiExplanation { get; set; }
 
     [MaxLength(500)]
     public string MedicationText { get; set; } = string.Empty;
