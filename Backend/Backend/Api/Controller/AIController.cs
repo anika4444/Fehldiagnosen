@@ -1,4 +1,5 @@
 using Backend.Application.Services.AIService;
+using Backend.Application.Services.AIService.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
@@ -37,6 +38,28 @@ public class AIController : BaseApiController
         if (result.IsSuccess)
         {
             return Ok(new { text = result.Data?.Text });
+        }
+
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+    }
+
+    [HttpGet("{patientId}/checkup-summary")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GenerateCheckupSummary(
+        [FromRoute] int patientId,
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to)
+    {
+        var userId = IsArzt() ? null : GetCurrentUserId();
+
+        var request = new CheckupSummaryRequest { From = from, To = to };
+        var result = await _aiService.GenerateCheckupSummary(patientId, userId, request);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
         }
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
