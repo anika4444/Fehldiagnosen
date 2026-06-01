@@ -1,7 +1,8 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
-using Backend.Application.Services.CommunicationLevelService;
 using Backend.Application.Services;
+using Backend.Application.Services.AIService;
+using Backend.Application.Services.CommunicationLevelService;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.HealthTipService;
@@ -10,19 +11,17 @@ using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
-using Backend.Infrastructure.Repositories;
 using Backend.Application.Services.UserService;
-using Backend.Application.Services.AIService;
 using Backend.Domain.Entities;
+using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddCors(options =>
 {
@@ -36,7 +35,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 
@@ -106,7 +104,6 @@ builder.Services.AddAuthentication(options =>
         RequireExpirationTime = false
     };
 });
-
 
 var app = builder.Build();
 

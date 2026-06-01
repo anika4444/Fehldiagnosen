@@ -15,6 +15,7 @@ import {
 
 import { FormInput } from "../ui/form-input";
 import { ModalCard } from "../ui/modal-card";
+import axiosConfig from "@/api/axiosConfig";
 
 interface DiagnosisFormProps {
   initialData: DiagnosisEntryResponse | null;
@@ -104,13 +105,12 @@ export const DiagnosisForm = ({
 
       setIsScanning(true);
 
-      const response = await fetch("/api/ocr/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64Data, mimeType }),
-      });
+      const response = await axiosConfig.post("/ocr/scan", {
+  imageBase64: base64Data,
+  mimeType,
+});
+const data = response.data;
 
-      const data = await response.json();
 
       if (data.title) handleChange("title", data.title);
       if (data.description) handleChange("description", data.description);
@@ -125,8 +125,8 @@ export const DiagnosisForm = ({
       if (data.note) handleChange("note", data.note);
       if (data.diagnosisDate) handleChange("diagnosisDate", data.diagnosisDate);
 
-    } catch (err) {
-      console.error("Scan fehlgeschlagen", err);
+    } catch (err: any) {
+      console.error("Scan fehlgeschlagen", err?.response?.data ?? err);
     } finally {
       setIsScanning(false);
     }
