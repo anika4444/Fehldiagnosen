@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
-import axiosConfig from "@/api/axiosConfig";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme.web";
+
+import { useExplainMedicalHistory } from "@/hooks/use-explain-medical-history";
 import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
+
+import { ThemedText } from "../themed-text";
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
-import { ThemedText } from "../themed-text";
 import { PrimaryButton } from "../ui/primary-button";
 
 interface MedicalHistoryEntryCardProps {
@@ -30,40 +30,14 @@ const getStatusInfo = (status: any) => {
 export const MedicalHistoryEntryCard: React.FC<
   MedicalHistoryEntryCardProps
 > = ({ patientId, entry, onDelete, onEdit, onSave }) => {
-  const colorScheme = useColorScheme() ?? "light";
-  const [aiExplanation, setAiExplanation] = useState<string | null>(
-    entry.aiExplanation || null,
-  );
+  const { aiExplanation, isExplaining, explain, setAiExplanation } =
+    useExplainMedicalHistory(patientId, entry, onSave);
 
   useEffect(() => {
     setAiExplanation(entry.aiExplanation || null);
-  }, [entry.aiExplanation]);
+  }, [entry.aiExplanation, setAiExplanation]);
 
   const statusInfo = getStatusInfo(entry.status);
-
-  const explainMedicalHistory = async () => {
-    try {
-      const response = await axiosConfig.get<any>(
-        `ai/${patientId}/explain-medical-history/${entry.id}`,
-      );
-      const explanationText =
-        response.data.data?.text || response.data.text || response.data;
-
-      const payload = {
-        diagnosis: entry.diagnosis,
-        icd10Code: entry.icd10Code,
-        year: entry.year,
-        status: entry.status,
-        comment: entry.comment,
-        aiExplanation: explanationText,
-      };
-
-      await onSave(payload, entry.id);
-      setAiExplanation(explanationText);
-    } catch (error) {
-      console.error("Fehler beim Laden oder Speichern der Erklärung:", error);
-    }
-  };
 
   return (
     <ModalCard
@@ -91,7 +65,10 @@ export const MedicalHistoryEntryCard: React.FC<
       )}
       <PrimaryButton
         title="Mit KI erklären lassen"
-        onPress={explainMedicalHistory}
+        icon="chat-processing"
+        onPress={explain}
+        isLoading={isExplaining}
+        isLoadingText="Wird generiert..."
       />
     </ModalCard>
   );

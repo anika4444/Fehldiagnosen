@@ -1,4 +1,3 @@
-// @/api/communicationService.ts
 import {
   CommunicationLevelResponse,
   CommunicationQuestionResponse,

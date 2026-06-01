@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
+  ActivityIndicator,
   StyleProp,
   StyleSheet,
   TextStyle,
@@ -18,6 +19,9 @@ interface PrimaryButtonProps {
   icon?: keyof typeof MaterialCommunityIcons.glyphMap;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  isLoading?: boolean;
+  disabled?: boolean;
+  isLoadingText?: string;
 }
 
 export function PrimaryButton({
@@ -26,28 +30,46 @@ export function PrimaryButton({
   icon,
   style,
   textStyle,
+  isLoading,
+  disabled,
+  isLoadingText,
 }: PrimaryButtonProps) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+
+  const isDisabled = disabled || isLoading;
 
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
-      style={[styles.button, { backgroundColor: theme.primary }, style]}
+      style={[
+        styles.button,
+        { backgroundColor: theme.primary },
+        style,
+        isDisabled && { opacity: 0.6 },
+      ]}
+      disabled={isDisabled}
     >
-      {icon && (
-        <MaterialCommunityIcons
-          name={icon}
-          size={20}
+      {isLoading ? (
+        <ActivityIndicator
           color={theme.textwithbackground}
           style={styles.icon}
         />
+      ) : (
+        icon && (
+          <MaterialCommunityIcons
+            name={icon}
+            size={20}
+            color={theme.textwithbackground}
+            style={styles.icon}
+          />
+        )
       )}
       <ThemedText
         style={[styles.text, { color: theme.textwithbackground }, textStyle]}
       >
-        {title}
+        {isLoading ? isLoadingText || "Wird gespeichert..." : title}
       </ThemedText>
     </TouchableOpacity>
   );

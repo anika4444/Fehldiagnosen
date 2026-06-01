@@ -4,10 +4,10 @@ import { ScrollView, StyleSheet, View } from "react-native";
 
 import { FamilyHistoryCard } from "@/components/familyhistoryentry/family-history-card";
 import { FamilyHistoryForm } from "@/components/familyhistoryentry/family-history-form";
+import { ThemedText } from "@/components/themed-text";
 import { DataList } from "@/components/ui/data-list";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useFamilyHistory } from "@/hooks/use-family-history";
