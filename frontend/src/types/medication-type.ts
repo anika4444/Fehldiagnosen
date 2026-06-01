@@ -10,7 +10,8 @@ export interface MedicationResponse {
   indication?: string;
   doctorName?: string;
   notes?: string;
-  atcCode?: string; // ← neu
+  atcCode?: string;
+  interactionWarnings?: string[];
 }
 
 export interface CreateMedicationRequest {

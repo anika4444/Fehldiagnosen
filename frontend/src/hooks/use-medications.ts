@@ -1,5 +1,5 @@
 import * as signalR from "@microsoft/signalr";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
 
 import { medicationService } from "@/api/medicationService";
@@ -12,6 +12,8 @@ export const useMedications = (patientId: number | null) => {
   const [medications, setMedications] = useState<MedicationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isSavingRef = useRef(false);
 
   const fetchMedications = useCallback(async () => {
     if (!patientId) return;
@@ -43,7 +45,12 @@ export const useMedications = (patientId: number | null) => {
       .build();
 
     connection.on("RefreshMedications", () => {
-      fetchMedications();
+      if (!isSavingRef.current) {
+        console.log("SignalR: Aktualisiere Liste von externem Event");
+        fetchMedications();
+      } else {
+        console.log("SignalR: Ignoriere Event, da wir selbst speichern.");
+      }
     });
 
     connection.start().catch((err) => console.log("SignalR Error:", err));
@@ -51,23 +58,46 @@ export const useMedications = (patientId: number | null) => {
     return () => {
       connection.stop();
     };
-  }, [patientId, fetchMedications]);
+  }, [patientId]);
 
   const saveMedication = async (
     payload: CreateMedicationRequest,
     medicationId?: number,
-  ) => {
+  ): Promise<MedicationResponse> => {
     if (!patientId) throw new Error("Sitzung abgelaufen.");
-    if (medicationId) {
-      await medicationService.updateMedication(
-        patientId,
-        medicationId,
-        payload,
-      );
-    } else {
-      await medicationService.createMedication(patientId, payload);
+
+    let response: MedicationResponse;
+
+    try {
+      // 1. Sperre aktivieren (SignalR wird ignoriert)
+      isSavingRef.current = true;
+
+      if (medicationId) {
+        response = await medicationService.updateMedication(
+          patientId,
+          medicationId,
+          payload,
+        );
+      } else {
+        response = await medicationService.createMedication(patientId, payload);
+      }
+
+      // 2. Wir aktualisieren den State manuell mit der direkten Antwort des Backends!
+      // Dadurch sind die Wechselwirkungen sofort in der UI, ohne dass ein zweiter API-Call läuft.
+      if (medicationId) {
+        setMedications((prev) =>
+          prev.map((m) => (m.id === medicationId ? response : m)),
+        );
+      } else {
+        setMedications((prev) => [response, ...prev]);
+      }
+
+      return response;
+    } finally {
+      requestAnimationFrame(() => {
+        isSavingRef.current = false;
+      });
     }
-    await fetchMedications();
   };
 
   const deleteMedication = async (medicationId: number) => {

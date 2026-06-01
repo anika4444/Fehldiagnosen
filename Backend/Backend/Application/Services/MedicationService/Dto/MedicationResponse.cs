@@ -32,5 +32,6 @@ namespace Backend.Application.Services.MedicationService.Dto
         public string? Substance { get; set; }
 
         public bool? PrescriptionRequired { get; set; }
+        public List<string> InteractionWarnings { get; set; } = new List<string>();
     }
 }

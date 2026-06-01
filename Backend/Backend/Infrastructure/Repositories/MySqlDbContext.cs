@@ -23,6 +23,9 @@ namespace Backend.Infrastructure.Repositories
         public DbSet<KnownMedication> KnownMedications { get; set; }
 
         public DbSet<CommunicationLevel> CommunicationLevels { get; set; }
+
+        public DbSet<AtcDrugMapping> AtcDrugMappings { get; set; }
+        public DbSet<DrugInteraction> DrugInteractions { get; set; }
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
@@ -35,6 +38,12 @@ namespace Backend.Infrastructure.Repositories
 
             modelBuilder.Entity<MedicalHistoryEntry>().ToTable("MedicalHistoryEntries");
 
+            // Indizes
+            modelBuilder.Entity<AtcDrugMapping>().HasIndex(m => m.AtcCode);
+            modelBuilder.Entity<DrugInteraction>().HasIndex(i => i.SourceDrugBankId);
+            modelBuilder.Entity<DrugInteraction>().HasIndex(i => new {i.SourceDrugBankId, i.TargetDrugBankId});
+
+            // Symptome
             var jsonOptions = (JsonSerializerOptions?)null;
 
             // Konfiguration für Aliase in Symptome
