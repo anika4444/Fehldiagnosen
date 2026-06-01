@@ -109,6 +109,7 @@ namespace Backend.Application.Services.DiagnosisService
             existing.TherapeuticMeasures = request.TherapeuticMeasures ?? existing.TherapeuticMeasures;
             existing.Note = request.Note ?? existing.Note;
             existing.DiagnosisDate = request.DiagnosisDate ?? existing.DiagnosisDate;
+            existing.AiExplanation = request.AiExplanation ?? existing.AiExplanation;
             existing.UpdatedAt = DateTime.UtcNow;
 
             var updated = await _diagnosisRepository.UpdateAsync(existing);
