@@ -27,8 +27,7 @@ public class AIController : BaseApiController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExplainDiagnosis(
         [FromRoute] int id,
-        [FromRoute] int diagnosisId,
-        [FromBody] ExplainDiagnosisRequest? request)
+        [FromRoute] int diagnosisId)
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
 
