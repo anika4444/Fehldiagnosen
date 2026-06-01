@@ -1,6 +1,7 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
+using Backend.Application.Services.DrugInteractionService;
 using Backend.Application.Services.MedicationService.Dto;
 using Backend.Domain.Entities;
 
@@ -10,13 +11,15 @@ namespace Backend.Application.Services.MedicationService
     {
         private readonly IMedicationRepository _medicationRepository;
         private readonly IPatientRepository _patientRepository;
+        private readonly IDrugInteractionService _drugInteractionService;
         private readonly DtoMapper _mapper;
 
-        public MedicationService(IMedicationRepository medicationrepository, IPatientRepository patientRepository, DtoMapper mapper)
+        public MedicationService(IMedicationRepository medicationrepository, IPatientRepository patientRepository, DtoMapper mapper, IDrugInteractionService drugInteractionService)
         {
             _medicationRepository = medicationrepository;
             _patientRepository = patientRepository;
             _mapper = mapper;
+            _drugInteractionService = drugInteractionService;
         }
 
         public async Task<ServiceResult<IEnumerable<MedicationResponse>>> GetAllAsync(int patientId, string? userId)
@@ -69,12 +72,36 @@ namespace Backend.Application.Services.MedicationService
                 IntakeStartDate = request.IntakeStartDate,
                 DurationInDays = request.DurationInDays,
                 Indication = request.Indication,
+                AtcCode = request.AtcCode,
                 EntryBy = request.EntryBy,
                 Notes = request.Notes
             };
 
             var newMedication = await _medicationRepository.AddAsync(medication);
-            return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(newMedication));
+
+            var responseDto = _mapper.ToMedicationResponse(newMedication);
+
+            if(!string.IsNullOrWhiteSpace(request.AtcCode))
+            {
+                var activeMedications = await _medicationRepository.FindAllByPatientIdAsync(patientId);
+
+                var existingAtcCodes = activeMedications
+                    .Where(m => m.Id != newMedication.Id && !string.IsNullOrWhiteSpace(m.AtcCode))
+                    .Select(m => m.AtcCode!)
+                    .ToList();
+
+                if(existingAtcCodes.Any())
+                {
+                    var interactionResult = await _drugInteractionService.CheckInteractionsAsync(request.AtcCode, existingAtcCodes);
+
+                    if(interactionResult.IsSuccess && interactionResult.Data != null)
+                    {
+                        responseDto.InteractionWarnings = interactionResult.Data;
+                    }
+                }
+            }
+
+            return ServiceResult<MedicationResponse>.Success(responseDto);
         }
 
         public async Task<ServiceResult<MedicationResponse>> UpdateAsync(int patientId, int medicationId, UpdateMedicationRequest request, string? userId)

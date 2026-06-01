@@ -3,6 +3,7 @@ using System;
 using Backend.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(MySqlDbContext))]
-    partial class MySqlDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260601133644_CreateDrugInteractions")]
+    partial class CreateDrugInteractions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,7 +138,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KnownMedications", (string)null);
+                    b.ToTable("KnownMedications");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.CommunicationLevel", b =>
@@ -163,90 +166,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CommunicationLevels", (string)null);
-                });
-
-            modelBuilder.Entity("Backend.Domain.Entities.Diagnosis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("AiExplanation")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("ConditionStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<DateTime>("DiagnosisDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("EntryBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Findings")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("IcdCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("MedicationText")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("SideLocalization")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("Symptoms")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("TherapeuticMeasures")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Diagnoses", (string)null);
+                    b.ToTable("CommunicationLevels");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.DrugInteraction", b =>
@@ -310,7 +230,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("FamilyHistoryEntries", (string)null);
+                    b.ToTable("FamilyHistoryEntries");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.MedicalHistoryEntry", b =>
@@ -352,52 +272,6 @@ namespace Backend.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("MedicalHistoryEntries", (string)null);
-                });
-
-            modelBuilder.Entity("Backend.Domain.Entities.MedicalLetter", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("AiSuggestion")
-                        .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReciverName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("ReworkedText")
-                        .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
-
-                    b.Property<DateTime>("Startdate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("MedicalLetters", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Medication", b =>
@@ -447,7 +321,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Medications", (string)null);
+                    b.ToTable("Medications");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
@@ -485,7 +359,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CommunicationLevelId");
 
-                    b.ToTable("Patients", (string)null);
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.PatientSymptom", b =>
@@ -535,7 +409,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SymptomDefinitionId");
 
-                    b.ToTable("PatientSymptoms", (string)null);
+                    b.ToTable("PatientSymptoms");
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.SymptomDefinition", b =>
@@ -559,7 +433,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SymptomsDefinition", (string)null);
+                    b.ToTable("SymptomsDefinition");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -690,17 +564,6 @@ namespace Backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Domain.Entities.Diagnosis", b =>
-                {
-                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
-                        .WithMany("Diagnoses")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
                 {
                     b.HasOne("Backend.Domain.Entities.Patient", "Patient")
@@ -716,17 +579,6 @@ namespace Backend.Migrations
                 {
                     b.HasOne("Backend.Domain.Entities.Patient", "Patient")
                         .WithMany("MedicalHistoryEntries")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Backend.Domain.Entities.MedicalLetter", b =>
-                {
-                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
-                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -824,8 +676,6 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Domain.Entities.Patient", b =>
                 {
-                    b.Navigation("Diagnoses");
-
                     b.Navigation("MedicalHistoryEntries");
 
                     b.Navigation("MedicationEntries");

@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Backend.Application.Services.DrugInteractionService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +48,7 @@ builder.Services.AddScoped<IMedicationRepository, MySqlMedicationRepository>();
 builder.Services.AddScoped<IMedicalHistoryEntryRepository, MySqlMedicalHistoryEntryRepository>();
 builder.Services.AddScoped<IFamilyHistoryEntryRepository, MySqlFamilyHistoryEntryRepository>();
 builder.Services.AddScoped<ICommunicationLevelRepository, MySqlCommunicationLevelRepository>();
-builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
+builder.Services.AddScoped<IDrugInteractionRepository, MySqlDrugInteractionRepository>();
 
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<ISymptomService, SymptomService>();
@@ -62,6 +63,9 @@ builder.Services.AddScoped<IKnownMedicationService, KnownMedicationService>();
 builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
 builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
+builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
+builder.Services.AddScoped<IDrugInteractionService, DrugInteractionService>();
+
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 
 builder.Services.AddSignalR();
