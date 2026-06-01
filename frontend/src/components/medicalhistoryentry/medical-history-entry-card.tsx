@@ -17,11 +17,12 @@ interface MedicalHistoryEntryCardProps {
   onSave: (payload: any, id?: number) => Promise<void>;
 }
 
+// Werte gemäß Backend-Konvention: 0=Chronical, 1=Active, 2=InRemission
 const getStatusInfo = (status: any) => {
   const s = String(status).toLowerCase();
-  if (s === "0" || s === "active") return { label: "Aktiv", color: "#4CAF50" };
-  if (s === "1" || s === "chronical")
+  if (s === "0" || s === "chronical")
     return { label: "Chronisch", color: "#FF9800" };
+  if (s === "1" || s === "active") return { label: "Aktiv", color: "#4CAF50" };
   if (s === "2" || s === "inremission")
     return { label: "Remission", color: "#2196F3" };
   return { label: "Aktiv", color: "#4CAF50" };
@@ -30,8 +31,13 @@ const getStatusInfo = (status: any) => {
 export const MedicalHistoryEntryCard: React.FC<
   MedicalHistoryEntryCardProps
 > = ({ patientId, entry, onDelete, onEdit, onSave }) => {
-  const { aiExplanation, isExplaining, explain, setAiExplanation } =
-    useExplainMedicalHistory(patientId, entry, onSave);
+  const {
+    aiExplanation,
+    aiDisclaimer,
+    isExplaining,
+    explain,
+    setAiExplanation,
+  } = useExplainMedicalHistory(patientId, entry, onSave);
 
   useEffect(() => {
     setAiExplanation(entry.aiExplanation || null);
@@ -62,6 +68,9 @@ export const MedicalHistoryEntryCard: React.FC<
       <DetailField label="Anmerkungen" value={entry.comment} />
       {aiExplanation && (
         <DetailField label="KI-Erklärung" value={aiExplanation} />
+      )}
+      {aiExplanation && aiDisclaimer && (
+        <DetailField label="Hinweis" value={aiDisclaimer} />
       )}
       <PrimaryButton
         title="Mit KI erklären lassen"
