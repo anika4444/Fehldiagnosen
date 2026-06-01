@@ -27,6 +27,13 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/familyhistory" as Href,
   },
   {
+    id: "diagnosis",
+    title: "Diagnosen",
+    subtitle: "Meine Diagnosen",
+    icon: "stethoscope",
+    route: "/diagnosis" as Href,
+  },
+  {
     id: "medicalhistory",
     title: "Medizinische Vorgeschichte",
     subtitle: "3 Einträge",

@@ -27,7 +27,6 @@ namespace Backend.Domain.Entities
         public List<Medication> MedicationEntries { get; set; } = [];
 
         public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = [];
-        public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = new();
 
         public int? CommunicationLevelId { get; set; }
         [ForeignKey("CommunicationLevelId")]
