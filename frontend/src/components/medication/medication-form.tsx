@@ -18,6 +18,39 @@ const DOSAGE_UNITS = ["mg", "µg", "g", "ml", "I.E.", "%", "Stück", "Tropfen"];
 // Plausibilitätsgrenze für die Menge (verhindert Eingaben wie "50000000000").
 const MAX_DOSAGE_AMOUNT = 10000;
 
+// Standard-Optionen für die Einnahmehäufigkeit. "Sonstiges" blendet ein
+// zusätzliches Freitextfeld ein.
+const INTAKE_FREQUENCY_OPTIONS = [
+  "1x täglich",
+  "2x täglich",
+  "3x täglich",
+  "alle 4 Stunden",
+  "alle 6 Stunden",
+  "alle 8 Stunden",
+  "alle 12 Stunden",
+  "1x pro Woche",
+  "bei Bedarf",
+  "Sonstiges",
+];
+const CUSTOM_FREQUENCY_OPTION = "Sonstiges";
+const STANDARD_FREQUENCIES = INTAKE_FREQUENCY_OPTIONS.filter(
+  (o) => o !== CUSTOM_FREQUENCY_OPTION,
+);
+
+// Offensichtlich unbrauchbare Freitext-Eingaben. Rein formale Prüfung – es wird
+// KEINE medizinische Bewertung der Häufigkeit vorgenommen.
+const INVALID_CUSTOM_FREQUENCIES = ["abc", "test", "123", "oft", "immer"];
+
+// Prüft, ob ein "Sonstiges"-Freitext formal sinnvoll ist: nicht leer, 3–100
+// Zeichen, nicht rein numerisch und kein offensichtlicher Platzhalter.
+function isValidCustomFrequency(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed.length < 3 || trimmed.length > 100) return false;
+  if (/^\d+$/.test(trimmed)) return false;
+  if (INVALID_CUSTOM_FREQUENCIES.includes(trimmed.toLowerCase())) return false;
+  return true;
+}
+
 // Zerlegt einen gespeicherten Dosierungs-String (z.B. "500 mg") in Menge + Einheit.
 // Unbekannte Einheiten werden verworfen, damit der Picker einen gültigen Wert hat.
 function parseDosage(dosage?: string | null): { amount: string; unit: string } {
@@ -77,6 +110,7 @@ interface FormValues {
   dosageAmount: string;
   dosageUnit: string;
   intakeFrequency: string;
+  customFrequency: string;
   durationInDays: string;
   intakeStartDate: string;
   indication: string;
@@ -94,12 +128,24 @@ export function MedicationForm({
 
   const initialDosage = parseDosage(initialData?.dosage);
 
+  // Round-Trip für die Einnahmehäufigkeit: ein Standardwert wird direkt im
+  // Dropdown gesetzt; ein abweichend gespeicherter Wert war ein
+  // "Sonstiges"-Freitext und wird entsprechend zerlegt.
+  const savedFrequency = initialData?.intakeFrequency ?? "";
+  const isStandardFrequency = STANDARD_FREQUENCIES.includes(savedFrequency);
+
   const mappedInitialData: FormValues | null = initialData
     ? {
         name: initialData.name,
         dosageAmount: initialDosage.amount,
         dosageUnit: initialDosage.unit,
-        intakeFrequency: initialData.intakeFrequency ?? "",
+        intakeFrequency: savedFrequency
+          ? isStandardFrequency
+            ? savedFrequency
+            : CUSTOM_FREQUENCY_OPTION
+          : "",
+        customFrequency:
+          savedFrequency && !isStandardFrequency ? savedFrequency : "",
         durationInDays: initialData.durationInDays?.toString() ?? "",
         intakeStartDate: initialData.intakeStartDate?.split("T")[0] ?? "",
         indication: initialData.indication ?? "",
@@ -117,6 +163,7 @@ export function MedicationForm({
         dosageAmount: "",
         dosageUnit: "",
         intakeFrequency: "",
+        customFrequency: "",
         durationInDays: "",
         intakeStartDate: "",
         indication: "",
@@ -145,6 +192,19 @@ export function MedicationForm({
           errs.dosageAmount = "Bitte auch eine Menge angeben.";
         }
 
+        // Einnahmehäufigkeit ist Pflicht; bei "Sonstiges" muss der Freitext
+        // formal sinnvoll sein.
+        if (!vals.intakeFrequency) {
+          errs.intakeFrequency =
+            "Bitte geben Sie an, wie oft das Medikament eingenommen wird.";
+        } else if (
+          vals.intakeFrequency === CUSTOM_FREQUENCY_OPTION &&
+          !isValidCustomFrequency(vals.customFrequency)
+        ) {
+          errs.customFrequency =
+            'Bitte geben Sie die Einnahmehäufigkeit in einem verständlichen Format ein, z. B. „1x täglich", „morgens und abends" oder „bei Bedarf".';
+        }
+
         return errs;
       },
     );
@@ -165,10 +225,17 @@ export function MedicationForm({
   };
 
   const onFinalSave = async (validatedData: FormValues) => {
+    // Bei "Sonstiges" wird der eingegebene Freitext gespeichert, sonst der
+    // ausgewählte Standardwert (z.B. "2x täglich").
+    const finalIntakeFrequency =
+      validatedData.intakeFrequency === CUSTOM_FREQUENCY_OPTION
+        ? validatedData.customFrequency.trim()
+        : validatedData.intakeFrequency;
+
     await onSave({
       name: validatedData.name.trim(),
       dosage: combineDosage(validatedData.dosageAmount, validatedData.dosageUnit),
-      intakeFrequency: validatedData.intakeFrequency.trim() || undefined,
+      intakeFrequency: finalIntakeFrequency || undefined,
       durationInDays: validatedData.durationInDays
         ? parseInt(validatedData.durationInDays)
         : undefined,
@@ -210,11 +277,25 @@ export function MedicationForm({
         onValueChange={(v) => handleChange("dosageUnit", v)}
         errorText={errors.dosageUnit}
       />
-      <FormInput
+      <FormPicker
         label="Einnahmehäufigkeit"
-        value={values.intakeFrequency}
-        onChangeText={(v) => handleChange("intakeFrequency", v)}
+        isRequired
+        selectedValue={values.intakeFrequency}
+        options={INTAKE_FREQUENCY_OPTIONS}
+        onValueChange={(v) => handleChange("intakeFrequency", v)}
+        errorText={errors.intakeFrequency}
       />
+      {values.intakeFrequency === CUSTOM_FREQUENCY_OPTION && (
+        <FormInput
+          label="Einnahmehäufigkeit (Freitext)"
+          isRequired
+          value={values.customFrequency}
+          onChangeText={(v) => handleChange("customFrequency", v)}
+          errorText={errors.customFrequency}
+          maxLength={100}
+          placeholder='z. B. „morgens und abends"'
+        />
+      )}
       <FormInput
         label="Einnahmedauer (in Tagen)"
         keyboardType="numeric"
