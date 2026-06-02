@@ -2,6 +2,7 @@ using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Domain.Enums;
 using System.Text.Json;
 
 namespace Backend.Application.Services.AIService
@@ -133,7 +134,6 @@ namespace Backend.Application.Services.AIService
                         createReq.IcdCode ??= string.Empty;
                         createReq.Severity ??= string.Empty;
                         createReq.SideLocalization ??= string.Empty;
-                        createReq.Status ??= string.Empty;
                         createReq.MedicationText ??= string.Empty;
                         createReq.Symptoms ??= string.Empty;
                         createReq.Findings ??= string.Empty;
@@ -142,6 +142,11 @@ namespace Backend.Application.Services.AIService
                         if (createReq.DiagnosisDate == default)
                         {
                             createReq.DiagnosisDate = DateTime.UtcNow;
+                        }
+
+                        if (createReq.ConditionStatus == default)
+                        {
+                            createReq.ConditionStatus = ConditionStatus.Active;
                         }
 
                         var createdResult = await _diagnosisService.CreateAsync(patientId.Value, createReq, userId);

@@ -1,12 +1,5 @@
-import * as DocumentPicker from "expo-document-picker";
-import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
-import { ActivityIndicator, Platform, StyleSheet, TouchableOpacity } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/build/MaterialCommunityIcons";
+import { StyleSheet } from "react-native";
 
-import { ThemedText } from "@/components/themed-text";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
   CreateDiagnosisEntryRequest,
@@ -15,7 +8,6 @@ import {
 
 import { FormInput } from "../ui/form-input";
 import { ModalCard } from "../ui/modal-card";
-import axiosConfig from "@/api/axiosConfig";
 
 interface DiagnosisFormProps {
   initialData: DiagnosisEntryResponse | null;
@@ -28,11 +20,6 @@ export const DiagnosisForm = ({
   onSave,
   onCancel,
 }: DiagnosisFormProps) => {
-  const colorScheme = useColorScheme() ?? "light";
-  const theme = Colors[colorScheme];
-  const [isScanning, setIsScanning] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-
   const { values, errors, handleChange, handleSubmit } = useFormValidation(
     initialData,
     {
@@ -51,86 +38,12 @@ export const DiagnosisForm = ({
     },
     (vals) => {
       const errs: Record<string, string> = {};
-      if (!vals.title.trim())
-        errs.title = "Bitte geben Sie einen Titel an.";
+      if (!vals.title.trim()) errs.title = "Bitte geben Sie einen Titel an.";
       if (!vals.diagnosisDate.trim())
         errs.diagnosisDate = "Bitte geben Sie das Diagnosedatum an.";
       return errs;
     },
   );
-
-  const handleScan = async () => {
-    try {
-      let base64Data: string | null = null;
-      let mimeType: string = "image/jpeg";
-
-      if (Platform.OS === "web") {
-        const docResult = await DocumentPicker.getDocumentAsync({
-          type: ["image/*", "application/pdf"],
-          copyToCacheDirectory: true,
-        });
-
-        if (docResult.canceled || !docResult.assets?.[0]) return;
-
-        const file = docResult.assets[0];
-        mimeType = file.mimeType ?? "image/jpeg";
-        setFileName(file.name);
-
-        const fetchResponse = await fetch(file.uri);
-        const blob = await fetchResponse.blob();
-        base64Data = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const result = reader.result as string;
-            resolve(result.split(",")[1]);
-          };
-          reader.readAsDataURL(blob);
-        });
-      } else {
-        const permission = await ImagePicker.requestCameraPermissionsAsync();
-        if (!permission.granted) return;
-
-        const result = await ImagePicker.launchCameraAsync({
-          quality: 1,
-          base64: true,
-        });
-
-        if (result.canceled || !result.assets?.[0]?.base64) return;
-        base64Data = result.assets[0].base64;
-        mimeType = "image/jpeg";
-        setFileName("Kamerafoto");
-      }
-
-      if (!base64Data) return;
-
-      setIsScanning(true);
-
-      const response = await axiosConfig.post("/ocr/scan", {
-  imageBase64: base64Data,
-  mimeType,
-});
-const data = response.data;
-
-
-      if (data.title) handleChange("title", data.title);
-      if (data.description) handleChange("description", data.description);
-      if (data.icdCode) handleChange("icdCode", data.icdCode);
-      if (data.severity) handleChange("severity", data.severity);
-      if (data.sideLocalization) handleChange("sideLocalization", data.sideLocalization);
-      if (data.status) handleChange("status", data.status);
-      if (data.symptoms) handleChange("symptoms", data.symptoms);
-      if (data.findings) handleChange("findings", data.findings);
-      if (data.therapeuticMeasures) handleChange("therapeuticMeasures", data.therapeuticMeasures);
-      if (data.medicationText) handleChange("medicationText", data.medicationText);
-      if (data.note) handleChange("note", data.note);
-      if (data.diagnosisDate) handleChange("diagnosisDate", data.diagnosisDate);
-
-    } catch (err: any) {
-      console.error("Scan fehlgeschlagen", err?.response?.data ?? err);
-    } finally {
-      setIsScanning(false);
-    }
-  };
 
   return (
     <ModalCard
@@ -139,32 +52,6 @@ const data = response.data;
       onSave={() => handleSubmit(onSave)}
       saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
     >
-      {!initialData && (
-        <TouchableOpacity
-          style={[styles.scanButton, { borderColor: theme.primary }]}
-          onPress={handleScan}
-          disabled={isScanning}
-        >
-          {isScanning ? (
-            <ActivityIndicator color={theme.primary} />
-          ) : (
-            <MaterialCommunityIcons name="camera-outline" size={22} color={theme.primary} />
-          )}
-          <ThemedText style={[styles.scanText, { color: theme.primary }]}>
-            {isScanning
-              ? "Wird gescannt..."
-              : fileName
-                ? fileName
-                : Platform.OS === "web"
-                  ? "Arztbrief hochladen (Bild oder PDF)"
-                  : "Arztbrief scannen"}
-          </ThemedText>
-          {fileName && !isScanning && (
-            <MaterialCommunityIcons name="check-circle" size={20} color={theme.primary} />
-          )}
-        </TouchableOpacity>
-      )}
-
       <FormInput
         label="Titel"
         isRequired
