@@ -11,6 +11,10 @@ obj/
 .idea/
 *.iml
 
+# xml files
+*.xml
+interaction_database.xml
+
 # --- Node.js / Frontend ---
 node_modules/
 dist/
