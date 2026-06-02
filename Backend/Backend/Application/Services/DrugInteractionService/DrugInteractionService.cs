@@ -1,5 +1,6 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
+using Backend.Application.Services.DrugInteractionService.Dto;
 using GTranslate.Translators;
 
 namespace Backend.Application.Services.DrugInteractionService
@@ -95,6 +96,82 @@ namespace Backend.Application.Services.DrugInteractionService
             catch (Exception ex)
             {
                 return ServiceResult<bool>.InternalServerError($"Fehler beim Importieren der Medikamentendaten: {ex.Message}");
+            }
+        }
+
+        public async Task<ServiceResult<MedicationRiskDto>> GetAllPatientRisksAsync(List<string> currentAtcCodes)
+        {
+            try
+            {
+                if (currentAtcCodes == null || !currentAtcCodes.Any())
+                {
+                    return ServiceResult<MedicationRiskDto>.Success(new MedicationRiskDto());
+                }
+
+                var resultDto = new MedicationRiskDto();
+
+                var drugBankIds = await _interactionRepository.GetDrugBankIdsByAtcCodesAsync(currentAtcCodes);
+                if (!drugBankIds.Any())
+                {
+                    return ServiceResult<MedicationRiskDto>.Success(resultDto);
+                }
+
+                var interactions = await _interactionRepository.GetInteractionsAmongAsync(drugBankIds);
+
+                var uniqueInteractions = interactions
+                    .GroupBy(i => new { i.TargetName, i.Description })
+                    .Select(g => g.First());
+
+                foreach (var interaction in uniqueInteractions)
+                {
+                    var translatedDesc = await TranslateSafeAsync(interaction.Description);
+                    resultDto.Interactions.Add($"[WECHSELWIRKUNG] mit {interaction.TargetName}: {translatedDesc}");
+                }
+
+                var drugDetails = await _interactionRepository.GetDrugDetailsAsync(drugBankIds);
+
+                foreach (var detail in drugDetails)
+                {
+                    var combinedInfo = new System.Text.StringBuilder();
+
+                    if (!string.IsNullOrWhiteSpace(detail.Toxicity))
+                    {
+                        var translatedTox = await TranslateSafeAsync(detail.Toxicity);
+                        combinedInfo.AppendLine($"Toxizität/Nebenwirkungen: {translatedTox}");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(detail.Pharmacodynamics))
+                    {
+                        var translatedPharma = await TranslateSafeAsync(detail.Pharmacodynamics);
+                        combinedInfo.AppendLine($"Warnhinweise: {translatedPharma}");
+                    }
+
+                    if (combinedInfo.Length > 0)
+                    {
+                        resultDto.SideEffects.Add($"[INFOS FÜR MEDIKAMENT {detail.DrugBankId}]:\n{combinedInfo.ToString().Trim()}");
+                    }
+                }
+
+                return ServiceResult<MedicationRiskDto>.Success(resultDto);
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<MedicationRiskDto>.InternalServerError($"Fehler beim Abrufen der Risiken: {ex.Message}");
+            }
+        }
+
+        private async Task<string> TranslateSafeAsync(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+            try
+            {
+                var translationResult = await _translator.TranslateAsync(text, "de", "en");
+                return translationResult.Translation;
+            }
+            catch
+            {
+                return text;
             }
         }
     }

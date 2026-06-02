@@ -12,7 +12,6 @@ namespace Backend.Infrastructure.Repositories
     public class MySqlDrugInteractionRepository : IDrugInteractionRepository
     {
         private readonly MySqlDbContext _context;
-        private readonly AggregateTranslator _translator = new AggregateTranslator();
 
         public MySqlDrugInteractionRepository(MySqlDbContext context)
         {
@@ -142,6 +141,7 @@ namespace Backend.Infrastructure.Repositories
                     var truncateSql = @"SET FOREIGN_KEY_CHECKS = 0;
                         TRUNCATE TABLE AtcDrugMappings;
                         TRUNCATE TABLE DrugInteractions;
+                        TRUNCATE TABLE DrugDetails;
                         SET FOREIGN_KEY_CHECKS = 1;";
 
                     await using var cmd = new MySqlCommand(truncateSql, conn);
@@ -151,7 +151,10 @@ namespace Backend.Infrastructure.Repositories
                     var processedInteractions = new HashSet<string>();
                     var mappingsBatch = new List<AtcDrugMapping>();
                     var interactionsBatch = new List<DrugInteraction>();
+                    var detailsBatch = new List<DrugDetail>();
+
                     const int batchSize = 15000;
+                    const int detailsBatchSize = 250;
 
                     using var reader = XmlReader.Create(xmlPath);
                     reader.MoveToContent();
@@ -171,6 +174,24 @@ namespace Backend.Infrastructure.Repositories
                             var drugName = drugXml.Element(ns + "name")?.Value;
 
                             if (string.IsNullOrEmpty(primaryId)) continue;
+
+                            var toxicity = drugXml.Element(ns + "toxicity")?.Value;
+                            var pharmacodynamics = drugXml.Element(ns + "pharmacodynamics")?.Value;
+                            var snpReactions = drugXml.Element(ns + "snp-adverse-drug-reactions")?.Value;
+
+                            if (!string.IsNullOrWhiteSpace(toxicity) ||
+                                !string.IsNullOrWhiteSpace(pharmacodynamics) ||
+                                !string.IsNullOrWhiteSpace(snpReactions))
+                            {
+                                detailsBatch.Add(new DrugDetail
+                                {
+                                    DrugBankId = primaryId,
+                                    Toxicity = toxicity?.Trim(),
+                                    Pharmacodynamics = pharmacodynamics?.Trim(),
+                                    SnpAdverseReactions = snpReactions?.Trim()
+                                });
+                            }
+
 
                             foreach (var atc in drugXml.Descendants(ns + "atc-code"))
                             {
@@ -213,11 +234,15 @@ namespace Backend.Infrastructure.Repositories
 
                             if (interactionsBatch.Count >= batchSize)
                                 await FlushInteractionsAsync(connectionString, interactionsBatch);
+
+                            if (detailsBatch.Count >= detailsBatchSize)
+                                await FlushDetailsAsync(connectionString, detailsBatch);
                         }
                     }
 
                     await FlushMappingsAsync(connectionString,mappingsBatch);
                     await FlushInteractionsAsync(connectionString,interactionsBatch);
+                    await FlushDetailsAsync(connectionString, detailsBatch);
 
                     processedInteractions.Clear();
 
@@ -231,7 +256,6 @@ namespace Backend.Infrastructure.Repositories
             }
             finally
             {
-                // Immer zurücksetzen, egal ob Fehler oder nicht
                 _context.ChangeTracker.AutoDetectChangesEnabled = true;
             }
         }
@@ -300,6 +324,125 @@ namespace Backend.Infrastructure.Repositories
             }
 
             interactions.Clear();
+        }
+
+        private static async Task FlushDetailsAsync(string connectionString, List<DrugDetail> details)
+        {
+            if (!details.Any()) return;
+
+            await using var conn = new MySqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            const int chunkSize = 250;
+            for (int i = 0; i < details.Count; i += chunkSize)
+            {
+                var chunk = details.Skip(i).Take(chunkSize).ToList();
+
+                var sb = new System.Text.StringBuilder("INSERT INTO DrugDetails (DrugBankId, Toxicity, Pharmacodynamics, SnpAdverseReactions) VALUES ");
+                var parameters = new List<MySqlParameter>();
+
+                for (int j = 0; j < chunk.Count; j++)
+                {
+                    sb.Append(j == 0 ? "" : ",");
+                    sb.Append($"(@di{j},@tx{j},@pd{j},@sn{j})");
+
+                    parameters.Add(new MySqlParameter($"@di{j}", chunk[j].DrugBankId));
+                    parameters.Add(new MySqlParameter($"@tx{j}", chunk[j].Toxicity ?? (object)DBNull.Value));
+                    parameters.Add(new MySqlParameter($"@pd{j}", chunk[j].Pharmacodynamics ?? (object)DBNull.Value));
+                    parameters.Add(new MySqlParameter($"@sn{j}", chunk[j].SnpAdverseReactions ?? (object)DBNull.Value));
+                }
+
+                await using var cmd = new MySqlCommand(sb.ToString(), conn);
+                cmd.Parameters.AddRange(parameters.ToArray());
+                await cmd.ExecuteNonQueryAsync();
+            }
+
+            details.Clear();
+        }
+
+        public async Task<List<DrugInteraction>> GetInteractionsAmongAsync(List<string> drugBankIds)
+        {
+            if (drugBankIds == null || drugBankIds.Count < 2) return new List<DrugInteraction>();
+
+            var interactions = new List<DrugInteraction>();
+            var connectionString = _context.Database.GetConnectionString()!;
+            await using var conn = new MySqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var inClauseBuilder = new System.Text.StringBuilder("(");
+            var parameters = new List<MySqlParameter>();
+            for (int i = 0; i < drugBankIds.Count; i++)
+            {
+                inClauseBuilder.Append(i == 0 ? "" : ",");
+                inClauseBuilder.Append($"@p{i}");
+                parameters.Add(new MySqlParameter($"@p{i}", drugBankIds[i]));
+            }
+            inClauseBuilder.Append(")");
+            var inClause = inClauseBuilder.ToString();
+
+            var sql = $@"
+                SELECT Id, SourceDrugBankId, TargetDrugBankId, TargetName, Description 
+                FROM DrugInteractions 
+                WHERE SourceDrugBankId IN {inClause} AND TargetDrugBankId IN {inClause}";
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddRange(parameters.ToArray());
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                interactions.Add(new DrugInteraction
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    SourceDrugBankId = reader.GetString(reader.GetOrdinal("SourceDrugBankId")),
+                    TargetDrugBankId = reader.GetString(reader.GetOrdinal("TargetDrugBankId")),
+                    TargetName = reader.IsDBNull(reader.GetOrdinal("TargetName")) ? "" : reader.GetString(reader.GetOrdinal("TargetName")),
+                    Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? "" : reader.GetString(reader.GetOrdinal("Description"))
+                });
+            }
+
+            return interactions;
+        }
+
+        public async Task<List<DrugDetail>> GetDrugDetailsAsync(List<string> drugBankIds)
+        {
+            if (drugBankIds == null || !drugBankIds.Any()) return new List<DrugDetail>();
+
+            var details = new List<DrugDetail>();
+            var connectionString = _context.Database.GetConnectionString()!;
+            await using var conn = new MySqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var inClauseBuilder = new System.Text.StringBuilder("(");
+            var parameters = new List<MySqlParameter>();
+            for (int i = 0; i < drugBankIds.Count; i++)
+            {
+                inClauseBuilder.Append(i == 0 ? "" : ",");
+                inClauseBuilder.Append($"@p{i}");
+                parameters.Add(new MySqlParameter($"@p{i}", drugBankIds[i]));
+            }
+            inClauseBuilder.Append(")");
+            var inClause = inClauseBuilder.ToString();
+
+            var sql = $"SELECT Id, DrugBankId, Toxicity, Pharmacodynamics, SnpAdverseReactions FROM DrugDetails WHERE DrugBankId IN {inClause}";
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddRange(parameters.ToArray());
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                details.Add(new DrugDetail
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                    DrugBankId = reader.GetString(reader.GetOrdinal("DrugBankId")),
+                    Toxicity = reader.IsDBNull(reader.GetOrdinal("Toxicity")) ? null : reader.GetString(reader.GetOrdinal("Toxicity")),
+                    Pharmacodynamics = reader.IsDBNull(reader.GetOrdinal("Pharmacodynamics")) ? null : reader.GetString(reader.GetOrdinal("Pharmacodynamics")),
+                    SnpAdverseReactions = reader.IsDBNull(reader.GetOrdinal("SnpAdverseReactions")) ? null : reader.GetString(reader.GetOrdinal("SnpAdverseReactions"))
+                });
+            }
+
+            return details;
         }
     }
 }

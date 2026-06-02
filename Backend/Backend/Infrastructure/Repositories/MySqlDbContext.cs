@@ -31,6 +31,8 @@ namespace Backend.Infrastructure.Repositories
 
         public DbSet<AtcDrugMapping> AtcDrugMappings { get; set; }
         public DbSet<DrugInteraction> DrugInteractions { get; set; }
+
+        public DbSet<DrugDetail> DrugDetails { get; set; }
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
