@@ -1,6 +1,7 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService;
+using Backend.Application.Services.DiagnosisService.Dto;
 using System.Text.Json;
 
 namespace Backend.Application.Services.AIService
@@ -28,6 +29,7 @@ namespace Backend.Application.Services.AIService
             _diagnosisService = diagnosisService;
             _explanationEndpoint = configuration["AiServiceOptions:ExplanationEndpoint"] ?? string.Empty;
             _interpretEndpoint = configuration["AiServiceOptions:InterpretEndpoint"] ?? string.Empty;
+            _medicationScanEndpoint = configuration["AiServiceOptions:MedicationScanEndpoint"] ?? string.Empty;
         }
 
         public async Task<ServiceResult<AiExplainResponse>> ExplainDiagnosis(int id, string? userId, int diagnosisId)
@@ -200,10 +202,6 @@ namespace Backend.Application.Services.AIService
         }
     }
 
-    public sealed class AiExplainResponse
-    {
-        public string? Text { get; set; }
-    }
 
     public sealed class InterpretMedicalLetterResponse
     {
