@@ -199,29 +199,37 @@ namespace Backend.Application.Services.AIService
                 ? "Keine Symptome im Zeitraum."
                 : string.Join("\n", data.Symptoms.Select(s =>
                     $"- {s.SymptomName} (Zeit: {s.OccurrenceTime:yyyy-MM-dd HH:mm}, Intensität: {s.Intensity}/10, Dauer: {s.Duration}, Auslöser: {s.PossibleTrigger}, Notiz: {s.Notes})"));
+            var systemPrompt = @"Du bist ein medizinischer Assistent, der Patienten dabei hilft, ihre Gesundheitsdaten zu verstehen und Gespräche mit dem Arzt vorzubereiten.
 
-            var systemPrompt = "Du bist ein medizinischer Assistent, der Patienten in verständlicher Sprache hilft, ihren Gesundheitsstatus zu verstehen. Du gibst keine Diagnosen, sondern erstellst nur informative Zusammenfassungen.";
+Wichtige Regeln:
+- Du stellst keine eigenen Diagnosen und gibst keine Therapieempfehlungen.
+- Du nennst mögliche Nebenwirkungen von Medikamenten nur als allgemeine Information, basierend auf bekanntem Fachwissen.
+- Du verwendest eine freundliche, empathische und klare Sprache, die für medizinische Laien leicht verständlich ist.
+- Du formatierst deine Antwort ausschließlich als reinen Fließtext. Verwende absolut keine Markdown-Formatierungen (keine Sternchen **, keine Rauten ## für Überschriften, keine Aufzählungszeichen).
+- Du verwendest 'Sie' als höfliche Anrede.";
 
-            var userPrompt = $@"Erstelle eine kompakte Zusammenfassung des Patienten-Checkups für den Zeitraum {data.From:yyyy-MM-dd} bis {data.To:yyyy-MM-dd}.
+            var userPrompt = $@"Erstelle eine zusammenfassende Auswertung der folgenden Patientendaten für den Zeitraum {data.From:dd.MM.yyyy} bis {data.To:dd.MM.yyyy}.
 
-Daten:
-
-Diagnosen im Zeitraum:
+DIAGNOSEN:
 {diagnosesText}
 
-Medikamente im Zeitraum:
+MEDIKAMENTE:
 {medicationsText}
 
-Symptome im Zeitraum:
+SYMPTOME:
 {symptomsText}
 
-Erstelle eine strukturierte Zusammenfassung mit folgenden Punkten:
-1. Überblick: Welche chronischen oder aktiven Diagnosen liegen vor, welche sind in Remission.
-2. Medikamentenübersicht: Welche Medikamente werden eingenommen, mögliche Nebenwirkungen pro Medikament basierend auf deinem medizinischen Wissen.
-3. Zusammenhänge: Mögliche Verbindungen zwischen Diagnosen, Medikamenten und aufgetretenen Symptomen. Können Symptome Nebenwirkungen der Medikamente sein.
-4. Auffälligkeiten: Was sollte der Patient mit dem Arzt besprechen.
+Strukturiere deine Antwort zwingend in genau vier Absätzen, die durch Leerzeilen getrennt sind. Verwende KEINE Überschriften (schreibe also nicht 'Absatz 1' o. Ä.) und keine Listen.
 
-Antworte auf Deutsch in fließendem Text. Maximal 400 Wörter. Weise am Ende kurz darauf hin, dass dies keine ärztliche Beratung ersetzt.";
+Absatz 1 (Gesundheitsstatus): Fasse in eigenen Worten zusammen, welche Diagnosen vorliegen und in welchem Zustand sie sind (chronisch, aktiv, in Remission). Erwähne, ob es sich um langfristige oder akute Erkrankungen handelt.
+
+Absatz 2 (Medikation): Beschreibe im Fließtext, welche Medikamente eingenommen werden und wofür sie typischerweise eingesetzt werden. Erwähne bei jedem Medikament die häufigsten bekannten Nebenwirkungen in einem kurzen Satz.
+
+Absatz 3 (Mögliche Zusammenhänge): Prüfe, ob die aufgetretenen Symptome zu bekannten Nebenwirkungen der Medikamente passen oder ob sie mit einer der Diagnosen zusammenhängen könnten. Formuliere hier sehr zurückhaltend und im Konjunktiv (z. B. 'könnte zusammenhängen mit', 'es wäre möglich, dass').
+
+Absatz 4 (Empfehlung für das Arztgespräch): Nenne drei bis fünf konkrete Aspekte, die der Patient beim nächsten Arzttermin ansprechen sollte (z. B. ungewöhnliche Symptome, Auffälligkeiten in der Medikation). WICHTIG: Formuliere diese Punkte als zusammenhängenden Text und nicht als Aufzählung. Beende diesen Absatz mit einem kurzen Satz, der darauf hinweist, dass diese Auswertung keinen Ersatz für eine ärztliche Beratung darstellt.
+
+Fasse dich präzise und verwende für die gesamte Antwort maximal 350 Wörter.";
 
             var payload = new
             {
