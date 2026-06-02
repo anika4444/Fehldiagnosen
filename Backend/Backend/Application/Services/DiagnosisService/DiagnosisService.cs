@@ -69,7 +69,8 @@ namespace Backend.Application.Services.DiagnosisService
                 IcdCode = request.IcdCode ?? string.Empty,
                 Severity = request.Severity ?? string.Empty,
                 SideLocalization = request.SideLocalization ?? string.Empty,
-                Status = request.Status ?? string.Empty,
+                ConditionStatus = request.ConditionStatus,
+                EntryBy = request.EntryBy,
                 MedicationText = request.MedicationText ?? string.Empty,
                 Symptoms = request.Symptoms ?? string.Empty,
                 Findings = request.Findings ?? string.Empty,
@@ -104,13 +105,14 @@ namespace Backend.Application.Services.DiagnosisService
             existingEntry.IcdCode = request.IcdCode ?? existingEntry.IcdCode;
             existingEntry.Severity = request.Severity ?? existingEntry.Severity;
             existingEntry.SideLocalization = request.SideLocalization ?? existingEntry.SideLocalization;
-            existingEntry.Status = request.Status ?? existingEntry.Status;
+            existingEntry.ConditionStatus = request.ConditionStatus ?? existingEntry.ConditionStatus;
             existingEntry.MedicationText = request.MedicationText ?? existingEntry.MedicationText;
             existingEntry.Symptoms = request.Symptoms ?? existingEntry.Symptoms;
             existingEntry.Findings = request.Findings ?? existingEntry.Findings;
             existingEntry.TherapeuticMeasures = request.TherapeuticMeasures ?? existingEntry.TherapeuticMeasures;
             existingEntry.Note = request.Note ?? existingEntry.Note;
             existingEntry.DiagnosisDate = request.DiagnosisDate ?? existingEntry.DiagnosisDate;
+            existingEntry.AiExplanation = request.AiExplanation ?? existingEntry.AiExplanation;
             existingEntry.UpdatedAt = DateTime.UtcNow;
 
             var updatedEntry = await _diagnosisRepository.UpdateAsync(existingEntry);

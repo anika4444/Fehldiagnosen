@@ -22,22 +22,21 @@ public class AIController : BaseApiController
         _logger = logger;
     }
 
-    [HttpGet("{id}/explain-medical-history/{medicalHistoryEntryId}")]
+    [HttpGet("{id}/explain-diagnosis/{diagnosisId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ExplainMedicalHistory(
+    public async Task<IActionResult> ExplainDiagnosis(
         [FromRoute] int id,
-        [FromRoute] int medicalHistoryEntryId,
-        [FromBody] ExplainMedicalHistoryRequest? request)
+        [FromRoute] int diagnosisId)
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
 
-        var result = await _aiService.ExplainMedicalHistory(id, userId, medicalHistoryEntryId);
+        var result = await _aiService.ExplainDiagnosis(id, userId, diagnosisId);
 
         if (result.IsSuccess)
         {
-            return Ok(new { text = result.Data?.Text });
+            return Ok(new { text = result.Data?.Text, disclaimer = result.Data?.Disclaimer });
         }
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }

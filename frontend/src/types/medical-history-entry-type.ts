@@ -4,6 +4,7 @@ export interface MedicalHistoryEntryFormData {
     year: number;
     status: ConditionStatus;
     comment?: string | null;
+    entryBy: EntryBy;
     aiExplanation?: string | null;
 }
 
@@ -17,6 +18,7 @@ export interface MedicalHistoryEntryResponse {
     comment?: string | null;
     entryBy: EntryBy;
     aiExplanation?: string | null;
+    disclaimer?: string | null;
 }
 
 export interface MedicalHistoryEntryRequest {
@@ -29,13 +31,15 @@ export interface MedicalHistoryEntryRequest {
     aiExplanation?: string | null;
 }
 
+// Werte exakt wie im C#-Backend (Domain/Enums/ConditionStatus.cs)
 export enum ConditionStatus {
-    Active = 0,
-    Chronical = 1,
+    Chronical = 0,
+    Active = 1,
     InRemission = 2
 }
 
+// Werte exakt wie im C#-Backend (Domain/Enums/EntryBy.cs)
 export enum EntryBy {
-    Doctor = 0,
-    Patient = 1
+    Patient = 0,
+    Doctor = 1
 }

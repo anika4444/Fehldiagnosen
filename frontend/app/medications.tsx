@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 
 import { MedicationCard } from "@/components/medication/medication-card";
 import { MedicationForm } from "@/components/medication/medication-form";
@@ -36,9 +36,31 @@ export default function Medications() {
 
   const handleSave = async (payload: CreateMedicationRequest) => {
     try {
-      await saveMedication(payload, editingItem?.id);
+      const savedMedication: MedicationResponse = await saveMedication(
+        payload,
+        editingItem?.id,
+      );
+
       closeForm();
-      showSuccessAlert("Medikament wurde gespeichert.");
+
+      if (
+        savedMedication.interactionWarnings &&
+        savedMedication.interactionWarnings.length > 0
+      ) {
+        const warnings = savedMedication.interactionWarnings.join("\n\n");
+        const alertTitle = "⚠️ Achtung: Wechselwirkung erkannt!";
+        const alertMessage = `Das Medikament wurde gespeichert, aber es gibt potenzielle Wechselwirkungen mit Ihrer bestehenden Medikation:\n\n${warnings}`;
+
+        if (Platform.OS === "web") {
+          alert(`${alertTitle}\n\n${alertMessage}`);
+        } else {
+          Alert.alert(alertTitle, alertMessage, [
+            { text: "Verstanden", style: "default" },
+          ]);
+        }
+      } else {
+        showSuccessAlert("Medikament erfolgreich gespeichert.");
+      }
     } catch (err) {
       showErrorAlert("Medikament konnte nicht gespeichert werden.");
     }

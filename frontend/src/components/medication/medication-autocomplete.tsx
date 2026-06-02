@@ -109,10 +109,9 @@ export function MedicationAutocomplete({
                 <ThemedText style={styles.suggestionName}>
                   {item.name}
                 </ThemedText>
-                {item.staerke && (
+                {item.dosage && (
                   <ThemedText style={styles.suggestionDetail}>
-                    {item.staerke}{" "}
-                    {item.darreichungsform ? `· ${item.darreichungsform}` : ""}
+                    {item.dosage}
                   </ThemedText>
                 )}
               </TouchableOpacity>

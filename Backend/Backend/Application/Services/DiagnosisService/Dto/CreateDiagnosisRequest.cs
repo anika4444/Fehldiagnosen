@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Backend.Domain.Enums;
 
 namespace Backend.Application.Services.DiagnosisService.Dto;
 
@@ -20,7 +21,11 @@ public class CreateDiagnosisRequest
 
     public string? SideLocalization { get; set; }
 
-    public string? Status { get; set; }
+    [Required]
+    public ConditionStatus ConditionStatus { get; set; }
+
+    [Required]
+    public EntryBy EntryBy { get; set; }
 
     public string? MedicationText { get; set; }
 

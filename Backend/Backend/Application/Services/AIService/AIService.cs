@@ -1,22 +1,16 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
-using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.DiagnosisService;
-using Backend.Application.Services.DiagnosisService.Dto;
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Net.Http.Json;
-using Microsoft.Extensions.Configuration;
-using System.Linq;
-using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.AIService
 {
     public class AIService : IAIService
     {
         private readonly IPatientRepository _patientRepository;
-        private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
+
+        private readonly IDiagnosisRepository _diagnosisRepository;
+
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IDiagnosisService _diagnosisService;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -25,16 +19,10 @@ namespace Backend.Application.Services.AIService
         private readonly string _interpretEndpoint;
         private readonly string _medicationScanEndpoint;
 
-        public AIService(
-            IPatientRepository patientRepository,
-            IMedicalHistoryEntryService medicalHistoryEntryService,
-            ICommunicationLevelRepository communicationLevelRepository,
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration,
-            IDiagnosisService diagnosisService)
+        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration, IDiagnosisService diagnosisService)
         {
             _patientRepository = patientRepository;
-            _medicalHistoryEntryService = medicalHistoryEntryService;
+            _diagnosisRepository = diagnosisRepository;
             _communicationLevelRepository = communicationLevelRepository;
             _httpClientFactory = httpClientFactory;
             _diagnosisService = diagnosisService;
@@ -42,37 +30,37 @@ namespace Backend.Application.Services.AIService
             _interpretEndpoint = configuration["AiServiceOptions:InterpretEndpoint"] ?? string.Empty;
         }
 
-        public async Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId)
+        public async Task<ServiceResult<AiExplainResponse>> ExplainDiagnosis(int id, string? userId, int diagnosisId)
         {
-            var entryResult = await _medicalHistoryEntryService.GetByIdAsync(medicalHistoryEntryId, userId);
-            var entry = entryResult?.Data;
+            var diagnosis = await _diagnosisRepository.FindByIdAsync(diagnosisId);
 
-            if (entry == null)
+            if (diagnosis == null)
             {
-                return ServiceResult<AiExplainResponse>.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} nicht gefunden");
+                return ServiceResult<AiExplainResponse>.NotFound($"Diagnose mit ID {diagnosisId} nicht gefunden");
             }
 
-            var patient = await _patientRepository.FindByIdAsync(entry.PatientId);
+            var patient = await _patientRepository.FindByIdAsync(diagnosis.PatientId);
 
             if (userId != null && (patient == null || patient.UserId != userId))
             {
-                return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
+                return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
             }
 
             var communicationLevels = await _communicationLevelRepository.GetAllAsync();
-            var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
-                                     ?? communicationLevels?.FirstOrDefault();
 
-            var payload = new
-            {
+            var communicationLevel = communicationLevels?.ToList()?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
+                         ?? communicationLevels?.ToList()?.FirstOrDefault();
+
+            // Mapping Diagnose-Entität -> Node.js /ai/explain API
+            var payload = new {
                 langLevel = communicationLevel?.Name ?? "L1",
                 kiPrompt = communicationLevel?.KiPrompt ?? "",
-                diagnosis = entry.Diagnosis,
-                icd10Code = entry.ICD10Code ?? string.Empty,
-                year = entry.Year,
-                status = (int)entry.Status,
-                entryBy = (int)entry.EntryBy,
-                comment = entry.Comment ?? string.Empty
+                diagnosis = diagnosis.Title,
+                icd10Code = diagnosis.IcdCode ?? string.Empty,
+                year = diagnosis.DiagnosisDate.Year,
+                status = (int)diagnosis.ConditionStatus,
+                entryBy = (int)diagnosis.EntryBy,
+                comment = diagnosis.Note ?? string.Empty
             };
 
             try
@@ -212,11 +200,6 @@ namespace Backend.Application.Services.AIService
         }
     }
 
-    public sealed class ExplainMedicalHistoryRequest
-    {
-        public string? LangLevel { get; set; }
-    }
-
     public sealed class AiExplainResponse
     {
         public string? Text { get; set; }
@@ -247,4 +230,14 @@ namespace Backend.Application.Services.AIService
         public string? Manufacturer { get; set; }
         public string? Notes { get; set; }
     }
+}
+public sealed class ExplainDiagnosisRequest
+{
+    public string? LangLevel { get; set; }
+}
+
+public sealed class AiExplainResponse
+{
+    public string? Text { get; set; }
+    public string? Disclaimer { get; set; }
 }

@@ -1,17 +1,9 @@
 import axiosConfig from "./axiosConfig";
 import { MedicationResponse } from "@/types/medication-type";
 
-interface ExplainMedicalHistoryApiResponse {
+interface ExplainDiagnosisApiResponse {
   text: string;
-  requestBody: {
-    langLevel: string;
-    diagnosis: string;
-    icd10Code: string;
-    year: string;
-    status: string;
-    entryBy: string;
-    comment: string;
-  };
+  disclaimer?: string;
 }
 
 interface InterpretMedicationImageApiResponse {
@@ -40,13 +32,12 @@ interface InterpretMedicalLetterApiResponse {
 }
 
 export const aiService = {
-  explainMedicalHistoryById: async (
-    entryId: number,
-    langLevel: "basic" | "medium" | "advanced" = "medium",
-  ): Promise<ExplainMedicalHistoryApiResponse> => {
-    const response = await axiosConfig.post<ExplainMedicalHistoryApiResponse>(
-      `/ai/explain-medical-history/${entryId}`,
-      { langLevel },
+  explainDiagnosisById: async (
+    patientId: number,
+    diagnosisId: number,
+  ): Promise<ExplainDiagnosisApiResponse> => {
+    const response = await axiosConfig.get<ExplainDiagnosisApiResponse>(
+      `/ai/${patientId}/explain-diagnosis/${diagnosisId}`,
     );
 
     return response.data;

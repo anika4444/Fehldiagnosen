@@ -28,7 +28,10 @@ namespace Backend.Domain.Entities
 
         public List<MedicalHistoryEntry> MedicalHistoryEntries { get; set; } = [];
 
+        public List<Diagnosis> Diagnoses { get; set; } = [];
+
         public int? CommunicationLevelId { get; set; }
+        
         [ForeignKey("CommunicationLevelId")]
         public CommunicationLevel? CommunicationLevel { get; set; }
     }

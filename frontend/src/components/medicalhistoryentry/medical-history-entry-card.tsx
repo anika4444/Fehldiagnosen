@@ -17,6 +17,7 @@ interface MedicalHistoryEntryCardProps {
   onSave: (payload: any, id?: number) => Promise<void>;
 }
 
+// Werte gemäß Backend-Konvention: 0=Chronical, 1=Active, 2=InRemission
 const getStatusInfo = (status: any) => {
   const s = String(status).toLowerCase();
   // Backend enum order: Chronical = 0, Active = 1, InRemission = 2
@@ -30,8 +31,13 @@ const getStatusInfo = (status: any) => {
 export const MedicalHistoryEntryCard: React.FC<
   MedicalHistoryEntryCardProps
 > = ({ patientId, entry, onDelete, onEdit, onSave }) => {
-  const { aiExplanation, isExplaining, explain, setAiExplanation } =
-    useExplainMedicalHistory(patientId, entry, onSave);
+  const {
+    aiExplanation,
+    aiDisclaimer,
+    isExplaining,
+    explain,
+    setAiExplanation,
+  } = useExplainMedicalHistory(patientId, entry, onSave);
 
   useEffect(() => {
     setAiExplanation(entry.aiExplanation || null);
@@ -62,6 +68,9 @@ export const MedicalHistoryEntryCard: React.FC<
       <DetailField label="Anmerkungen" value={entry.comment} />
       {aiExplanation && (
         <DetailField label="KI-Erklärung" value={aiExplanation} />
+      )}
+      {aiExplanation && aiDisclaimer && (
+        <DetailField label="Hinweis" value={aiDisclaimer} />
       )}
       <PrimaryButton
         title="Mit KI erklären lassen"
