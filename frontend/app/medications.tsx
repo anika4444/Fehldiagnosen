@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
@@ -27,7 +28,6 @@ export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  // Hooks erledigen die ganze Arbeit
   const { patientId } = usePatient();
   const { medications, isLoading, error, saveMedication, deleteMedication } =
     useMedications(patientId);
@@ -54,6 +54,23 @@ export default function Medications() {
     });
   };
 
+const handleScan = async () => {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+  if (status !== "granted") {
+    showErrorAlert("Kamera-Berechtigung wurde verweigert.");
+    return;
+  }
+  const result = await ImagePicker.launchCameraAsync({
+    mediaTypes: ["images"],
+    quality: 0.85,
+  });
+
+  if (!result.canceled && result.assets?.[0]) {
+    console.log("Bild URI:", result.assets[0].uri);
+    showSuccessAlert("Bild ausgewählt — URI in der Konsole.");
+  }
+};
+
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
       <HeaderView
@@ -64,11 +81,22 @@ export default function Medications() {
 
       <View style={styles.content}>
         {!isFormVisible ? (
-          <PrimaryButton
-            title="Eintrag hinzufügen"
-            icon="plus"
-            onPress={() => openForm()}
-          />
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonFlex}>
+              <PrimaryButton
+                title="Eintrag hinzufügen"
+                icon="plus"
+                onPress={() => openForm()}
+              />
+            </View>
+            <View style={styles.buttonFlex}>
+              <PrimaryButton
+                title="Scannen"
+                icon="camera"
+                onPress={handleScan}
+              />
+            </View>
+          </View>
         ) : (
           <MedicationForm
             initialData={editingItem}
@@ -104,4 +132,6 @@ export default function Medications() {
 const styles = StyleSheet.create({
   content: { padding: 20 },
   sectionTitle: { marginTop: 16, marginBottom: 12 },
+  buttonRow: { flexDirection: "row", gap: 10 },
+  buttonFlex: { flex: 1 },
 });
