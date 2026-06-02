@@ -13,6 +13,8 @@ import { FormPicker } from "../ui/form-picker";
 import { FormSlider } from "../ui/form-slider";
 import { FormTimePicker } from "../ui/form-time-picker";
 import { ModalCard } from "../ui/modal-card";
+import { SymptomAutocomplete } from "./symptom-autocomplete";
+import { DurationInput } from "../ui/duration-input";
 
 interface SymptomFormProps {
   selectedDate: Date;
@@ -101,24 +103,24 @@ export function SymptomForm({
   }, [values.symptomName]);
 
   const onFinalSave = async (validatedData: FormValues) => {
-    const occurrenceTime = new Date(selectedDate);
-    occurrenceTime.setHours(
-      validatedData.time.getHours(),
-      validatedData.time.getMinutes(),
-      0,
-      0,
-    );
+  const occurrenceTime = new Date(selectedDate);
+  occurrenceTime.setHours(
+    validatedData.time.getHours(),
+    validatedData.time.getMinutes(),
+    0,
+    0,
+  );
 
-    await onSave({
-      symptomName: validatedData.symptomName,
-      occurrenceTime: occurrenceTime.toISOString(),
-      intensity: validatedData.intensity,
-      duration: validatedData.duration,
-      possibleTriggers: validatedData.possibleTriggers,
-      notes: validatedData.notes,
-      details: validatedData.details,
-    });
-  };
+  await onSave({
+    symptomName: validatedData.symptomName,
+    occurrenceTime: occurrenceTime.toISOString(),
+    intensity: validatedData.intensity,
+    duration: validatedData.duration,
+    possibleTriggers: validatedData.possibleTriggers,
+    notes: validatedData.notes,
+    details: validatedData.details,
+  });
+};
 
   const handleDetailChange = (key: string, value: string) => {
     handleChange("details", { ...values.details, [key]: value });
@@ -131,13 +133,11 @@ export function SymptomForm({
       onSave={() => handleSubmit(onFinalSave)}
       saveButtonText="Symptom speichern"
     >
-      <FormInput
-        label="Symptomname"
-        isRequired
-        value={values.symptomName}
-        onChangeText={(value) => handleChange("symptomName", value)}
-        errorText={errors.symptomName}
-      />
+      <SymptomAutocomplete
+  value={values.symptomName}
+  onChangeText={(value) => handleChange("symptomName", value)}
+  errorText={errors.symptomName}
+/>
 
       {dynamicFields.map((field) =>
         field.type === "select" ? (
@@ -175,13 +175,13 @@ export function SymptomForm({
         value={values.intensity}
         onValueChange={(value) => handleChange("intensity", value)}
       />
-      <FormInput
-        label="Dauer"
-        isRequired
-        value={values.duration}
-        onChangeText={(value) => handleChange("duration", value)}
-        errorText={errors.duration}
-      />
+      <DurationInput
+  label="Dauer"
+  isRequired
+  value={values.duration}
+  onChangeText={(value) => handleChange("duration", value)}
+  errorText={errors.duration}
+/>
       <FormInput
         label="Auslöser"
         value={values.possibleTriggers}
