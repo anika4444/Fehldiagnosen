@@ -54,23 +54,6 @@ export default function Medications() {
     });
   };
 
-const handleScan = async () => {
-  const { status } = await ImagePicker.requestCameraPermissionsAsync();
-  if (status !== "granted") {
-    showErrorAlert("Kamera-Berechtigung wurde verweigert.");
-    return;
-  }
-  const result = await ImagePicker.launchCameraAsync({
-    mediaTypes: ["images"],
-    quality: 0.85,
-  });
-
-  if (!result.canceled && result.assets?.[0]) {
-    console.log("Bild URI:", result.assets[0].uri);
-    showSuccessAlert("Bild ausgewählt — URI in der Konsole.");
-  }
-};
-
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
       <HeaderView
@@ -81,22 +64,11 @@ const handleScan = async () => {
 
       <View style={styles.content}>
         {!isFormVisible ? (
-          <View style={styles.buttonRow}>
-            <View style={styles.buttonFlex}>
-              <PrimaryButton
-                title="Eintrag hinzufügen"
-                icon="plus"
-                onPress={() => openForm()}
-              />
-            </View>
-            <View style={styles.buttonFlex}>
-              <PrimaryButton
-                title="Scannen"
-                icon="camera"
-                onPress={handleScan}
-              />
-            </View>
-          </View>
+          <PrimaryButton
+            title="Eintrag hinzufügen"
+            icon="plus"
+            onPress={() => openForm()}
+          />
         ) : (
           <MedicationForm
             initialData={editingItem}
@@ -132,6 +104,4 @@ const handleScan = async () => {
 const styles = StyleSheet.create({
   content: { padding: 20 },
   sectionTitle: { marginTop: 16, marginBottom: 12 },
-  buttonRow: { flexDirection: "row", gap: 10 },
-  buttonFlex: { flex: 1 },
 });
