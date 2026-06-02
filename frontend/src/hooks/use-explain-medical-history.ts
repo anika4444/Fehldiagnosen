@@ -2,14 +2,14 @@ import { useState } from "react";
 
 import axiosConfig from "@/api/axiosConfig";
 import {
-  MedicalHistoryEntryRequest,
-  MedicalHistoryEntryResponse,
-} from "@/types/medical-history-entry-type";
+  DiagnosisEntryRequest,
+  DiagnosisEntryResponse,
+} from "@/types/diagnosis-type";
 
 export const useExplainMedicalHistory = (
   patientId: number | null,
-  entry: MedicalHistoryEntryResponse,
-  onSave: (payload: MedicalHistoryEntryRequest, id?: number) => Promise<void>,
+  entry: DiagnosisEntryResponse, // TODO: entfernen
+  onSave: (payload: DiagnosisEntryRequest, id?: number) => Promise<void>,
 ) => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(
@@ -34,14 +34,20 @@ export const useExplainMedicalHistory = (
       const disclaimer =
         response.data.data?.disclaimer || response.data.disclaimer || null;
 
-      const payload: MedicalHistoryEntryRequest = {
-        diagnosis: entry.diagnosis,
-        icd10Code: entry.icd10Code,
-        year: entry.year,
+      const payload: DiagnosisEntryRequest = {
+        title: entry.title,
+        description: entry.description,
+        icdCode: entry.icdCode,
+        severity: entry.severity,
+        sideLocalization: entry.sideLocalization,
         status: entry.status,
-        comment: entry.comment,
+        medicationText: entry.medicationText,
+        symptoms: entry.symptoms,
+        findings: entry.findings,
+        therapeuticMeasures: entry.therapeuticMeasures,
+        note: entry.note,
+        diagnosisDate: entry.diagnosisDate,
         aiExplanation: explanationText,
-        entryBy: entry.entryBy,
       };
 
       await onSave(payload, entry.id);

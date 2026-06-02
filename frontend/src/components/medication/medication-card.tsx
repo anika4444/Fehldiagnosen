@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
+import * as FileSystem from "expo-file-system";
+import { Asset } from "expo-asset";
 
 import { DetailField } from "@/components/ui/detail-field";
 import { ModalCard } from "@/components/ui/modal-card";
 import { MedicationResponse } from "@/types/medication-type";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { aiService } from "@/api/aiService";
+import { showSuccessAlert, showErrorAlert } from "@/utils/alerts";
 
 interface MedicationCardProps {
   medication: MedicationResponse;
@@ -15,6 +20,36 @@ export const MedicationCard = ({
   onEdit,
   onDelete,
 }: MedicationCardProps) => {
+  /*const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleAnalyzeImage = async () => {
+    try {
+      setIsAnalyzing(true);
+      // require the test asset (place frontend/assets/test.jpg)
+      const assetModule = require("../medication.jpeg");
+      const asset = Asset.fromModule(assetModule);
+      await asset.downloadAsync();
+      const localUri = asset.localUri || asset.uri;
+
+      if (!localUri) throw new Error("Asset URI not available");
+
+      const base64 = await FileSystem.readAsStringAsync(localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const resp = await aiService.interpretMedicationImage(base64, "image/jpeg");
+      if (resp?.extracted) {
+        showSuccessAlert("Medikamentendaten erkannt.");
+      } else {
+        showErrorAlert("Keine Daten erkannt.");
+      }
+    } catch (err: any) {
+      console.error("Medication image analyze error:", err);
+      showErrorAlert(err?.message || "Fehler bei der Analyse des Bildes.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };*/
   return (
     <ModalCard
       title={medication.name}

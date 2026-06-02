@@ -69,11 +69,13 @@ export default function MedicalHistory() {
       />
       <View style={styles.content}>
         {!isFormVisible ? (
-          <PrimaryButton
-            title="Neuen Eintrag hinzufügen"
-            icon="plus"
-            onPress={() => openForm()}
-          />
+          <>
+            <PrimaryButton
+              title="Neuen Eintrag hinzufügen"
+              icon="plus"
+              onPress={() => openForm()}
+            />
+          </>
         ) : (
           <MedicalHistoryEntryForm
             initialData={editingItem}

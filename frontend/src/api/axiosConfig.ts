@@ -7,9 +7,9 @@ const LAN_IP = "10.142.162.128";
 const getBaseURL = () => {
   if (__DEV__) {
     // je nach dem ob Android oder iOS, muss hier das jeweilige auskommentiert werden, damit Android Emulator funktioniert
-    if (Platform.OS === "android") {
-      return `http://${LAN_IP}:5238/api`;
-    }
+    //if (Platform.OS === "android") {
+    //return `http://${LAN_IP}:5238/api`;
+    //}
 
     if (Platform.OS === "ios") {
       return `http://${LAN_IP}:5238/api`;

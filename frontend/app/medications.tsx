@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import React from "react";
 import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 
@@ -27,7 +28,6 @@ export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  // Hooks erledigen die ganze Arbeit
   const { patientId } = usePatient();
   const { medications, isLoading, error, saveMedication, deleteMedication } =
     useMedications(patientId);

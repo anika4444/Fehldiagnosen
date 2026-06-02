@@ -1,8 +1,19 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.AIService;
+using Backend.Application.Services.AnonymizerService;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
+using PDFtoImage;
+using SkiaSharp;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
+using Windows.Graphics.Imaging;
+using Windows.Media.Ocr;
+using Windows.Storage.Streams;
+using Windows.System;
 
 namespace Backend.Api.Controller;
 
@@ -12,10 +23,15 @@ namespace Backend.Api.Controller;
 public class DiagnosisController : BaseApiController
 {
     private readonly IDiagnosisService _diagnosisService;
+    private readonly IAnonymizerService _anonymizerService;
+    private readonly IAIService _aiService;
 
-    public DiagnosisController(IDiagnosisService diagnosisService)
+
+    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IAIService aiService)
     {
         _diagnosisService = diagnosisService;
+        _anonymizerService = anonymizer;
+        _aiService = aiService;
     }
 
     [HttpGet("{id}")]
@@ -25,48 +41,6 @@ public class DiagnosisController : BaseApiController
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _diagnosisService.GetByIdAsync(id, userId);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
-    [HttpGet("patient/{patientId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetByPatientId(int patientId)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.GetByPatientIdAsync(patientId, userId);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Create([FromBody] CreateDiagnosisRequest request)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.CreateAsync(request, userId);
-
-        if (result.IsSuccess)
-            return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> Update(int id, [FromBody] UpdateDiagnosisRequest request)
-    {
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.UpdateAsync(id, request, userId);
 
         if (result.IsSuccess)
             return Ok(result.Data);
@@ -86,5 +60,80 @@ public class DiagnosisController : BaseApiController
             return NoContent();
 
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
+    }
+
+    [HttpPost("{patientId}/scan")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Scan(int patientId, [FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("Keine Datei hochgeladen.");
+        }
+
+        var userId = IsArzt() ? null : GetCurrentUserId();
+
+        try
+        {
+            InMemoryRandomAccessStream randomAccessStream = new InMemoryRandomAccessStream();
+            byte[] imageBytes;
+            string extension = Path.GetExtension(file.FileName).ToLower();
+
+            if (extension == ".pdf")
+            {
+                using var pdfStream = file.OpenReadStream();
+                using var memStream = new MemoryStream();
+                await pdfStream.CopyToAsync(memStream);
+
+                string pdfAsBase64 = Convert.ToBase64String(memStream.ToArray());
+
+                var options = new RenderOptions { Dpi = 300 };
+                using SKBitmap bitmap = Conversion.ToImage(pdfAsBase64, options: options);
+
+                using var imageStream = new MemoryStream();
+                bitmap.Encode(imageStream, SKEncodedImageFormat.Png, 100);
+
+                await randomAccessStream.WriteAsync(imageStream.ToArray().AsBuffer());
+            }
+            else
+            {
+                using var stream = file.OpenReadStream();
+                using var memStream = new MemoryStream();
+                await stream.CopyToAsync(memStream);
+
+                await randomAccessStream.WriteAsync(memStream.ToArray().AsBuffer());
+            }
+
+            randomAccessStream.Seek(0);
+
+            var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
+            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+            var engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language("de-DE"));
+            if (engine == null)
+                return StatusCode(500, "Deutsches OCR-Sprachpaket nicht installiert.");
+
+            var ocrResult = await engine.RecognizeAsync(softwareBitmap);
+            var extractedText = ocrResult.Text;
+
+            if (string.IsNullOrWhiteSpace(extractedText))
+                return BadRequest("Es konnte kein Text extrahiert werden.");
+
+            string pythonJsonResult = await _anonymizerService.AnonymizeTextAsync(extractedText);
+
+            var pythonData = JsonSerializer.Deserialize<Dictionary<string, object>>(pythonJsonResult);
+
+            var result = await _aiService.InterpretMedicalLetter(patientId, userId, pythonData?["anonymized_text"]?.ToString() ?? "");
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fehler bei der Verarbeitung: {ex.Message}");
+        }
     }
 }

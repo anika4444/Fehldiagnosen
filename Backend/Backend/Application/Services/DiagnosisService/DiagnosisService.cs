@@ -2,6 +2,7 @@
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Domain.Entities;
 
 namespace Backend.Application.Services.DiagnosisService
@@ -19,7 +20,7 @@ namespace Backend.Application.Services.DiagnosisService
             _mapper = mapper;
         }
 
-        public async Task<ServiceResult<IEnumerable<DiagnosisResponse>>> GetByPatientIdAsync(int patientId, string? userId)
+        public async Task<ServiceResult<IEnumerable<DiagnosisResponse>>> GetAllAsync(int patientId, string? userId)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
 
@@ -50,9 +51,9 @@ namespace Backend.Application.Services.DiagnosisService
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(diagnosis));
         }
 
-        public async Task<ServiceResult<DiagnosisResponse>> CreateAsync(CreateDiagnosisRequest request, string? userId)
+        public async Task<ServiceResult<DiagnosisResponse>> CreateAsync(int patientId, CreateDiagnosisRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(request.PatientId);
+            var patient = await _patientRepository.FindByIdAsync(patientId);
 
             if (patient == null)
                 return ServiceResult<DiagnosisResponse>.NotFound($"Patient {request.PatientId} existiert nicht.");
@@ -62,7 +63,7 @@ namespace Backend.Application.Services.DiagnosisService
 
             var diagnosis = new Diagnosis
             {
-                PatientId = request.PatientId,
+                PatientId = patientId,
                 Title = request.Title,
                 Description = request.Description ?? string.Empty,
                 IcdCode = request.IcdCode ?? string.Empty,
@@ -84,36 +85,38 @@ namespace Backend.Application.Services.DiagnosisService
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(newDiagnosis));
         }
 
-        public async Task<ServiceResult<DiagnosisResponse>> UpdateAsync(int diagnosisId, UpdateDiagnosisRequest request, string? userId)
+        public async Task<ServiceResult<DiagnosisResponse>> UpdateAsync(int patientId, int diagnosisId, UpdateDiagnosisRequest request, string? userId)
         {
-            var existing = await _diagnosisRepository.FindByIdAsync(diagnosisId);
+            var patient = await _patientRepository.FindByIdAsync(patientId);
 
-            if (existing == null)
-                return ServiceResult<DiagnosisResponse>.NotFound($"Diagnose {diagnosisId} existiert nicht.");
+            if (patient == null)
+                return ServiceResult<DiagnosisResponse>.NotFound($"Patient {patientId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(existing.PatientId);
-
-            if (userId != null && (patient == null || patient.UserId != userId))
+            if (userId != null && patient.UserId != userId)
                 return ServiceResult<DiagnosisResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
 
-            existing.Title = request.Title ?? existing.Title;
-            existing.Description = request.Description ?? existing.Description;
-            existing.IcdCode = request.IcdCode ?? existing.IcdCode;
-            existing.Severity = request.Severity ?? existing.Severity;
-            existing.SideLocalization = request.SideLocalization ?? existing.SideLocalization;
-            existing.ConditionStatus = request.ConditionStatus ?? existing.ConditionStatus;
-            existing.EntryBy = request.EntryBy ?? existing.EntryBy;
-            existing.MedicationText = request.MedicationText ?? existing.MedicationText;
-            existing.Symptoms = request.Symptoms ?? existing.Symptoms;
-            existing.Findings = request.Findings ?? existing.Findings;
-            existing.TherapeuticMeasures = request.TherapeuticMeasures ?? existing.TherapeuticMeasures;
-            existing.Note = request.Note ?? existing.Note;
-            existing.DiagnosisDate = request.DiagnosisDate ?? existing.DiagnosisDate;
-            existing.AiExplanation = request.AiExplanation ?? existing.AiExplanation;
-            existing.UpdatedAt = DateTime.UtcNow;
+            var existingEntry = await _diagnosisRepository.FindByIdAsync(diagnosisId);
 
-            var updated = await _diagnosisRepository.UpdateAsync(existing);
-            return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(updated));
+            if (existingEntry == null || existingEntry.PatientId != patientId)
+                return ServiceResult<DiagnosisResponse>.NotFound($"Diagnose mit ID {diagnosisId} existiert nicht.");
+
+            existingEntry.Title = request.Title ?? existingEntry.Title;
+            existingEntry.Description = request.Description ?? existingEntry.Description;
+            existingEntry.IcdCode = request.IcdCode ?? existingEntry.IcdCode;
+            existingEntry.Severity = request.Severity ?? existingEntry.Severity;
+            existingEntry.SideLocalization = request.SideLocalization ?? existingEntry.SideLocalization;
+            existingEntry.ConditionStatus = request.ConditionStatus ?? existingEntry.ConditionStatus;
+            existingEntry.MedicationText = request.MedicationText ?? existingEntry.MedicationText;
+            existingEntry.Symptoms = request.Symptoms ?? existingEntry.Symptoms;
+            existingEntry.Findings = request.Findings ?? existingEntry.Findings;
+            existingEntry.TherapeuticMeasures = request.TherapeuticMeasures ?? existingEntry.TherapeuticMeasures;
+            existingEntry.Note = request.Note ?? existingEntry.Note;
+            existingEntry.DiagnosisDate = request.DiagnosisDate ?? existingEntry.DiagnosisDate;
+            existingEntry.AiExplanation = request.AiExplanation ?? existingEntry.AiExplanation;
+            existingEntry.UpdatedAt = DateTime.UtcNow;
+
+            var updatedEntry = await _diagnosisRepository.UpdateAsync(existingEntry);
+            return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(updatedEntry));
         }
 
         public async Task<ServiceResult> DeleteAsync(int diagnosisId, string? userId)

@@ -52,9 +52,21 @@ export function MedicalHistoryEntryForm({
         ? initialData.Status
         : initialData.status;
     if (typeof rawStatus === "number") {
-      mappedStatus = rawStatus as ConditionStatus;
+      mappedStatus =
+        rawStatus === 0
+          ? ConditionStatus.Chronical
+          : rawStatus === 1
+          ? ConditionStatus.Active
+          : rawStatus === 2
+          ? ConditionStatus.InRemission
+          : ConditionStatus.Active;
     } else {
-      mappedStatus = (rawStatus as ConditionStatus) ?? ConditionStatus.Active;
+      const s = String(rawStatus).toLowerCase();
+      if (s.includes("chron")) mappedStatus = ConditionStatus.Chronical;
+      else if (s.includes("remiss")) mappedStatus = ConditionStatus.InRemission;
+      else if (s.includes("active")) mappedStatus = ConditionStatus.Active;
+      else mappedStatus = ConditionStatus.Active;
+      mappedStatus = rawStatus as ConditionStatus;
     }
   }
 

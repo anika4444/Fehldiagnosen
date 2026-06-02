@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { TouchableOpacity, StyleSheet } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
 
 import { KnownMedicationResult } from "@/api/knownMedicationService";
 import { useFormValidation } from "@/hooks/use-form-validation";
@@ -248,6 +251,42 @@ export function MedicationForm({
     });
   };
 
+  const handleScan = async () => {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+  if (status !== "granted") return;
+
+  const result = await ImagePicker.launchCameraAsync({
+    mediaTypes: ["images"],
+    quality: 0.85,
+  });
+
+  if (result.canceled || !result.assets?.[0]) return;
+
+  const asset = result.assets[0];
+
+  const formData = new FormData();
+
+// Web: blob aus der URI holen
+const imageResponse = await fetch(asset.uri);
+const blob = await imageResponse.blob();
+formData.append("image", blob, "scan.jpg");
+
+  try {
+    const response = await fetch(
+      "http://localhost:5238/api/medications/scan",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+    console.log("Backend Antwort:", JSON.stringify(data));
+  } catch (err) {
+    console.error("Upload fehlgeschlagen:", err);
+  }
+};
+
   return (
     <ModalCard
       title={initialData ? "Medikament bearbeiten" : "Neues Medikament"}
@@ -255,6 +294,9 @@ export function MedicationForm({
       onSave={() => handleSubmit(onFinalSave)}
       saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
     >
+      <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
+        <Ionicons name="camera-outline" size={20} color="#fff" />
+      </TouchableOpacity>
       <MedicationAutocomplete
         value={values.name}
         onChangeText={(v) => handleChange("name", v)}
@@ -331,3 +373,13 @@ export function MedicationForm({
     </ModalCard>
   );
 }
+
+const styles = StyleSheet.create({
+  scanButton: {
+    alignSelf: "flex-end",
+    backgroundColor: "#1D9E75",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+});
