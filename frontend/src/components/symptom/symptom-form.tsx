@@ -13,6 +13,7 @@ import { FormPicker } from "../ui/form-picker";
 import { FormSlider } from "../ui/form-slider";
 import { FormTimePicker } from "../ui/form-time-picker";
 import { ModalCard } from "../ui/modal-card";
+import { SymptomAutocomplete } from "./symptom-autocomplete";
 
 interface SymptomFormProps {
   selectedDate: Date;
@@ -131,13 +132,11 @@ export function SymptomForm({
       onSave={() => handleSubmit(onFinalSave)}
       saveButtonText="Symptom speichern"
     >
-      <FormInput
-        label="Symptomname"
-        isRequired
-        value={values.symptomName}
-        onChangeText={(value) => handleChange("symptomName", value)}
-        errorText={errors.symptomName}
-      />
+      <SymptomAutocomplete
+  value={values.symptomName}
+  onChangeText={(value) => handleChange("symptomName", value)}
+  errorText={errors.symptomName}
+/>
 
       {dynamicFields.map((field) =>
         field.type === "select" ? (
