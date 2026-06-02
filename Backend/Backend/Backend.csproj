@@ -44,4 +44,10 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="src\anonymizer.py">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

@@ -2,6 +2,7 @@ using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services;
 using Backend.Application.Services.AIService;
+using Backend.Application.Services.AnonymizerService;
 using Backend.Application.Services.CommunicationLevelService;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.FamilyHistoryService;
@@ -61,6 +62,7 @@ builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
 builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
+builder.Services.AddScoped<IAnonymizerService, AnonymizerService>();
 
 builder.Services.AddSignalR();
 
