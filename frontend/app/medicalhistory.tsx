@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 import { MedicalHistoryEntryCard } from "@/components/medicalhistoryentry/medical-history-entry-card";
@@ -8,8 +8,6 @@ import { ThemedText } from "@/components/themed-text";
 import { DataList } from "@/components/ui/data-list";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { aiService } from "@/api/aiService";
-import { diagnosisService } from "@/api/diagnosisService";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import { useFormState } from "@/hooks/use-form-state";

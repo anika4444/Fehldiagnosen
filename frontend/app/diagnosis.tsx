@@ -152,9 +152,11 @@ const Diagnosis = () => {
           renderItem={(entry) => (
             <DiagnosisCard
               key={entry.id}
+              patientId={patientId}
               entry={entry}
               onEdit={openForm}
               onDelete={handleDelete}
+              onSave={saveEntry}
             />
           )}
         />

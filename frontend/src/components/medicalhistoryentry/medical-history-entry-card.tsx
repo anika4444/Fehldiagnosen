@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 
-import { useExplainMedicalHistory } from "@/hooks/use-explain-medical-history";
 import { MedicalHistoryEntryResponse } from "@/types/medical-history-entry-type";
 
 import { ThemedText } from "../themed-text";
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
-import { PrimaryButton } from "../ui/primary-button";
 
 interface MedicalHistoryEntryCardProps {
   patientId: number | null;
@@ -24,25 +22,14 @@ const getStatusInfo = (status: any) => {
   if (s === "0" || s === "chronical")
     return { label: "Chronisch", color: "#FF9800" };
   if (s === "1" || s === "active") return { label: "Aktiv", color: "#4CAF50" };
-  if (s === "2" || s === "inremission") return { label: "In Remission", color: "#2196F3" };
+  if (s === "2" || s === "inremission")
+    return { label: "In Remission", color: "#2196F3" };
   return { label: "Aktiv", color: "#4CAF50" };
 };
 
 export const MedicalHistoryEntryCard: React.FC<
   MedicalHistoryEntryCardProps
 > = ({ patientId, entry, onDelete, onEdit, onSave }) => {
-  const {
-    aiExplanation,
-    aiDisclaimer,
-    isExplaining,
-    explain,
-    setAiExplanation,
-  } = useExplainMedicalHistory(patientId, entry, onSave);
-
-  useEffect(() => {
-    setAiExplanation(entry.aiExplanation || null);
-  }, [entry.aiExplanation, setAiExplanation]);
-
   const statusInfo = getStatusInfo(entry.status);
 
   return (
@@ -66,19 +53,6 @@ export const MedicalHistoryEntryCard: React.FC<
         </ThemedText>
       </View>
       <DetailField label="Anmerkungen" value={entry.comment} />
-      {aiExplanation && (
-        <DetailField label="KI-Erklärung" value={aiExplanation} />
-      )}
-      {aiExplanation && aiDisclaimer && (
-        <DetailField label="Hinweis" value={aiDisclaimer} />
-      )}
-      <PrimaryButton
-        title="Mit KI erklären lassen"
-        icon="chat-processing"
-        onPress={explain}
-        isLoading={isExplaining}
-        isLoadingText="Wird generiert..."
-      />
     </ModalCard>
   );
 };
