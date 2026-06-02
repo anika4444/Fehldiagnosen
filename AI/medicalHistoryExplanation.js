@@ -48,8 +48,8 @@ const ENTRY_BY_MAP = {
 // CommunicationLevel.Name aus der DB → langLevel für den Prompt
 const LANG_LEVEL_MAP = {
   L1: "basic",
-  L2: "mittel",
-  L3: "medizinisch",
+  L2: "medium",
+  L3: "advanced",
 };
 
 // ─── Validierungsfunktion ────────────────────────────────────────────────────
