@@ -5,6 +5,9 @@ namespace Backend.Application.Services.AIService
     public interface IAIService
     {
         Task<ServiceResult<AiExplainResponse>> ExplainMedicalHistory(int id, string? userId, int medicalHistoryEntryId);
+        
+        Task<ServiceResult<MedicationScanResponse>> InterpretMedicationImage(string base64,string mimeType);
+        
         Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int? patientId, string? userId, string letterText);
     }
 }

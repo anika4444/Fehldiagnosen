@@ -23,6 +23,7 @@ namespace Backend.Application.Services.AIService
 
         private readonly string _explanationEndpoint;
         private readonly string _interpretEndpoint;
+        private readonly string _medicationScanEndpoint;
 
         public AIService(
             IPatientRepository patientRepository,
@@ -177,6 +178,38 @@ namespace Backend.Application.Services.AIService
                 return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
+
+        public async Task<ServiceResult<MedicationScanResponse>> InterpretMedicationImage(string base64, string mimeType)
+        {
+            if (string.IsNullOrWhiteSpace(_medicationScanEndpoint))
+                return ServiceResult<MedicationScanResponse>.InternalServerError("KI-MedicationScan-Endpunkt nicht konfiguriert");
+
+            var payload = new { imageBase64 = base64, mimeType };
+
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                using var response = await httpClient.PostAsJsonAsync(_medicationScanEndpoint, payload);
+
+                if (!response.IsSuccessStatusCode)
+                    return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service antwortete mit Fehler");
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+      
+                var wrapper = JsonSerializer.Deserialize<MedicationNodeWrapper>(responseBody,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (wrapper?.Extracted == null)
+                    return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Extraktion fehlgeschlagen");
+
+                return ServiceResult<MedicationScanResponse>.Success(wrapper.Extracted);
+            }
+            catch
+            {
+                return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
+            }
+        }
     }
 
     public sealed class ExplainMedicalHistoryRequest
@@ -198,5 +231,20 @@ namespace Backend.Application.Services.AIService
     public sealed class NodeResponseWrapper
     {
         public CreateDiagnosisRequest? Extracted { get; set; }
+    }
+
+    public sealed class MedicationNodeWrapper
+    {
+        public MedicationScanResponse? Extracted { get; set; }
+    }
+
+    public sealed class MedicationScanResponse
+    {
+        public string? Name { get; set; }
+        public string? Dosage { get; set; }
+        public string? Strength { get; set; }
+        public string? Form { get; set; }
+        public string? Manufacturer { get; set; }
+        public string? Notes { get; set; }
     }
 }

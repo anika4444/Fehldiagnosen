@@ -182,6 +182,77 @@ app.post("/ai/interpret-medical-letter", async (req, res) => {
     }
 });
 
+// SERVICE 3: MEDIKAMENTEN-BILD ANALYSE (/ai/interpret-medication-image)
+// Analysiert ein Bild, extrahiert Medikamenten-Felder via KI und fragt Medikament in Datenbank ab.
+
+const MedicationFields = z.object({
+    name: z.string(),
+    dosage: z.string(),
+    intakeFrequency: z.string(),
+    indication: z.string(),
+    atcCode: z.string(),
+    notes: z.string(),
+});
+
+const medicationModelWithFields = explainModel.withStructuredOutput(MedicationFields);
+
+app.post("/ai/interpret-medication-image", async (req, res) => {
+    try {
+        const { imageBase64, mimeType } = req.body;
+
+        if (!imageBase64) {
+            return res.status(400).json({ error: "Kein Bild übergeben." });
+        }
+
+        const mime = mimeType || "image/jpeg";
+
+        const messages = [
+            {
+                role: "system",
+                content: `Du bist ein medizinischer Dokumentationsassistent.
+Analysiere das Bild (z.B. Medikamentenpackung, Rezept, Beipackzettel) und extrahiere folgende Felder:
+
+- name: Handelsname oder Wirkstoffname des Medikaments.
+- dosage: Stärke/Dosierung (z.B. "500mg", "10mg/ml").
+
+Regeln:
+- Erfinde keine Informationen die nicht sichtbar sind.
+- Lasse Felder leer ("") wenn die Information nicht erkennbar ist.
+- Alle Strings müssen UTF-8-konform sein.`,
+            },
+            {
+                role: "user",
+                content: [
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: `data:${mime};base64,${imageBase64}`,
+                        },
+                    },
+                    {
+                        type: "text",
+                        text: "Extrahiere die Medikamenten-Felder aus diesem Bild.",
+                    },
+                ],
+            },
+        ];
+
+        const extracted = await medicationModelWithFields.invoke(messages);
+
+        // Name und Dosage separat loggen
+        const name = extracted.name;
+        const dosage = extracted.dosage;
+        console.log("💊 Name:", name);
+        console.log("💊 Dosage:", dosage);
+
+        return res.json({ extracted });
+
+    } catch (error) {
+        console.error("AI Medication Error:", error?.message || error);
+        return res.status(500).json({ error: "KI-Service aktuell nicht erreichbar." });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);

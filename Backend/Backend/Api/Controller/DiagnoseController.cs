@@ -1,9 +1,11 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.AIService;
 using Backend.Application.Services.AnonymizerService;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 using PDFtoImage;
 using SkiaSharp;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -11,6 +13,7 @@ using System.Text.Json;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
+using Windows.System;
 
 namespace Backend.Api.Controller;
 
@@ -21,12 +24,14 @@ public class DiagnosisController : BaseApiController
 {
     private readonly IDiagnosisService _diagnosisService;
     private readonly IAnonymizerService _anonymizerService;
+    private readonly IAIService _aiService;
 
 
-    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer)
+    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IAIService aiService)
     {
         _diagnosisService = diagnosisService;
         _anonymizerService = anonymizer;
+        _aiService = aiService;
     }
 
     [HttpGet("{id}")]
@@ -57,15 +62,17 @@ public class DiagnosisController : BaseApiController
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
 
-    [HttpPost("scan")]
+    [HttpPost("{patientId}/scan")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Scan([FromForm] IFormFile file)
+    public async Task<IActionResult> Scan(int patientId, [FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
             return BadRequest("Keine Datei hochgeladen.");
         }
+
+        var userId = IsArzt() ? null : GetCurrentUserId();
 
         try
         {
@@ -117,11 +124,12 @@ public class DiagnosisController : BaseApiController
 
             var pythonData = JsonSerializer.Deserialize<Dictionary<string, object>>(pythonJsonResult);
 
-            return Ok(new
-            {
-                anonymizedText = pythonData?["anonymized_text"]?.ToString(),
-                mapping = pythonData?["mapping"]
-            });
+            var result = await _aiService.InterpretMedicalLetter(patientId, userId, pythonData?["anonymized_text"]?.ToString() ?? "");
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
         catch (Exception ex)
         {

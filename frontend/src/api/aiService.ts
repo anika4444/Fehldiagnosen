@@ -1,4 +1,5 @@
 import axiosConfig from "./axiosConfig";
+import { MedicationResponse } from "@/types/medication-type";
 
 interface ExplainMedicalHistoryApiResponse {
   text: string;
@@ -11,6 +12,13 @@ interface ExplainMedicalHistoryApiResponse {
     entryBy: string;
     comment: string;
   };
+}
+
+interface InterpretMedicationImageApiResponse {
+    extracted: {
+        name: string,
+        dosage: string,
+    };
 }
 
 interface InterpretMedicalLetterApiResponse {
@@ -52,6 +60,19 @@ export const aiService = {
 
     const response = await axiosConfig.post<InterpretMedicalLetterApiResponse>(
       `/ai/interpret-medical-letter`,
+      body,
+    );
+
+    return response.data;
+  },
+  interpretMedicationImage: async (
+    imageBase64: string,
+    mimeType: string = "image/jpeg",
+  ): Promise<InterpretMedicationImageApiResponse> => {
+    const body = { imageBase64, mimeType };
+
+    const response = await axiosConfig.post<InterpretMedicationImageApiResponse>(
+      `/ai/interpret-medication-image`,
       body,
     );
 
