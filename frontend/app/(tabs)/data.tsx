@@ -1,5 +1,6 @@
 import MaterialCommunityIcons from "@expo/vector-icons/build/MaterialCommunityIcons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback } from "react";
 import * as SecureStore from "expo-secure-store";
 import {
   Alert,
@@ -15,6 +16,10 @@ import { Card } from "@/components/ui/card";
 import { HeaderView } from "@/components/ui/header-view";
 import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
+import { useFamilyHistory } from "@/hooks/use-family-history";
+import { useMedicalHistory } from "@/hooks/use-medical-history";
+import { useMedications } from "@/hooks/use-medications";
+import { usePatient } from "@/hooks/use-patient";
 import { MENU_ITEMS } from "@/types/navigation-type";
 
 const Data = () => {
@@ -22,6 +27,41 @@ const Data = () => {
 
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+
+  const { patientId } = usePatient();
+  const { medications, refetch: refetchMeds } = useMedications(patientId);
+  const { entries: familyEntries, refetch: refetchFamily } =
+    useFamilyHistory(patientId);
+  const { entries: medicalEntries, refetch: refetchMedical } =
+    useMedicalHistory(patientId);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!patientId) return;
+      refetchMeds();
+      refetchFamily();
+      refetchMedical();
+    }, [patientId, refetchMeds, refetchFamily, refetchMedical]),
+  );
+
+  const getSubtitle = (item: (typeof MENU_ITEMS)[number]): string => {
+    switch (item.id) {
+      case "meds": {
+        const n = medications.length;
+        return `${n} ${n === 1 ? "Medikament" : "Medikamente"}`;
+      }
+      case "family": {
+        const n = familyEntries.length;
+        return `${n} ${n === 1 ? "Eintrag" : "Einträge"}`;
+      }
+      case "medicalhistory": {
+        const n = medicalEntries.length;
+        return `${n} ${n === 1 ? "Eintrag" : "Einträge"}`;
+      }
+      default:
+        return item.subtitle;
+    }
+  };
 
   const handleLogout = async () => {
     const performLogout = async () => {
@@ -81,7 +121,7 @@ const Data = () => {
               </View>
               <View style={styles.textContainer}>
                 <ThemedText>{item.title}</ThemedText>
-                <ThemedText type="smallText">{item.subtitle}</ThemedText>
+                <ThemedText type="smallText">{getSubtitle(item)}</ThemedText>
               </View>
               <MaterialCommunityIcons
                 name="chevron-right"

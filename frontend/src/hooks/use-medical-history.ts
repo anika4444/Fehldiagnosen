@@ -50,5 +50,6 @@ export const useMedicalHistory = (patientId: number | null) => {
     error,
     saveEntry,
     deleteEntry,
+    refetch: fetchEntries,
   };
 };

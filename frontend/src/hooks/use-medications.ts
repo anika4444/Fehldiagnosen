@@ -74,6 +74,6 @@ export const useMedications = (patientId: number | null) => {
     await medicationService.deleteMedication(medicationId);
     await fetchMedications();
   };
-
-  return { medications, isLoading, error, saveMedication, deleteMedication };
+// use-medications.ts
+  return { medications, isLoading, error, saveMedication, deleteMedication, refetch: fetchMedications };
 };

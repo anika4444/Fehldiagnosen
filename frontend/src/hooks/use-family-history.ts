@@ -49,11 +49,12 @@ export const useFamilyHistory = (patientId: number | null) => {
     await fetchEntries();
   };
 
-  return {
+return {
     entries,
     isLoading,
     error,
     saveEntry,
     deleteEntry,
+    refetch: fetchEntries,
   };
 };

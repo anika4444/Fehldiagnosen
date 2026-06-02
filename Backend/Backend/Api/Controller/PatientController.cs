@@ -1,15 +1,17 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services.FamilyHistoryService;
+using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.MedicationService.Dto;
+using Backend.Application.Services.PatientService;
+using Backend.Application.Services.PatientService.Dto;
 using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.SymptomService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Backend.Application.Services.FamilyHistoryService;
-using Backend.Application.Services.FamilyHistoryService.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
@@ -24,14 +26,31 @@ public class PatientController : BaseApiController
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
     private readonly IMedicationNotificationService _medicationNotificationService;
     private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
+    private readonly IPatientService _patientService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService, IPatientService patientService)
     {
         _symptomService = symptomService;
         _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
         _medicationNotificationService = medicationNotificationService;
         _familyHistoryEntryService = familyHistoryEntryService;
+        _patientService = patientService;
+    }
+
+    [HttpGet("{patientId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PatientResponse>> GetPatientById(int patientId)
+    {
+        var result = await _patientService.GetPatientByIdAsync(patientId);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Data);
+        }
+
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
 
     #region Medication
