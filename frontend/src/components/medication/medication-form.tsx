@@ -176,20 +176,21 @@ export function MedicationForm({
         if (!vals.name.trim() || !isMedicationValid)
           errs.name = "Bitte wählen Sie ein Medikament aus der Liste.";
 
-        // Dosierung: Menge + Einheit plausibilisieren (optional, aber wenn
-        // angegeben, dann konsistent).
+        // Dosierung ist Pflicht: Menge + Einheit müssen angegeben und die Menge
+        // muss plausibel sein.
         const amount = vals.dosageAmount.trim();
-        if (amount) {
+        if (!amount) {
+          errs.dosageAmount = "Bitte eine Menge angeben.";
+        } else {
           const num = Number(amount.replace(",", "."));
           if (Number.isNaN(num) || num <= 0) {
             errs.dosageAmount = "Bitte eine gültige Menge größer als 0 angeben.";
           } else if (num > MAX_DOSAGE_AMOUNT) {
             errs.dosageAmount = "Die Menge erscheint unrealistisch hoch.";
-          } else if (!vals.dosageUnit) {
-            errs.dosageUnit = "Bitte eine Einheit wählen.";
           }
-        } else if (vals.dosageUnit) {
-          errs.dosageAmount = "Bitte auch eine Menge angeben.";
+        }
+        if (!vals.dosageUnit) {
+          errs.dosageUnit = "Bitte eine Einheit wählen.";
         }
 
         // Einnahmehäufigkeit ist Pflicht; bei "Sonstiges" muss der Freitext
@@ -263,6 +264,7 @@ export function MedicationForm({
       />
       <FormInput
         label="Wirkung/Dosierung – Menge"
+        isRequired
         keyboardType="decimal-pad"
         value={values.dosageAmount}
         onChangeText={(v) => handleChange("dosageAmount", v)}
@@ -272,6 +274,7 @@ export function MedicationForm({
       />
       <FormPicker
         label="Einheit"
+        isRequired
         selectedValue={values.dosageUnit}
         options={DOSAGE_UNITS}
         onValueChange={(v) => handleChange("dosageUnit", v)}
