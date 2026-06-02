@@ -47,4 +47,11 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "message-text-outline",
     route: "/communicationlevel" as Href,
   },
+  {
+  id: "checkup",
+  title: "Digitaler Checkup",
+  subtitle: "KI-Zusammenfassung Ihrer Daten",
+  icon: "heart-pulse",
+  route: "/checkup" as Href,
+}
 ];
