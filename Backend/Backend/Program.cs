@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
+using Backend.Application.Services.CheckupService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
 builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
 builder.Services.AddScoped<IDrugInteractionService, DrugInteractionService>();
+builder.Services.AddScoped<ICheckupService, CheckupService>();
 
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 builder.Services.AddScoped<IAnonymizerService, AnonymizerService>();
