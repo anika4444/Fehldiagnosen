@@ -80,6 +80,43 @@ const Checkup = () => {
     }
   }, [patientId, fromInput, toInput]);
 
+  const renderSummary = (text: string) =>
+    text.split("\n").map((rawLine, index) => {
+      const line = rawLine.replace(/\*\*/g, "").replace(/\*/g, "");
+      const trimmed = line.trim();
+
+      if (trimmed === "") {
+        return <View key={index} style={{ height: 8 }} />;
+      }
+
+      const heading = trimmed.match(/^#{1,6}\s*(.*)$/);
+      if (heading) {
+        return (
+          <ThemedText
+            key={index}
+            type="defaultSemiBold"
+            style={styles.summaryHeading}
+          >
+            {heading[1]}
+          </ThemedText>
+        );
+      }
+
+      const bullet = trimmed.match(/^[-•]\s+(.*)$/);
+      if (bullet) {
+        return (
+          <ThemedText key={index} style={styles.summaryLine}>
+            {"• " + bullet[1]}
+          </ThemedText>
+        );
+      }
+
+      return (
+        <ThemedText key={index} style={styles.summaryLine}>
+          {trimmed}
+        </ThemedText>
+      );
+    });
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
@@ -154,9 +191,11 @@ const Checkup = () => {
               KI-Zusammenfassung
             </ThemedText>
             <Card style={styles.card}>
-              <ThemedText>
-                {summary.aiSummary || "Keine Zusammenfassung verfügbar."}
-              </ThemedText>
+              {summary.aiSummary ? (
+                renderSummary(summary.aiSummary)
+              ) : (
+                <ThemedText>Keine Zusammenfassung verfügbar.</ThemedText>
+              )}
             </Card>
 
             <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -246,4 +285,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { marginTop: 20, marginBottom: 10 },
   card: { marginBottom: 10, padding: 12 },
+  summaryHeading: { marginTop: 10, marginBottom: 2, fontSize: 16 },
+  summaryLine: { marginBottom: 4, lineHeight: 22 },
 });

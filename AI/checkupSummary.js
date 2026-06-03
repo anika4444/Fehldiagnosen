@@ -1,20 +1,28 @@
 import { Router } from "express";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
-
 import { createModel } from "./modelFactory.js";
 
 const router = Router();
-
 const model = createModel();
 
-const SYSTEM_PROMPT =
-  "Du bist ein medizinischer Assistent, der Patienten in verständlicher Sprache hilft, ihren Gesundheitsstatus zu verstehen. Du gibst keine Diagnosen, sondern erstellst nur informative Zusammenfassungen.";
+// Der System-Prompt zwingt die KI jetzt zu extrem sauberen Abständen und verzichtet auf Tabellen
+const SYSTEM_PROMPT = `Du bist ein professioneller medizinischer KI-Assistent. Deine Aufgabe ist es, Gesundheitsdaten in eine extrem gut lesbare, luftige Zusammenfassung zu übersetzen.
+
+STRIKTE MARKDOWN-REGELN FÜR DAS FRONTEND:
+1. ZWEI LEERZEILEN: Du musst vor und nach JEDER Überschrift und JEDEM Absatz zwingend zwei Leerzeilen (Paragraph-Breaks) einfügen. Der Text darf niemals aneinanderkleben.
+2. KEINE TABELLEN: Verwende absolut keine Markdown-Tabellen.
+3. FETTDRUCK STATT TABELLEN: Nutze stattdessen Listen, bei denen die Schlüsselwörter fettgedruckt sind (z.B. "- **Diagnose:** Übergewicht | **Status:** chronisch").
+4. ÜBERSCHRIFTEN: Nutze ### für deine Hauptüberschriften.
+5. Keine Emojis oder Smileys.
+6. Du stellst keine Diagnosen, sondern fasst nur zusammen.`;
 
 router.post("/ai/checkup-summary", async (req, res) => {
   try {
     const {
       from,
       to,
+      langLevel,
+      kiPrompt,
       diagnoses = [],
       medications = [],
       symptoms = [],
@@ -23,50 +31,52 @@ router.post("/ai/checkup-summary", async (req, res) => {
     const fromDate = (from ?? "").slice(0, 10);
     const toDate = (to ?? "").slice(0, 10);
 
-    const diagnosesText =
-      diagnoses.length === 0
-        ? "Keine Diagnosen im Zeitraum."
-        : diagnoses
-            .map(
-              (d) =>
-                `- ${d.diagnosis} (ICD10: ${d.icd10Code ?? "-"}, Jahr: ${d.year ?? "-"}, Status: ${d.status ?? "-"}, Kommentar: ${d.comment ?? "-"})`,
-            )
-            .join("\n");
+    const diagnosesData = diagnoses.length === 0
+      ? "Keine Diagnosen im angegebenen Zeitraum."
+      : diagnoses.map(d => `- Diagnose: ${d.diagnosis} | ICD10: ${d.icd10Code ?? "-"} | Status: ${d.status ?? "-"} | Notiz: ${d.comment ?? "-"}`).join("\n");
 
-    const medicationsText =
-      medications.length === 0
-        ? "Keine Medikamente im Zeitraum."
-        : medications
-            .map(
-              (m) =>
-                `- ${m.name} (Dosis: ${m.dosage ?? "-"}, Frequenz: ${m.intakeFrequency ?? "-"}, Start: ${(m.intakeStartDate ?? "").slice(0, 10) || "-"}, Ende: ${(m.endDate ?? "").slice(0, 10) || "-"}, Indikation: ${m.indication ?? "-"}, ATC: ${m.atcCode ?? "-"})`,
-            )
-            .join("\n");
+    const medicationsData = medications.length === 0
+      ? "Keine Medikamente im angegebenen Zeitraum."
+      : medications.map(m => `- Medikament: ${m.name} | Dosis: ${m.dosage ?? "-"} | Frequenz: ${m.intakeFrequency ?? "-"} | Indikation: ${m.indication ?? "-"}`).join("\n");
 
-    const symptomsText =
-      symptoms.length === 0
-        ? "Keine Symptome im Zeitraum."
-        : symptoms
-            .map(
-              (s) =>
-                `- ${s.symptomName} (Zeit: ${(s.occurrenceTime ?? "").slice(0, 16).replace("T", " ")}, Intensität: ${s.intensity ?? "-"}/10, Dauer: ${s.duration ?? "-"}, Auslöser: ${s.possibleTrigger ?? "-"}, Notiz: ${s.notes ?? "-"})`,
-            )
-            .join("\n");
+    const symptomsData = symptoms.length === 0
+      ? "Keine Symptome dokumentiert."
+      : symptoms.map(s => `- Symptom: ${s.symptomName} | Intensität: ${s.intensity ?? "-"}/10 | Dauer: ${s.duration ?? "-"} | Mögl. Auslöser: ${s.possibleTrigger ?? "-"}`).join("\n");
 
-    const userPrompt = `Erstelle eine kompakte Zusammenfassung des Patienten-Checkups für den Zeitraum ${fromDate} bis ${toDate}.
-Daten:
-Diagnosen im Zeitraum:
-${diagnosesText}
-Medikamente im Zeitraum:
-${medicationsText}
-Symptome im Zeitraum:
-${symptomsText}
-Erstelle eine strukturierte Zusammenfassung mit folgenden Punkten:
-1. Überblick: Welche chronischen oder aktiven Diagnosen liegen vor, welche sind in Remission.
-2. Medikamentenübersicht: Welche Medikamente werden eingenommen, mögliche Nebenwirkungen pro Medikament basierend auf deinem medizinischen Wissen.
-3. Zusammenhänge: Mögliche Verbindungen zwischen Diagnosen, Medikamenten und aufgetretenen Symptomen. Können Symptome Nebenwirkungen der Medikamente sein.
-4. Auffälligkeiten: Was sollte der Patient mit dem Arzt besprechen.
-Antworte auf Deutsch in fließendem Text. Maximal 250 Wörter. Weise am Ende kurz darauf hin, dass dies keine ärztliche Beratung ersetzt.`;
+    const styleInstruction = kiPrompt
+      ? `\nZusätzliche Anweisung zur Tonalität (Niveau: ${langLevel ?? "Standard"}): ${kiPrompt}`
+      : `\nPasse die Wortwahl an ein leicht verständliches Niveau (Niveau: ${langLevel ?? "Standard"}) an.`;
+
+    // Der User-Prompt erzwingt nun das spezifische "Key: Value" Format
+    const userPrompt = `Erstelle eine strukturierte Zusammenfassung des Checkups für den Zeitraum **${fromDate} bis ${toDate}**.
+
+Hier sind die Rohdaten des Patienten:
+DIAGNOSEN:
+${diagnosesData}
+
+MEDIKAMENTE:
+${medicationsData}
+
+SYMPTOME:
+${symptomsData}
+${styleInstruction}
+
+Gliedere deine Antwort EXAKT in die folgenden vier Abschnitte. Denke an die DOPPELTEN LEERZEILEN zwischen allen Elementen!
+
+### 1. Überblick der Diagnosen
+(Liste die Diagnosen im folgenden Format auf: "- **Diagnose:** [Name] | **Status:** [Status] | **ICD-10:** [Code]". Falls keine vorliegen, schreibe das in einem Satz.)
+
+### 2. Medikamentenübersicht und Hinweise
+(Liste die Medikamente im Format auf: "- **Medikament:** [Name] | **Dosis:** [Dosis] | **Nebenwirkungen:** [Mögliche Nebenwirkungen ergänzen]". Falls keine vorliegen, schreibe das in einem Satz.)
+
+### 3. Medizinische Zusammenhänge
+(Analysiere mögliche Verbindungen zwischen den Diagnosen, Medikamenten und den berichteten Symptomen in einer einfachen Bulletpoint-Liste.)
+
+### 4. Wichtig für das nächste Arztgespräch
+(Liste konkrete Punkte oder Risiken für den nächsten Arzttermin in einer einfachen Bulletpoint-Liste auf.)
+
+---
+**Hinweis:** Diese Zusammenfassung dient rein der Information und ersetzt keine professionelle ärztliche Diagnose oder Beratung.`;
 
     const aiMessage = await model.invoke([
       new SystemMessage(SYSTEM_PROMPT),
@@ -78,7 +88,7 @@ Antworte auf Deutsch in fließendem Text. Maximal 250 Wörter. Weise am Ende kur
     res.json({ summary });
   } catch (error) {
     console.error("Checkup AI Error:", error.message);
-    res.status(500).json({ error: "KI-Service aktuell nicht erreichbar" });
+    res.status(500).json({ error: "KI-Service aktuell nicht erreichbar. Bitte versuche es später erneut." });
   }
 });
 

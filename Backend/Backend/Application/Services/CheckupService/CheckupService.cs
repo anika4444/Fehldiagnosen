@@ -14,6 +14,7 @@ namespace Backend.Application.Services.CheckupService
         private readonly IDiagnosisRepository _diagnosisRepository;
         private readonly IMedicationRepository _medicationRepository;
         private readonly IPatientSymptomRepository _patientSymptomRepository;
+        private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _checkupSummaryEndpoint;
 
@@ -22,6 +23,7 @@ namespace Backend.Application.Services.CheckupService
             IDiagnosisRepository diagnosisRepository,
             IMedicationRepository medicationRepository,
             IPatientSymptomRepository patientSymptomRepository,
+            ICommunicationLevelRepository communicationLevelRepository,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration)
         {
@@ -29,6 +31,7 @@ namespace Backend.Application.Services.CheckupService
             _diagnosisRepository = diagnosisRepository;
             _medicationRepository = medicationRepository;
             _patientSymptomRepository = patientSymptomRepository;
+            _communicationLevelRepository = communicationLevelRepository;
             _httpClientFactory = httpClientFactory;
             _checkupSummaryEndpoint = configuration["AiServiceOptions:CheckupSummaryEndpoint"]
                 ?? "http://localhost:3000/ai/checkup-summary";
@@ -47,6 +50,10 @@ namespace Backend.Application.Services.CheckupService
             {
                 return ServiceResult<CheckupSummaryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
             }
+
+            var communicationLevels = await _communicationLevelRepository.GetAllAsync();
+            var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient.CommunicationLevelId)
+                ?? communicationLevels?.FirstOrDefault();
 
             var from = request.From;
             var to = request.To;
@@ -105,15 +112,20 @@ namespace Backend.Application.Services.CheckupService
                 }).ToList()
             };
 
-            response.AiSummary = await CallAiServiceForCheckupSummary(response);
+            response.AiSummary = await CallAiServiceForCheckupSummary(
+                response,
+                communicationLevel?.Name ?? "L1",
+                communicationLevel?.KiPrompt ?? string.Empty);
 
             return ServiceResult<CheckupSummaryResponse>.Success(response);
         }
 
-        private async Task<string?> CallAiServiceForCheckupSummary(CheckupSummaryResponse data)
+        private async Task<string?> CallAiServiceForCheckupSummary(CheckupSummaryResponse data, string langLevel, string kiPrompt)
         {
             var payload = new
             {
+                langLevel,
+                kiPrompt,
                 from = data.From,
                 to = data.To,
                 diagnoses = data.Diagnoses.Select(d => new
