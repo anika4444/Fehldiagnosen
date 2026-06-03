@@ -24,6 +24,7 @@ export interface LoginResponse {
     token: string;
     expiration: string;
     patientId: string;
+    firstName: string;
   };
   errorMessage: string | null;
   errorType: number;

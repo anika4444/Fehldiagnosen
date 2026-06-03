@@ -56,7 +56,8 @@ namespace Backend.Application.Services.UserService
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     userId = user.Id,
-                    patientId = patient?.Id
+                    patientId = patient?.Id,
+                    firstName = patient?.FirstName
                 });
             }
             return ServiceResult<Object>.Unauthorized("Invalid username or password.");
@@ -103,7 +104,7 @@ namespace Backend.Application.Services.UserService
                 await _userManager.AddToRoleAsync(user, registerDto.Role);
             }
 
-            if(registerDto.Role == "Patient")
+            if (registerDto.Role == "Patient")
             {
                 var newPatient = new Patient
                 {

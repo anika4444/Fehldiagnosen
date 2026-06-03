@@ -12,9 +12,15 @@ interface HeaderViewProps {
   title: string;
   subtitle: string;
   onBackPress?: () => void;
+  rightElement?: React.ReactNode;
 }
 
-export function HeaderView({ title, subtitle, onBackPress }: HeaderViewProps) {
+export function HeaderView({
+  title,
+  subtitle,
+  onBackPress,
+  rightElement,
+}: HeaderViewProps) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
@@ -52,6 +58,10 @@ export function HeaderView({ title, subtitle, onBackPress }: HeaderViewProps) {
         >
           {title}
         </ThemedText>
+
+        {rightElement && (
+          <View style={styles.rightElement}>{rightElement}</View>
+        )}
       </View>
       <ThemedText
         colorName="textwithbackground"
@@ -78,24 +88,25 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     flexDirection: "row",
-    alignItems: "center", // Zentriert Pfeil und Titel vertikal
-    marginBottom: 4, // Abstand zum Untertitel
+    alignItems: "center",
+    marginBottom: 4,
   },
   backButton: {
-    marginRight: 12, // Abstand zwischen Pfeil und Titel
-    marginLeft: -8, // Rückt den Pfeil ganz leicht nach links, damit er bündig wirkt
-    padding: 4, // Etwas Touch-Fläche
+    marginRight: 12,
+    marginLeft: -8,
+    padding: 4,
   },
   titleText: {
-    flex: 1, // Sorgt dafür, dass der Text den restlichen Platz einnimmt und ggf. umbricht
+    flex: 1,
+  },
+  rightElement: {
+    marginLeft: 12,
   },
   subtitle: {
     opacity: 0.9,
     fontSize: 14,
   },
   subtitleWithBackOffset: {
-    // Wenn der Pfeil da ist, rücken wir den Untertitel ein,
-    // damit er optisch unter dem Titel startet (ca. Pfeilbreite + Margin + Padding)
     marginLeft: 36,
   },
 });

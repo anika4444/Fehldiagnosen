@@ -38,15 +38,17 @@ const LoginScreen = () => {
       const result = await login({ username, password });
 
       if (result.isSuccess && result.data && result.data.token) {
-        const { token, expiration, patientId } = result.data;
+        const { token, expiration, patientId, firstName } = result.data;
         if (Platform.OS === "web") {
           localStorage.setItem("userToken", token);
           localStorage.setItem("tokenExpiration", expiration);
           localStorage.setItem("patientId", patientId);
+          localStorage.setItem("firstName", firstName ?? "");
         } else {
           await SecureStore.setItemAsync("userToken", String(token));
           await SecureStore.setItemAsync("tokenExpiration", String(expiration));
           await SecureStore.setItemAsync("patientId", String(patientId));
+          await SecureStore.setItemAsync("firstName", String(firstName ?? ""));
         }
 
         router.replace("/(tabs)");
