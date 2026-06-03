@@ -3,7 +3,6 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.CheckupService.Dto;
 using Backend.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -16,9 +15,7 @@ namespace Backend.Application.Services.CheckupService
         private readonly IMedicationRepository _medicationRepository;
         private readonly IPatientSymptomRepository _patientSymptomRepository;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _eurouterUrl;
-        private readonly string _eurouterModel;
-        private readonly string _eurouterApiKey;
+        private readonly string _checkupSummaryEndpoint;
 
         public CheckupService(
             IPatientRepository patientRepository,
@@ -33,9 +30,8 @@ namespace Backend.Application.Services.CheckupService
             _medicationRepository = medicationRepository;
             _patientSymptomRepository = patientSymptomRepository;
             _httpClientFactory = httpClientFactory;
-            _eurouterUrl = configuration["AiServiceOptions:EurouterUrl"] ?? "https://api.eurouter.ai/api/v1/chat/completions";
-            _eurouterModel = configuration["AiServiceOptions:EurouterModel"] ?? "gpt-oss-20b";
-            _eurouterApiKey = configuration["AiServiceOptions:EurouterApiKey"] ?? string.Empty;
+            _checkupSummaryEndpoint = configuration["AiServiceOptions:CheckupSummaryEndpoint"]
+                ?? "http://localhost:3000/ai/checkup-summary";
         }
 
         public async Task<ServiceResult<CheckupSummaryResponse>> GenerateCheckupSummary(int patientId, string? userId, CheckupSummaryRequest request)
@@ -109,74 +105,52 @@ namespace Backend.Application.Services.CheckupService
                 }).ToList()
             };
 
-            response.AiSummary = await CallEurouterForCheckupSummary(response);
+            response.AiSummary = await CallAiServiceForCheckupSummary(response);
 
             return ServiceResult<CheckupSummaryResponse>.Success(response);
         }
 
-        private async Task<string?> CallEurouterForCheckupSummary(CheckupSummaryResponse data)
+        private async Task<string?> CallAiServiceForCheckupSummary(CheckupSummaryResponse data)
         {
-            if (string.IsNullOrWhiteSpace(_eurouterApiKey))
-            {
-                return "AI-Summary nicht verfügbar: API-Key nicht konfiguriert.";
-            }
-
-            var diagnosesText = data.Diagnoses.Count == 0
-                ? "Keine Diagnosen im Zeitraum."
-                : string.Join("\n", data.Diagnoses.Select(d =>
-                    $"- {d.Diagnosis} (ICD10: {d.ICD10Code}, Jahr: {d.Year}, Status: {d.Status}, Kommentar: {d.Comment})"));
-
-            var medicationsText = data.Medications.Count == 0
-                ? "Keine Medikamente im Zeitraum."
-                : string.Join("\n", data.Medications.Select(m =>
-                    $"- {m.Name} (Dosis: {m.Dosage}, Frequenz: {m.IntakeFrequency}, Start: {m.IntakeStartDate:yyyy-MM-dd}, Ende: {m.EndDate:yyyy-MM-dd}, Indikation: {m.Indication}, ATC: {m.AtcCode})"));
-
-            var symptomsText = data.Symptoms.Count == 0
-                ? "Keine Symptome im Zeitraum."
-                : string.Join("\n", data.Symptoms.Select(s =>
-                    $"- {s.SymptomName} (Zeit: {s.OccurrenceTime:yyyy-MM-dd HH:mm}, Intensität: {s.Intensity}/10, Dauer: {s.Duration}, Auslöser: {s.PossibleTrigger}, Notiz: {s.Notes})"));
-
-            var systemPrompt = "Du bist ein medizinischer Assistent, der Patienten in verständlicher Sprache hilft, ihren Gesundheitsstatus zu verstehen. Du gibst keine Diagnosen, sondern erstellst nur informative Zusammenfassungen.";
-
-            var userPrompt = $@"Erstelle eine kompakte Zusammenfassung des Patienten-Checkups für den Zeitraum {data.From:yyyy-MM-dd} bis {data.To:yyyy-MM-dd}.
-
-Daten:
-
-Diagnosen im Zeitraum:
-{diagnosesText}
-
-Medikamente im Zeitraum:
-{medicationsText}
-
-Symptome im Zeitraum:
-{symptomsText}
-
-Erstelle eine strukturierte Zusammenfassung mit folgenden Punkten:
-1. Überblick: Welche chronischen oder aktiven Diagnosen liegen vor, welche sind in Remission.
-2. Medikamentenübersicht: Welche Medikamente werden eingenommen, mögliche Nebenwirkungen pro Medikament basierend auf deinem medizinischen Wissen.
-3. Zusammenhänge: Mögliche Verbindungen zwischen Diagnosen, Medikamenten und aufgetretenen Symptomen. Können Symptome Nebenwirkungen der Medikamente sein.
-4. Auffälligkeiten: Was sollte der Patient mit dem Arzt besprechen.
-
-Antworte auf Deutsch in fließendem Text. Maximal 400 Wörter. Weise am Ende kurz darauf hin, dass dies keine ärztliche Beratung ersetzt.";
-
             var payload = new
             {
-                model = _eurouterModel,
-                messages = new[]
+                from = data.From,
+                to = data.To,
+                diagnoses = data.Diagnoses.Select(d => new
                 {
-                    new { role = "system", content = systemPrompt },
-                    new { role = "user", content = userPrompt }
-                }
+                    diagnosis = d.Diagnosis,
+                    icd10Code = d.ICD10Code,
+                    year = d.Year,
+                    status = d.Status,
+                    comment = d.Comment
+                }),
+                medications = data.Medications.Select(m => new
+                {
+                    name = m.Name,
+                    dosage = m.Dosage,
+                    intakeFrequency = m.IntakeFrequency,
+                    intakeStartDate = m.IntakeStartDate,
+                    endDate = m.EndDate,
+                    indication = m.Indication,
+                    atcCode = m.AtcCode
+                }),
+                symptoms = data.Symptoms.Select(s => new
+                {
+                    symptomName = s.SymptomName,
+                    occurrenceTime = s.OccurrenceTime,
+                    intensity = s.Intensity,
+                    duration = s.Duration,
+                    possibleTrigger = s.PossibleTrigger,
+                    notes = s.Notes
+                })
             };
 
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 httpClient.Timeout = TimeSpan.FromMinutes(2);
-                httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _eurouterApiKey);
 
-                using var response = await httpClient.PostAsJsonAsync(_eurouterUrl, payload);
+                using var response = await httpClient.PostAsJsonAsync(_checkupSummaryEndpoint, payload);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -186,12 +160,9 @@ Antworte auf Deutsch in fließendem Text. Maximal 400 Wörter. Weise am Ende kur
                 var body = await response.Content.ReadAsStringAsync();
                 using var doc = JsonDocument.Parse(body);
 
-                if (doc.RootElement.TryGetProperty("choices", out var choices) &&
-                    choices.GetArrayLength() > 0 &&
-                    choices[0].TryGetProperty("message", out var message) &&
-                    message.TryGetProperty("content", out var content))
+                if (doc.RootElement.TryGetProperty("summary", out var summary))
                 {
-                    return content.GetString();
+                    return summary.GetString();
                 }
 
                 return "AI-Summary konnte nicht erstellt werden.";

@@ -1,6 +1,12 @@
 import { router } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 
 import api from "@/api/axiosConfig";
 import { ThemedText } from "@/components/themed-text";
@@ -43,7 +49,7 @@ interface CheckupSummary {
   aiSummary?: string;
 }
 
-const DEFAULT_FROM = "2000-01-01";
+const todayStr = new Date().toISOString().slice(0, 10);
 
 const Checkup = () => {
   const colorScheme = useColorScheme() ?? "light";
@@ -51,11 +57,12 @@ const Checkup = () => {
 
   const { patientId } = usePatient();
 
+  const [fromInput, setFromInput] = useState("2026-01-01");
+  const [toInput, setToInput] = useState(todayStr);
+
   const [summary, setSummary] = useState<CheckupSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const today = new Date().toISOString().slice(0, 10);
 
   const loadCheckup = useCallback(async () => {
     if (!patientId) return;
@@ -63,7 +70,7 @@ const Checkup = () => {
     setError(null);
     try {
       const response = await api.get(`/checkup/${patientId}`, {
-        params: { from: DEFAULT_FROM, to: today },
+        params: { from: fromInput, to: `${toInput}T23:59:59` },
       });
       setSummary(response.data);
     } catch (err: any) {
@@ -71,11 +78,8 @@ const Checkup = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [patientId, today]);
+  }, [patientId, fromInput, toInput]);
 
-  useEffect(() => {
-    loadCheckup();
-  }, [loadCheckup]);
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }}>
@@ -86,8 +90,47 @@ const Checkup = () => {
       />
 
       <View style={styles.content}>
+        <View style={styles.dateRow}>
+          <View style={styles.dateField}>
+            <ThemedText type="smallText">Von (JJJJ-MM-TT)</ThemedText>
+            <TextInput
+              value={fromInput}
+              onChangeText={setFromInput}
+              placeholder="2026-01-01"
+              placeholderTextColor={theme.icon}
+              autoCapitalize="none"
+              style={[
+                styles.input,
+                {
+                  color: theme.text,
+                  borderColor: theme.primary,
+                  backgroundColor: theme.surface,
+                },
+              ]}
+            />
+          </View>
+          <View style={styles.dateField}>
+            <ThemedText type="smallText">Bis (JJJJ-MM-TT)</ThemedText>
+            <TextInput
+              value={toInput}
+              onChangeText={setToInput}
+              placeholder={todayStr}
+              placeholderTextColor={theme.icon}
+              autoCapitalize="none"
+              style={[
+                styles.input,
+                {
+                  color: theme.text,
+                  borderColor: theme.primary,
+                  backgroundColor: theme.surface,
+                },
+              ]}
+            />
+          </View>
+        </View>
+
         <PrimaryButton
-          title={isLoading ? "Wird geladen..." : "Checkup aktualisieren"}
+          title={isLoading ? "Wird geladen..." : "Checkup erstellen"}
           icon="refresh"
           onPress={loadCheckup}
           disabled={isLoading || !patientId}
@@ -192,6 +235,15 @@ export default Checkup;
 
 const styles = StyleSheet.create({
   content: { padding: 20 },
+  dateRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
+  dateField: { flex: 1 },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 4,
+  },
   sectionTitle: { marginTop: 20, marginBottom: 10 },
   card: { marginBottom: 10, padding: 12 },
 });
