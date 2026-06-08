@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitinalCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,6 +57,22 @@ namespace Backend.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "AtcDrugMappings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    AtcCode = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    DrugBankId = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    DrugName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AtcDrugMappings", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "CommunicationLevels",
                 columns: table => new
                 {
@@ -70,6 +86,40 @@ namespace Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CommunicationLevels", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "DrugDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    DrugBankId = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Toxicity = table.Column<string>(type: "longtext", nullable: true),
+                    Pharmacodynamics = table.Column<string>(type: "longtext", nullable: true),
+                    SnpAdverseReactions = table.Column<string>(type: "longtext", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DrugDetails", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "DrugInteractions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    SourceDrugBankId = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    TargetDrugBankId = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    TargetName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DrugInteractions", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -244,6 +294,42 @@ namespace Backend.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Diagnoses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    PatientId = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false),
+                    IcdCode = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
+                    Severity = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    SideLocalization = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    ConditionStatus = table.Column<int>(type: "int", nullable: false),
+                    EntryBy = table.Column<int>(type: "int", nullable: false),
+                    AiExplanation = table.Column<string>(type: "longtext", nullable: true),
+                    MedicationText = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
+                    Symptoms = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false),
+                    Findings = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false),
+                    TherapeuticMeasures = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: false),
+                    Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
+                    DiagnosisDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Diagnoses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Diagnoses_Patients_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Patients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "FamilyHistoryEntries",
                 columns: table => new
                 {
@@ -286,6 +372,34 @@ namespace Backend.Migrations
                     table.PrimaryKey("PK_MedicalHistoryEntries", x => x.Id);
                     table.ForeignKey(
                         name: "FK_MedicalHistoryEntries_Patients_PatientId",
+                        column: x => x.PatientId,
+                        principalTable: "Patients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "MedicalLetters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    PatientId = table.Column<int>(type: "int", nullable: false),
+                    AiSuggestion = table.Column<string>(type: "varchar(5000)", maxLength: 5000, nullable: true),
+                    ReworkedText = table.Column<string>(type: "varchar(5000)", maxLength: 5000, nullable: true),
+                    Startdate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Subject = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    ReciverName = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MedicalLetters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MedicalLetters_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id",
@@ -394,6 +508,26 @@ namespace Backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_AtcDrugMappings_AtcCode",
+                table: "AtcDrugMappings",
+                column: "AtcCode");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Diagnoses_PatientId",
+                table: "Diagnoses",
+                column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DrugInteractions_SourceDrugBankId",
+                table: "DrugInteractions",
+                column: "SourceDrugBankId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DrugInteractions_SourceDrugBankId_TargetDrugBankId",
+                table: "DrugInteractions",
+                columns: new[] { "SourceDrugBankId", "TargetDrugBankId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FamilyHistoryEntries_PatientId",
                 table: "FamilyHistoryEntries",
                 column: "PatientId");
@@ -401,6 +535,11 @@ namespace Backend.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MedicalHistoryEntries_PatientId",
                 table: "MedicalHistoryEntries",
+                column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MedicalLetters_PatientId",
+                table: "MedicalLetters",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -443,6 +582,18 @@ namespace Backend.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "AtcDrugMappings");
+
+            migrationBuilder.DropTable(
+                name: "Diagnoses");
+
+            migrationBuilder.DropTable(
+                name: "DrugDetails");
+
+            migrationBuilder.DropTable(
+                name: "DrugInteractions");
+
+            migrationBuilder.DropTable(
                 name: "FamilyHistoryEntries");
 
             migrationBuilder.DropTable(
@@ -450,6 +601,9 @@ namespace Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "MedicalHistoryEntries");
+
+            migrationBuilder.DropTable(
+                name: "MedicalLetters");
 
             migrationBuilder.DropTable(
                 name: "Medications");
