@@ -279,6 +279,22 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 | `POST /ai/checkup-summary` | Gesundheitsdaten zu einer lesbaren Zusammenfassung verdichten |
 | `POST /ai/interpret-medical-letter` | Hochgeladenen Arztbrief in strukturierte Daten/Erklärung übersetzen |
 
+### Eingesetzte Design Patterns
+
+Patterns wurden bewusst nur dort eingesetzt, wo sie konkreten Nutzen bringen.
+
+**Klar umgesetzt**
+- **Abstract Factory** – das KI-Modul kapselt Modell und Prompt hinter einer Provider-Factory (`IAIProviderFactory` mit `MistralProviderFactory`/`OpenAIProviderFactory`); ein Anbieterwechsel erfordert nur den Austausch der Factory.
+- **Factory Method / Simple Factory** – `modelFactory` (`createModel`, `createValidatorModel`) und `promptFactory` (`createPrompt`) erzeugen Modelle und Prompts zentral.
+- **Builder** – der `ChainBuilder` baut die KI-Pipeline über ein Fluent Interface (`withPrompt`, `withModel`, `withParser`, `build`) schrittweise auf.
+- **Repository** – ein generisches `IRepository<TEntity>` und entitätsspezifische Repositories entkoppeln den Datenzugriff von der Fachlogik.
+
+**Framework- bzw. datengetrieben vorhanden**
+- **Observer (Publish-Subscribe)** – über SignalR (`MedicationHub`) werden Medikamenten-Reminder in Echtzeit an die Clients verteilt.
+- **Facade** – der `CheckupService` bündelt Patienten-, Diagnose-, Medikations- und Symptomdaten samt KI-Aufbereitung hinter einer einfachen Schnittstelle.
+- **Adapter (implizit)** – der `AIService` übersetzt die Domänenobjekte auf die HTTP-Schnittstelle des Node.js-KI-Services.
+- **Strategy (datengetrieben)** – das Kommunikationslevel steuert über hinterlegte Prompts den Erklärstil (L1/L2/L3).
+
 ---
 
 ## 5. Reflexion & Team-Entscheidungen
@@ -305,6 +321,11 @@ Die Git-Historie bestätigt diesen Workflow durchgängig (Feature-Branches + Mer
 - Wechselwirkungs- und Referenzdaten (`KnownMedication`, `DrugInteraction`, `DrugDetail`) basieren auf importierten CSVs (`medicinal-products.csv`, `AlleMedikationenStrukturiert.csv`); Datenpflege/-aktualisierung wäre zu klären.
 - Anonymizer/OCR setzen Python und Tesseract auf dem Host voraus – Deployment-/Setup-Anforderungen dokumentieren.
 - Die gelockerte Passwort-Policy (ADR 12) muss vor produktivem Einsatz verschärft werden.
+
+**Geplante Design-Pattern-Verbesserungen (echter Mehrwert):**
+- Einführung einer generischen Basis-Repository-Klasse (Template Method), um die wiederholte CRUD-Logik der Repositories zu reduzieren (DRY).
+- Decorator-Pattern für die KI-Pipeline (Anonymisierung, Logging, Caching) auf Basis einer gemeinsamen `IAiClient`-Schnittstelle.
+- Explizite Adapter-Schnittstelle (`IAiExplanationClient`) zur Kapselung des Node.js-KI-Services.
 
 ---
 
