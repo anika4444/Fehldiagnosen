@@ -251,10 +251,10 @@ flowchart TD
 
 ## 4. Architectural Decision Records (ADRs)
 
-Vollständige Begründungen siehe [`records-architecture-decisions.md`](records-architecture-decisions.md). Zusammenfassung:
+Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext inkl. Optionen · Entscheidung · Konsequenzen), wie in den LV-Folien vorgegeben. Vollständige Records siehe [`records-architecture-decisions.md`](records-architecture-decisions.md). Überblick (alle Status: `accepted`):
 
-| Nr. | Entscheidung | Gewählt | Erwogene Alternativen | Kerngrund |
-|-----|--------------|---------|-----------------------|-----------|
+| Nr. | Entscheidung | Gewählt | Betrachtete Optionen | Kerngrund |
+|-----|--------------|---------|----------------------|-----------|
 | **ADR 01** | Frontend Ärzteansicht | **React** | Vue.js | Vorhandene Kenntnisse, großes Ökosystem, Wiederverwendbarkeit |
 | **ADR 02** | Frontend Patientenansicht (Framework) | **React Native + Expo** | React, RN ohne Expo | Cross-Platform, Push, Hardware-Zugriff, Hot Reload |
 | **ADR 03** | Patientenansicht als **App** (nicht Website) | **Mobile App** | Website | Niedrige Einstiegsbarriere für ältere Nutzer, Push-Reminder, biometrischer Login |
