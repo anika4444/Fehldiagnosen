@@ -260,19 +260,16 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 | **ADR 03** | Patientenansicht als **App** (nicht Website) | **Mobile App** | Website | Niedrige Einstiegsbarriere für ältere Nutzer, Push-Reminder, biometrischer Login |
 | **ADR 04** | Backend-Framework | **ASP.NET Core Web API** | Node.js, Spring Boot, PHP, Python | Sicherheit/Compliance, Performance, Typsicherheit, EF Core |
 | **ADR 05** | Datenbank | **MySQL** | PostgreSQL, MSSQL | ACID, Zuverlässigkeit, .NET-Integration, Kosten/Hosting |
+| **ADR 06** | KI-Logik als eigener Dienst | **Node.js-Service (LangChain)** | KI im .NET-Backend, Python-Service | Reiferes LLM-Ökosystem, lose Kopplung |
+| **ADR 07** | LLM-Anbieter-Anbindung | **Abstract Factory** | feste Anbindung an einen Provider | Kein Vendor-Lock-in, Wechsel in 1 Zeile |
+| **ADR 08** | Qualität der KI-Erklärungen | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
+| **ADR 09** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
+| **ADR 10** | Erfassung per Bild/Dokument | **Tesseract-OCR (lokal)** | Cloud-OCR, nur manuelle Eingabe | Komfort, weniger Fehler, keine Bild-Cloud |
+| **ADR 11** | Backend-Struktur | **Clean Architecture + Repository** | direkter DbContext in Controllern | Testbarkeit, austauschbare Infrastruktur |
+| **ADR 12** | Authentifizierung | **JWT + ASP.NET Identity** | Server-Sessions, externer IdP | Zustandslos, passend für mobile App |
+| **ADR 13** | Echtzeit-Reminder | **SignalR** | HTTP-Polling | Push in Echtzeit, weniger Last |
 
-### Implizite Entscheidungen (im Code sichtbar, noch ohne formales ADR)
-
-Diese Punkte sind in der Umsetzung getroffen worden und sollten ggf. als weitere ADRs ergänzt werden:
-
-- **Eigener KI-Service in Node.js statt im .NET-Backend** – bewusst ausgelagert, weil das LangChain-/LLM-Ökosystem in JS reifer ist (deckt sich mit dem in ADR 04 genannten .NET-Nachteil im KI-Bereich).
-- **Abstract-Factory-Muster für LLM-Provider** – Provider-Wechsel (Mistral ↔ OpenAI) über eine einzige Code-Zeile; aktuell Mistral.
-- **RAG-Light mit Validator-Pipeline** – ICD-10-Wissensbasis (`AI/knowledge/*.md`) + nachgelagerter Validator-Durchlauf (max. 3 Versuche) für patientengerechte, korrekte Erklärungen.
-- **Anonymisierung vor dem LLM-Aufruf** – `AnonymizerService` ruft ein Python-NER-Skript (`src/anonymizer.py`) auf, das personenbezogene Daten aus Texten entfernt, bevor sie an einen externen LLM gehen (Datenschutz / DSGVO).
-- **OCR mit Tesseract** – Medikamente und Arztbriefe können als Bild/Dokument hochgeladen werden; `TesseractData/*` liefert die Sprachmodelle (deu/eng/lat/ell) für die Texterkennung.
-- **JWT-Authentifizierung über ASP.NET Identity**; Passwort-Policy für die Demo bewusst gelockert.
-- **Clean Architecture + Repository-Pattern** mit DI als Backend-Grundstruktur.
-- **SignalR** für Echtzeit-Medikamenten-Reminder (`/hubs/medication`).
+> ADR 01–05 wurden zu Projektbeginn getroffen; **ADR 06–13** wurden im Lauf der Umsetzung getroffen und nachträglich dokumentiert (im Code belegt). Volle Records im verlinkten ADR-Dokument.
 
 ### KI-Endpunkte (Node.js-Service, Port 3000)
 
@@ -307,7 +304,7 @@ Die Git-Historie bestätigt diesen Workflow durchgängig (Feature-Branches + Mer
 - Ärzteansicht (React-Web, ADR 01) ist konzipiert, aber im Repo noch nicht umgesetzt – aktuell nur die Patienten-App.
 - Wechselwirkungs- und Referenzdaten (`KnownMedication`, `DrugInteraction`, `DrugDetail`) basieren auf importierten CSVs (`medicinal-products.csv`, `AlleMedikationenStrukturiert.csv`); Datenpflege/-aktualisierung wäre zu klären.
 - Anonymizer/OCR setzen Python und Tesseract auf dem Host voraus – Deployment-/Setup-Anforderungen dokumentieren.
-- Formale ADRs für die unter Abschnitt 4 genannten impliziten Entscheidungen (KI-Service, Provider-Factory, Anonymisierung, OCR, Auth) nachziehen.
+- Die gelockerte Passwort-Policy (ADR 12) muss vor produktivem Einsatz verschärft werden.
 
 ---
 
