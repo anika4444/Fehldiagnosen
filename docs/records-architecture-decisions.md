@@ -1,212 +1,371 @@
-# ADR 01: Frontend Framework Ärzteansicht: React
+# Architectural Decision Records (ADRs)
 
-- **Status**: Entschieden
+> Format nach dem Template von **Michael Nygard** (siehe LV-Folien „01_Einführung", S. 12–14).
+> Jede Entscheidung wird mit **Titel · Status · Kontext (inkl. betrachteter Optionen) · Entscheidung · Konsequenzen (einfacher / schwerer)** festgehalten.
+> Zweck: getroffene Architektur­entscheidungen nachvollziehbar halten.
+>
+> Mögliche Status: `proposed` · `accepted` · `rejected` · `deprecated` · `superseded`.
 
-## Kontext und Problemstellung
+---
+
+## ADR 01: Frontend-Framework Ärzteansicht – React
+
+**Status:** accepted
+
+### Kontext
 
 Die Ärzteansicht ist das zentrale Arbeitswerkzeug für das medizinische Personal. Sie muss große Mengen an komplexen Daten übersichtlich darstellen und schnelle Interaktionen ermöglichen. Da Ärzte oft unter Zeitdruck arbeiten, ist eine hochperformante, fehlerfreie und intuitiv bedienbare Weboberfläche essenziell. Zudem muss die Anwendung leicht erweiterbar sein, um künftige diagnostische Tools nahtlos integrieren zu können.
 
-## Entscheidung
+**Betrachtete Optionen:** React · Vue.js
 
-Wir setzen React als primäres Frontend-Framework für die Ärzteansicht ein.
+### Entscheidung
 
-## Begründung
+Wir setzen **React** als primäres Frontend-Framework für die Ärzteansicht ein. Ausschlaggebend waren vorhandene Entwicklungskenntnisse im Team, das große Ökosystem, die hohe Wiederverwendbarkeit von Komponenten, die Zukunftssicherheit sowie das performante Rendering über das Virtual DOM.
 
-- Entwicklungskenntnisse
-- Großes Ökosystem
-- Wiederverwendbarkeit
-- Zukunftssicherheit
-- Virutal DOM
+### Konsequenzen
 
-## Konsequenzen
+**Einfacher (+)**
+- Schnellere Feature-Entwicklung durch vorhandene Expertise im Team.
 
-### Positiv (+)
+**Schwerer (−)**
+- Hohe Entscheidungsdichte notwendig (React gibt wenig vor).
+- Regelmäßige Updates des Ökosystems erforderlich.
 
-- Schnellere Feature-Entwicklung durch vorhandene Expertise
+---
 
-### Negativ (-)
+## ADR 02: Frontend-Framework Patientenansicht – React Native + Expo
 
-- Hohe Entscheidungsdichte notwendig
-- Regelmäßige Updates
+**Status:** accepted
 
-## Erwogene Optionen
+### Kontext
 
-- Vue.js
+Für Patient:innen soll eine mobile Lösung geschaffen werden, die über die Möglichkeiten einer reinen Weboberfläche hinausgeht. Die Anwendung muss als native App auf Smartphones (iOS & Android) funktionieren, um schnellen Zugriff auf Gesundheitsdaten zu gewährleisten. Wichtige Anforderungen sind eine flüssige Bedienung, Push-Benachrichtigungen für medizinische Reminder und ein einfacher Zugang über die App-Stores.
 
-# ADR 02: Frontend Framework Patientenansicht: React Native
+**Betrachtete Optionen:** React Native + Expo · React (Web) · React Native ohne Expo
 
-- **Status**: Entschieden
+### Entscheidung
 
-## Kontext und Problemstellung
+Wir setzen **React Native in Kombination mit dem Expo SDK** für die mobile Patienten-App ein. Gründe: native User Experience, Code-Synergie mit der React-Welt (ADR 01), das umfangreiche Expo-Ökosystem und Hot Reloading für schnelle Iterationen.
 
-Für Patienten soll eine mobile Lösung geschaffen werden, die über die Möglichkeiten einer reinen Weboberfläche hinausgeht. Die Anwendung muss als native App auf Smartphones (iOS & Android) funktionieren, um den schnellen Zugriff auf Gesundheitsdaten gewährleisten. Wichtige Anforderungen sind eine flüssige Bedienung, die Nutzung von Push-Benachrichtigungen für medizinische Reminder und ein einfacher Zugang über App-Stores.
+### Konsequenzen
 
-## Entscheidung
+**Einfacher (+)**
+- Cross-Platform (iOS & Android aus einer Codebasis).
+- Push-Benachrichtigungen und Hardware-Zugriff out of the box.
 
-Wir setzen React Native in Kombination mit dem Expo SDK als Framework für die mobile Patienten-App ein.
+**Schwerer (−)**
+- Abhängigkeit von Expo.
+- Größere App im Vergleich zu rein nativen Lösungen.
+- Zusätzliche Abstraktionsschicht zwischen Code und Plattform.
 
-## Begründung
+---
 
-- Native User Experience
-- Code Synergie
-- Expo Ökosystem
-- Hot Reloading
+## ADR 03: Patientenansicht als App (statt Website)
 
-## Konsequenzen
+**Status:** accepted
 
-### Positiv (+)
+### Kontext
 
-- Cross Plattform
-- Push Benachrichtigungen
-- Hardware Zugriff
+Für unser System wird ein Frontend benötigt, über das Patient:innen auf ihre Daten zugreifen. Ein wesentlicher Teil der Zielgruppe besteht aus älteren oder weniger technikaffinen Menschen. Die Herausforderung: Das Frontend-Medium (App vs. klassische Website) so wählen, dass die Einstiegsbarriere für diese Nutzergruppe möglichst gering ist und die Bedienung im Alltag intuitiv und fehlerfrei gelingt.
 
-### Negativ (-)
+**Betrachtete Optionen:** Mobile App · Website
 
-- Abhängigkeit von Expo
-- App-Größe
-- Abstraktionsschicht
+### Entscheidung
 
-## Erwogene Optionen
+Wir setzen die Patientenansicht als **mobile App** um, die auf dem Smartphone installiert wird. Smartphones sind in allen Altersgruppen verbreitet und haben den Desktop-PC als primäres Zugangsmedium abgelöst. Eine installierte App bietet ein geschlossenes, ablenkungsfreies Erlebnis: ein Tippen aufs Icon genügt – kein Umgang mit URLs, Lesezeichen oder versehentlich geschlossenen Tabs.
 
-- React
-- React Native ohne Expo
+### Konsequenzen
 
-# ADR 03: Frontend Applikation Patientenansicht: App
+**Einfacher (+)**
+- Hohe Zugänglichkeit: Start über ein festes Icon ist für ältere Menschen einfacher als Browser-Navigation.
+- Hohe Verfügbarkeit: Smartphone ist im Alltag schneller griffbereit als ein PC.
+- Vereinfachter Login: nativer Support für biometrische Logins (Fingerabdruck, Face ID) möglich.
+- Push-Benachrichtigungen: zuverlässige Zustellung von Erinnerungen.
 
-- **Status**: Entschieden
+**Schwerer (−)**
+- Initiale Installationshürde (einmaliger Download aus dem App Store nötig).
+- Höherer Entwicklungs- und Wartungsaufwand als bei einer reinen Website.
+- Abhängigkeit von App-Store-Review-Prozessen → Bugfixes können sich verzögern.
 
-## Kontext und Problemstellung
+---
 
-Für unser System wird ein Frontend benötigt, über das Patienten auf ihre Daten zugreifen können. Ein wesentlicher Teil unserer Zielgruppe besteht aus älteren oder weniger technikaffinen Menschen. Die Herausforderung besteht darin, das Frontend-Medium (App vs. klassische Website) so zu wählen, dass die Einstiegsbarriere für diese spezifische Nutzergruppe so gering wie möglich ist und die Bedienung im Alltag intuitiv und fehlerfrei gelingt.
+## ADR 04: Backend-Framework – ASP.NET Core Web API
 
-## Entscheidung
+**Status:** accepted
 
-Wir haben uns entschieden, die Patientenansicht als mobile Applikation (App) für Smartphones umzusetzen, die von den Nutzern auf ihren mobilen Endgeräten installiert wird.
+### Kontext
 
-## Begründung
+Für die App benötigen wir ein robustes, sicheres und performantes Backend, das als API fungiert, Geschäftslogik zentral verwaltet, Datenbankzugriffe orchestriert und eine sichere Übertragung sensibler Gesundheitsdaten gewährleistet.
 
-Smartphones sind mittlerweile in allen Altersgruppen – auch bei Senioren – sehr stark verbreitet und haben den klassischen Desktop-PC in vielen Haushalten als primäres Zugangsmedium zum Internet abgelöst.
+**Betrachtete Optionen:** ASP.NET Core Web API · Node.js · Java mit Spring Boot · PHP · Python
 
-Eine installierte App bietet ein geschlossenes, ablenkungsfreies Nutzererlebnis. Sobald die App einmalig eingerichtet ist, genügt ein einfaches Tippen auf das App-Icon auf dem Startbildschirm, um auf die Patientenansicht zuzugreifen. Dies erspart den Nutzern den für sie oft fehleranfälligen Umgang mit Webbrowsern (wie das Eintippen von URLs, das Verwalten von Lesezeichen oder das versehentliche Schließen von Tabs). Das Bedienkonzept einer App kommt den Gewohnheiten älterer Smartphone-Nutzer daher deutlich entgegen.
+### Entscheidung
 
-## Konsequenzen
+Wir verwenden **ASP.NET Core Web API** (modernes .NET-Ökosystem) als zentrales Backend-Framework. Gründe:
+- **Sicherheit & Compliance:** enterprise-erprobte Mechanismen (Auth/Autorisierung via JWT/OAuth) – wichtig für gesetzeskonforme Verarbeitung von Gesundheitsdaten.
+- **Performance:** zählt zu den schnellsten Web-Frameworks, verarbeitet Requests asynchron und ressourcenschonend.
+- **Typsicherheit & C#:** reduziert Laufzeitfehler, erleichtert Refactoring und Pflege.
+- **Ausgereiftes Ökosystem:** Entity Framework Core (ORM) + große, gepflegte NuGet-Auswahl.
+- **Plattformunabhängigkeit:** läuft cross-platform und eignet sich für containerisierte Deployments.
 
-### Positiv (+)
+### Konsequenzen
 
-- Hohe Zugänglichkeit und einfache Bedienung: Ältere Menschen tun sich mit dem Starten einer App über ein festes Icon auf dem Homescreen deutlich leichter als mit der Navigation im Browser.
+**Einfacher (+)**
+- Hohe Zuverlässigkeit durch strenge Typisierung und Compiler-Unterstützung.
+- Hervorragendes Tooling (Visual Studio, Rider, Debugging/Profiling).
+- Zukunftssicherheit durch Microsoft- und Community-Support.
+- Effiziente Datenbankanbindung über EF Core.
 
-- Hohe Verfügbarkeit: Smartphones sind im Alltag präsenter und schneller griffbereit als Desktop-PCs.
+**Schwerer (−)**
+- Mehr Boilerplate/Setup bei klassischen Controllern (durch Minimal APIs abgemildert).
+- Etwas höherer Speicher-Footprint im Leerlauf als extrem leichtgewichtige Runtimes (z. B. Go).
+- Kleineres natives KI-/Data-Science-Ökosystem als Python → eigene ML-Entwicklung wäre aufwendiger. *(Konsequenz hieraus: der KI-Teil wurde in einen separaten Node.js-Service ausgelagert.)*
 
-- Vereinfachter Login: Nativer Support für biometrische Logins (Fingerabdruck, Face ID) kann implementiert werden, wodurch sich Nutzer keine komplexen Passwörter merken müssen.
+---
 
-- Push-Benachrichtigungen: Ermöglicht die direkte und zuverlässige Zustellung von Erinnerungen.
+## ADR 05: Datenbank – MySQL
 
-### Negativ (-)
+**Status:** accepted
 
-- Initiale Installationshürde: Die App muss einmalig aktiv aus einem App Store (Apple App Store, Google Play Store) heruntergeladen und installiert werden.
+### Kontext
 
-- Höherer Entwicklungsaufwand: Die Entwicklung und Wartung einer App (selbst bei Cross-Platform-Ansätzen) ist in der Regel aufwendiger als die einer reinen Website.
+Wir benötigen eine persistente, sichere und hochverfügbare Datenspeicherung. Da wir mit sensiblen Gesundheitsdaten und Benutzerprofilen arbeiten, stehen Datenintegrität, Transaktionssicherheit und strikte Datenstrukturen im Vordergrund. Das System muss sich nahtlos in das .NET-Core-Backend (ADR 04) integrieren.
 
-- Abhängigkeit von App Stores: Updates müssen die Review-Prozesse der Store-Betreiber durchlaufen, was Bugfixes verzögern kann.
+**Betrachtete Optionen:** MySQL · PostgreSQL · MSSQL
 
-## Erwogene Optionen
+### Entscheidung
 
-- Website
+Wir verwenden **MySQL** als primäres relationales DBMS. Gründe:
+- **ACID-Konformität & Datenintegrität** – zwingend für Gesundheitsdaten, um inkonsistente Datensätze auszuschließen.
+- **Erprobte Zuverlässigkeit** – eine der weltweit meistgenutzten Datenbanken, extrem stabil.
+- **Hervorragende .NET-Integration** über Entity Framework Core.
+- **Kosten & Hosting** – Open Source, von allen großen Cloud-Anbietern als Managed Service verfügbar.
 
-# ADR 04: Backend Framework: .NET Core API
+### Konsequenzen
 
-- **Status**: Entschieden
+**Einfacher (+)**
+- Hohe Sicherheit: ausgereifte Rollen-/Rechteverwaltung, Verschlüsselung → unterstützt DSGVO-/HIPAA-Konformität.
+- Großes Ökosystem und einfache Verfügbarkeit von Know-how.
+- Gute Lese-Performance für typische Web-Workloads (InnoDB).
+- Ausgereiftes Tooling für Backups, Monitoring, Migrationen.
 
-## Kontext und Problemstellung
+**Schwerer (−)**
+- Horizontale Skalierung von Schreiboperationen (Sharding/Clustering) komplexer als bei NoSQL.
+- Starres Schema: Migrationen bei großen Datenmengen erfordern sorgfältige Planung.
+- JSON/XML-Handling weniger flexibel/performant als z. B. PostgreSQL.
 
-Für die App benötigen wir ein robustes, sicheres und performantes Backend. Dieses Backend muss als API fungieren, Geschäftslogik zentral verwalten, Datenbankzugriffe orchestieren und eine sichere Datenübertragung (insbesondere von sensiblen Gesundheitsdaten)
+---
 
-## Entscheidung
+## ADR 06: Eigenständiger KI-Service in Node.js (statt im .NET-Backend)
 
-Wir haben uns entschieden, ASP.NET Core Web API (basierend auf dem modernen .NET-Ökosystem) als zentrales Backend-Framework für die Entwicklung unserer API-Services zu verwenden.
+**Status:** accepted
 
-## Begründung
+### Kontext
 
-- Sicherheit & Compliance: .NET Core bringt von Haus aus starke, enterprise-erprobte Sicherheitsmechanismen (Authentifizierung, Autorisierung via JWT/OAuth) mit. Dies ist für die gesetzeskonforme Verarbeitung sensibler Gesundheitsdaten unerlässlich.
+ADAM braucht KI-Funktionen (Diagnose-Erklärung, Checkup-Zusammenfassung, Arztbrief-Interpretation). Diese benötigen Orchestrierung von LLM-Aufrufen, Prompt-Verwaltung und eine RAG-Pipeline. Das LLM-/Agent-Ökosystem (insb. **LangChain**) ist in JavaScript/Python deutlich reifer als in .NET – dieser Nachteil wurde bereits in ADR 04 festgehalten.
 
-- Performance: ASP.NET Core gehört zu den schnellsten Web-Frameworks auf dem Markt und verarbeitet Requests ressourcenschonend und asynchron, was eine hohe Skalierbarkeit ermöglicht.
+**Betrachtete Optionen:** separater Node.js-Service · KI-Logik direkt im .NET-Backend · Python-Service
 
-- Typsicherheit & C#: Die Verwendung von C# als streng typisierte, moderne Sprache reduziert Laufzeitfehler erheblich und erleichtert das Refactoring sowie die Pflege großer Codebasen.
+### Entscheidung
 
-- Ausgereiftes Ökosystem: Mit Werkzeugen wie Entity Framework Core (ORM) und einer riesigen Auswahl an gut gepflegten NuGet-Paketen können Standardprobleme schnell und sicher gelöst werden.
+Wir lagern die KI-Logik in einen **eigenständigen Node.js-/Express-Service** (LangChain, Port 3000) aus. Das .NET-Backend ruft ihn über HTTP auf (`/ai/explain`, `/ai/checkup-summary`, `/ai/interpret-medical-letter`). Das Backend bleibt für Persistenz, Auth und Geschäftslogik zuständig.
 
-- Plattformunabhängigkeit: .NET Core läuft cross-platform (Windows, Linux, macOS) und eignet sich damit hervorragend für containerisierte Deployments (Docker/Kubernetes) in der Cloud.
+### Konsequenzen
 
-## Konsequenzen
+**Einfacher (+)**
+- Zugriff auf das ausgereifte LangChain-Ökosystem.
+- KI-Service unabhängig entwickel-, test- und deploybar (lose Kopplung).
+- KI-Modell/-Prompts änderbar, ohne das Backend neu zu bauen.
 
-### Positiv (+)
+**Schwerer (−)**
+- Zusätzlicher Dienst, der betrieben, überwacht und abgesichert werden muss.
+- Netzwerk-Latenz und Fehlerbehandlung zwischen Backend und KI-Service.
+- Zwei Sprachräume (C# / JS) im Projekt → höhere Einarbeitungsbreite.
 
-- Hohe Zuverlässigkeit: Reduzierte Fehlerquote durch strenge Typisierung und exzellente Compiler-Unterstützung.
+---
 
-- Hervorragendes Tooling: Sehr gute Entwicklererfahrung (Developer Experience) durch Visual Studio, Rider und umfassende Debugging- sowie Profiling-Tools.
+## ADR 07: Provider-Unabhängigkeit der KI über Abstract Factory
 
-- Zukunftssicherheit: Starke Unterstützung und kontinuierliche Weiterentwicklung durch Microsoft und die Open-Source-Community.
+**Status:** accepted
 
-- Effiziente Datenbankanbindung: Nahtlose Integration von Entity Framework Core beschleunigt die Entwicklung der Datenzugriffsschicht.
+### Kontext
 
-### Negativ (-)
+Der KI-Service nutzt externe LLM-Anbieter. Preise, Verfügbarkeit, Qualität und Datenschutz­bedingungen der Anbieter ändern sich schnell; ein fester Anbieter würde zu Vendor-Lock-in führen. Wir wollen den Anbieter wechseln können, ohne die Fachlogik anzufassen.
 
-- Boilerplate-Code: Traditionelle Controller-basierte .NET APIs erfordern manchmal mehr Code-Struktur und Setup als leichtgewichtige Alternativen (wobei dies durch "Minimal APIs" in neueren .NET-Versionen abgemildert wird).
+**Betrachtete Optionen:** Abstract-Factory-Abstraktion über Provider · direkte Anbindung an einen einzigen LLM-Provider
 
-- Ressourcenverbrauch im Leerlauf: Verglichen mit extrem leichtgewichtigen Runtimes (wie Go) kann der initiale Speicherbedarf (Footprint) etwas höher ausfallen.
+### Entscheidung
 
-- Einschränkungen im nativen KI-/Data-Science-Ökosystem: Während die Anbindung von fertigen KI-Diensten (via API) in .NET hervorragend unterstützt wird, ist das Ökosystem für das Training und die Entwicklung eigener, tiefer Machine-Learning-Modelle im Vergleich zu Python deutlich kleiner. Für fortgeschrittene Data-Science-Aufgaben fehlen oft native Bibliotheken, was bei Eigenentwicklungen in diesem Bereich zu mehr Komplexität und Zeitaufwand führen kann.
+Wir kapseln Modelle und Prompts hinter einer **Abstract Factory** (`MistralProviderFactory`, `OpenAIProviderFactory` mit `createModel`/`createValidatorModel`/`createPrompt`). Ein Provider-Wechsel erfolgt durch Austausch **einer** Factory-Zeile; aktuell ist **Mistral** aktiv. Die Validator-Chain wird über einen `ChainBuilder` zusammengesetzt.
 
-## Erwogene Optionen
+### Konsequenzen
 
-- Node.js
-- Java mit Spring Boot
-- PHP
-- Python
+**Einfacher (+)**
+- Anbieterwechsel mit minimaler Codeänderung (kein Vendor-Lock-in).
+- Klare Trennung zwischen „welcher Anbieter" und „welche Fachlogik".
 
-# ADR 05: Datenbank: MySQL
+**Schwerer (−)**
+- Zusätzliche Abstraktionsschicht/Boilerplate (bewusst eingesetzt, nicht als Selbstzweck – sie adressiert die konkrete Anforderung „austauschbarer Anbieter").
+- Anbieter-spezifische Features müssen auf den kleinsten gemeinsamen Nenner abstrahiert werden.
 
-- **Status**: Entschieden
+---
 
-## Kontext und Problemstellung
+## ADR 08: Medizinisch geprüfte KI-Erklärungen via RAG-Light + Validator-Pipeline
 
-Für unsere App benötigen wir eine persistente, sichere und hochverfügbare Datenspeicherung. Da wir unter anderem mit sensiblen Gesundheitsdaten und Benutzerprofilen arbeiten, stehen Datenintegrität, Transaktionssicherheit und die strikte Einhaltung von Datenstrukturen im Vordergrund. Wir müssen entscheiden, welches Datenbanksystem diese Anforderungen am besten erfüllt und sich nahtlos in unser .NET Core-Backend integrieren lässt.
+**Status:** accepted
 
-## Entscheidung
+### Kontext
 
-Wir haben uns entschieden, MySQL als primäres relationales Datenbankmanagementsystem (RDBMS) für die Speicherung unserer strukturierten Anwendungs- und Nutzerdaten zu verwenden.
+KI-Erklärungen zu Diagnosen müssen **fachlich korrekt** und zugleich **laienverständlich** sein. Reine LLM-Antworten bergen das Risiko von Halluzinationen oder zu fachsprachlichen/zu vagen Texten – im medizinischen Kontext nicht akzeptabel.
 
-## Begründung
+**Betrachtete Optionen:** RAG-Light mit kuratierter Wissensbasis + nachgelagertem Validator · reiner LLM-Prompt ohne Wissensbasis · vollständige Vektor-RAG-Datenbank
 
-- ACID-Konformität & Datenintegrität: MySQL garantiert vollständige Transaktionssicherheit (Atomicity, Consistency, Isolation, Durability). Dies ist ein zwingendes Kriterium für Gesundheitsdaten, um fehlerhafte oder inkonsistente Datensätze bei Abbrüchen oder parallelen Zugriffen auszuschließen.
+### Entscheidung
 
-- Erprobte Zuverlässigkeit: MySQL ist eine der weltweit am häufigsten genutzten Datenbanken und hat sich in unzähligen Enterprise-Anwendungen als extrem stabil und performant erwiesen.
+Wir kombinieren eine **kuratierte ICD-10-Wissensbasis** (`AI/knowledge/*.md`, via `getIcdContext`) als Kontext für den Prompt („RAG-Light") mit einer **Validator-Pipeline**, die die generierte Erklärung gegen die Eingabedaten prüft und bei Bedarf neu generiert (max. 3 Versuche, `MAX_VALIDATION_ATTEMPTS`). Das **Kommunikationslevel** (L1/L2/L3) des Patienten steuert die Verständlichkeitsstufe des Prompts.
 
-- Hervorragende .NET-Integration: Durch Entity Framework Core lässt sich MySQL nahtlos, typisiert und performant in unser gewähltes Backend-Framework einbinden.
+### Konsequenzen
 
-- Kosten und Hosting: Als Open-Source-Lösung fallen keine teuren Lizenzkosten an. Zudem wird MySQL von jedem großen Cloud-Anbieter als vollständig verwalteter (managed) Service mit automatischen Backups und Verschlüsselung angeboten.
+**Einfacher (+)**
+- Höhere fachliche Zuverlässigkeit und reduziertes Halluzinationsrisiko.
+- Erklärungen passen sich dem Vorwissen der Nutzer:innen an (Kern des „Fehldiagnosen"-Gedankens).
+- Wissensbasis ist als Markdown leicht durch Fachpersonal pflegbar.
 
-## Konsequenzen
+**Schwerer (−)**
+- Mehrere LLM-Durchläufe → höhere Latenz und Kosten pro Erklärung.
+- Wissensbasis muss gepflegt und aktuell gehalten werden.
+- Keine vollwertige Vektor-Suche → Abdeckung auf die hinterlegten ICD-Einträge begrenzt.
 
-### Positiv (+)
+---
 
-- Hohe Sicherheit: Ausgereifte Rollen- und Rechteverwaltung sowie standardisierte Verschlüsselungsmöglichkeiten unterstützen uns bei der DSGVO/HIPAA-Konformität.
+## ADR 09: Anonymisierung sensibler Daten vor jedem externen LLM-Aufruf
 
-- Großes Ökosystem: Die riesige Community sorgt dafür, dass für fast jedes Problem schnell Lösungen gefunden werden können. Auch das Finden von Entwicklern mit MySQL-Erfahrung ist sehr einfach.
+**Status:** accepted
 
-- Gute Lese-Performance: Für typische Web-Workloads mit vielen Lesezugriffen bietet MySQL (insbesondere mit der InnoDB-Engine) exzellente Antwortzeiten.
+### Kontext
 
-- Ausgereiftes Tooling: Werkzeuge für Backups, Monitoring, Migrationen und Profiling sind in großer Vielzahl und hoher Qualität vorhanden.
+Wir verarbeiten sensible Gesundheitsdaten und senden Texte (z. B. Arztbriefe) an **externe** LLM-Anbieter. Personenbezogene Daten dürfen das System nicht im Klartext an Dritte verlassen (DSGVO).
 
-### Negativ (-)
+**Betrachtete Optionen:** Anonymisierung über ein Python-NER-Skript vor dem Versand · Klartext-Versand an den LLM · komplett lokales/selbst-gehostetes Modell
 
-- Horizontale Skalierbarkeit: Wie bei den meisten relationalen Datenbanken ist das Skalieren von Schreiboperationen (Write-Scaling) über mehrere Server hinweg (Sharding/Clustering) deutlich komplexer als bei NoSQL-Datenbanken.
+### Entscheidung
 
-- Starres Schema: Änderungen an der Tabellenstruktur (Migrationen) bei sehr großen Datenmengen können im laufenden Betrieb herausfordernd sein und erfordern sorgfältige Planung.
+Vor jedem externen LLM-Aufruf werden Texte über den **`AnonymizerService`** geleitet, der ein **Python-NER-Skript** (`src/anonymizer.py`) per Prozess/Stdin aufruft und personenbezogene Entitäten entfernt/ersetzt.
 
-- JSON/XML-Handling: MySQL bietet zwar mittlerweile guten Support für JSON-Datentypen, ist hierbei aber traditionell nicht ganz so performant und flexibel wie beispielsweise PostgreSQL oder spezialisierte Dokumentendatenbanken.
+### Konsequenzen
 
-## Erwogene Optionen
+**Einfacher (+)**
+- Sensible Daten verlassen das System nicht im Klartext → DSGVO-freundlicher.
+- Externe LLM-Anbieter bleiben nutzbar, ohne Klartext-Patientendaten preiszugeben.
 
-- PostgreSQL
-- MSSQL
+**Schwerer (−)**
+- Laufzeit-Abhängigkeit von Python auf dem Host (muss im PATH sein).
+- NER ist nicht perfekt → Restrisiko nicht erkannter Entitäten.
+- Zusätzlicher Verarbeitungsschritt (Latenz, Fehlerquelle Prozessaufruf).
+
+---
+
+## ADR 10: Erfassung per OCR (Tesseract) für Medikamente und Arztbriefe
+
+**Status:** accepted
+
+### Kontext
+
+Patient:innen sollen Medikamente und Arztbriefe nicht abtippen müssen, sondern als **Foto/Dokument** hochladen können – das senkt die Einstiegshürde (vgl. ADR 03) und Übertragungsfehler.
+
+**Betrachtete Optionen:** lokale OCR mit Tesseract · Cloud-OCR-Dienst · ausschließlich manuelle Eingabe
+
+### Entscheidung
+
+Wir nutzen **Tesseract-OCR** (Sprachpakete deu/eng/lat/ell in `TesseractData/`) zur Texterkennung aus hochgeladenen Bildern/Dokumenten. Endpunkte: `POST /api/medications/scan` und `POST /api/diagnoses/{patientId}/scan`. Der erkannte Text wird – nach Anonymisierung (ADR 09) – an die KI zur Strukturierung/Interpretation gegeben.
+
+### Konsequenzen
+
+**Einfacher (+)**
+- Deutlich komfortablere Erfassung, weniger Tippfehler.
+- Lokale OCR → keine zusätzlichen Cloud-Kosten und keine Bildübertragung an Dritte.
+
+**Schwerer (−)**
+- OCR-Qualität schwankt mit Bildqualität → Nachkontrolle nötig.
+- Sprachmodelle vergrößern das Deployment (mehrere MB je Sprache).
+- Tesseract muss in der Laufzeitumgebung verfügbar sein.
+
+---
+
+## ADR 11: Backend nach Clean Architecture mit Repository-Pattern
+
+**Status:** accepted
+
+### Kontext
+
+Das Backend soll wartbar, testbar und gegenüber Infrastruktur (Datenbank) austauschbar sein. Geschäftslogik darf nicht von EF Core / MySQL abhängen.
+
+**Betrachtete Optionen:** Clean Architecture (Api/Application/Domain/Infrastructure) + Repository-Pattern · klassische Schichtung mit direktem DbContext-Zugriff in Controllern
+
+### Entscheidung
+
+Wir strukturieren das Backend nach **Clean Architecture** in die Schichten `Api → Application → Domain ← Infrastructure`. Datenzugriff erfolgt über **Repository-Interfaces** (`Application/Repositories`), die in `Infrastructure` mit EF Core/MySQL implementiert und per **Dependency Injection** (`Program.cs`) verdrahtet werden.
+
+### Konsequenzen
+
+**Einfacher (+)**
+- Domäne ist frei von Infrastruktur-Abhängigkeiten → gut testbar.
+- Datenbank/ORM austauschbar, ohne die Fachlogik zu ändern.
+- Klare Verantwortlichkeiten erleichtern Parallelarbeit im 5er-Team.
+
+**Schwerer (−)**
+- Mehr Schichten/Boilerplate (Interface + Implementierung + DTO + Mapper).
+- Höhere Einstiegshürde für Einsteiger:innen.
+
+---
+
+## ADR 12: Authentifizierung über JWT + ASP.NET Identity
+
+**Status:** accepted
+
+### Kontext
+
+Zugriff auf Gesundheitsdaten muss authentifiziert und einem Patienten zugeordnet sein. Die mobile App (ADR 02/03) benötigt ein zustandsloses, tokenbasiertes Verfahren.
+
+**Betrachtete Optionen:** JWT + ASP.NET Identity · Server-seitige Sessions/Cookies · externer Identity-Provider (OAuth/OIDC)
+
+### Entscheidung
+
+Wir nutzen **ASP.NET Identity** für Benutzer-/Rollenverwaltung (`ApplicationUser : IdentityUser`) und **JWT Bearer Tokens** für die API-Authentifizierung. Das Token wird in der App in `SecureStore` (bzw. `localStorage` im Web) abgelegt; der Patient ist über `UserId` mit dem Identity-User verknüpft. *(Hinweis: Für den Prototyp ist die Passwort-Policy bewusst gelockert.)*
+
+### Konsequenzen
+
+**Einfacher (+)**
+- Zustandslose, gut skalierbare Authentifizierung – passend für die mobile App.
+- Bewährte, in .NET integrierte Sicherheitsmechanismen (vgl. ADR 04).
+
+**Schwerer (−)**
+- Token-Handling auf Client-Seite (Ablauf, sichere Speicherung) selbst zu lösen.
+- Token-Invalidierung vor Ablauf ist aufwendiger als bei Server-Sessions.
+- Gelockerte Passwort-Policy muss vor produktivem Einsatz verschärft werden.
+
+---
+
+## ADR 13: Echtzeit-Medikamenten-Reminder über SignalR
+
+**Status:** accepted
+
+### Kontext
+
+Patient:innen sollen zuverlässig an die Medikamenteneinnahme erinnert werden. Dafür braucht es eine Server-getriebene Benachrichtigung in (nahezu) Echtzeit statt reinem Client-Polling.
+
+**Betrachtete Optionen:** SignalR (WebSockets) · regelmäßiges HTTP-Polling durch den Client
+
+### Entscheidung
+
+Wir setzen **SignalR** ein (Hub unter `/hubs/medication`); die App bindet `@microsoft/signalr` ein und empfängt Reminder als Push über eine bestehende Verbindung.
+
+### Konsequenzen
+
+**Einfacher (+)**
+- Echtzeit-Benachrichtigungen ohne ständiges Polling (weniger Last/Akkuverbrauch).
+- Nahtlose Integration ins bestehende .NET-Backend.
+
+**Schwerer (−)**
+- Persistente Verbindungen müssen verwaltet werden (Reconnect, Skalierung).
+- Zusätzliche Komplexität gegenüber rein zustandslosen REST-Aufrufen.
