@@ -42,6 +42,8 @@ flowchart LR
 **Backend-Schichtung (Clean Architecture):**
 `Api` (Controller) → `Application` (Services, DTOs, Interfaces) → `Domain` (Entities, Enums) ← `Infrastructure` (EF-Core-Repositories, SignalR-Hub). Die Abhängigkeiten zeigen nach innen auf die `Domain`; Repositories werden über Interfaces (`Application/Repositories`) entkoppelt und per Dependency Injection in `Program.cs` registriert.
 
+**Wissensbasis des KI-Dienstes:** Zusätzlich nutzt der KI-Dienst eine kuratierte ICD-10-Wissensbasis aus Markdown-Dateien (`AI/knowledge/*.md`, kein Teil der Datenbank), die als fachlicher Kontext für die Diagnoseerklärung dient.
+
 ---
 
 ## 2. Domain Model
