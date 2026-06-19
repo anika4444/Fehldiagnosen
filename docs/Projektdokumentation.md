@@ -260,9 +260,10 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 | **ADR 03** | Datenbank | **MySQL** | PostgreSQL, MSSQL | ACID, Zuverlässigkeit, EF-Core-Integration, Kosten |
 | **ADR 04** | Authentifizierung | **JWT + ASP.NET Identity** | Server-Sessions, externer IdP | Zustandslos, passend für mobile App |
 | **ADR 05** | Backend-Struktur | **Clean Architecture + Repository** | direkter DbContext in Controllern | Testbarkeit, austauschbare Infrastruktur |
-| **ADR 06** | Qualität der KI-Erklärungen | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
+| **ADR 06** | Patientengerechte Diagnoseerklärung | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
 | **ADR 07** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
 | **ADR 08** | Echtzeit-Reminder | **SignalR** | HTTP-Polling | Push in Echtzeit, weniger Last |
+| **ADR 09** | Automatisierte Datenzusammenfassung (Checkup) | **KI-Zusammenfassung aggregierter Daten** | – | Gesamtbild + Zusammenhänge, Vorbereitung aufs Arztgespräch |
 
 > Volle Records (mit Status, Kontext, Entscheidung, Konsequenzen) im verlinkten ADR-Dokument.
 

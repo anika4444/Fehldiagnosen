@@ -87,19 +87,18 @@ Gliederung in die Schichten **Api → Application → Domain ← Infrastructure*
 
 ---
 
-## ADR 06: KI-Erklärungen – RAG-Light mit Validator-Pipeline
+## ADR 06: KI-gestützte, patientengerechte Erklärung von Diagnosen
 
 **Status:** accepted
 
 ### Kontext
-KI-Erklärungen zu Diagnosen müssen fachlich korrekt und zugleich laienverständlich sein; reine LLM-Antworten bergen Halluzinationsrisiken. **Betrachtete Optionen:** RAG-Light mit Validator · reiner Prompt · vollständige Vektor-RAG.
+Erklärungen zu Diagnosen müssen fachlich korrekt und zugleich für Laien verständlich sein. Eine direkte Antwort eines Sprachmodells ist dafür zu riskant, weil solche Modelle Inhalte erfinden können und das geforderte Sprachniveau nicht zuverlässig einhalten. Als Optionen kamen ein reiner Prompt, eine kuratierte Wissensbasis mit nachgelagerter Validierung sowie eine vollständige Vektor-RAG-Lösung infrage.
 
 ### Entscheidung
-Eine kuratierte **ICD-10-Wissensbasis** dient als Prompt-Kontext („RAG-Light"), gefolgt von einer **Validator-Pipeline** (max. drei Versuche). Das **Kommunikationslevel** (L1/L2/L3) steuert die Verständlichkeitsstufe.
+Ein eigenständiger KI-Dienst erzeugt die Erklärung. Sofern zum ICD-10-Code Wissen in einer kuratierten Basis vorliegt, wird dieses als Kontext genutzt, damit sich das Modell nur auf gesicherte Inhalte stützt. Ein nachgelagertes Prüfmodell bewertet die Erklärung anhand fester Regeln und lässt sie bei einem Verstoß bis zu dreimal neu erzeugen. Das Sprachniveau richtet sich nach dem Kommunikationslevel der Patientin oder des Patienten.
 
 ### Konsequenzen
-**Einfacher:** höhere fachliche Zuverlässigkeit, weniger Halluzination, an das Vorwissen angepasste Texte.
-**Schwerer:** höhere Latenz und Kosten durch mehrere Durchläufe, Pflegeaufwand der Wissensbasis.
+Die Erklärungen sind dadurch fachlich abgesichert und auf das Vorwissen zugeschnitten, und der KI-Dienst lässt sich unabhängig vom Backend weiterentwickeln. Nachteilig sind die höhere Antwortzeit und die höheren Kosten durch die mehrfache Erzeugung und Prüfung sowie der Pflegeaufwand der Wissensbasis. Außerdem ist die Abdeckung derzeit auf die hinterlegten Krankheitsbilder begrenzt, sodass für nicht hinterlegte Diagnosen kein zusätzlicher Fachkontext zur Verfügung steht.
 
 ---
 
@@ -132,3 +131,18 @@ Einsatz von **SignalR** (Hub unter `/hubs/medication`); die App empfängt Remind
 ### Konsequenzen
 **Einfacher:** Echtzeit-Benachrichtigungen ohne Polling (weniger Last/Akkuverbrauch), nahtlose .NET-Integration.
 **Schwerer:** Verwaltung persistenter Verbindungen, etwas höhere Komplexität als zustandslose REST-Aufrufe.
+
+---
+
+## ADR 09: Automatisierte Zusammenfassung der Patientendaten (Digitaler Checkup)
+
+**Status:** accepted
+
+### Kontext
+Die Gesundheitsdaten verteilen sich auf Diagnosen, Medikamente und Symptome. Für Patientinnen und Patienten ist es schwierig, daraus ein Gesamtbild zu gewinnen und die Zusammenhänge zwischen diesen Daten zu erkennen. Ziel ist daher eine verständliche Übersicht, die mögliche Verbindungen zwischen Diagnosen, Medikamenten und Symptomen aufzeigt und auf ein Arztgespräch vorbereitet.
+
+### Entscheidung
+Das Backend sammelt die Diagnosen, Medikamente und Symptome für einen gewählten Zeitraum, und der KI-Dienst übernimmt nur die sprachliche Aufbereitung. Daraus entsteht eine verständliche Zusammenfassung mit einem Überblick über die Diagnosen, einer Medikamentenübersicht, möglichen Zusammenhängen und Hinweisen für das nächste Arztgespräch. Das Sprachniveau richtet sich nach dem Kommunikationslevel, und jede Zusammenfassung weist darauf hin, dass sie eine ärztliche Beurteilung nicht ersetzt. Bewusst werden weder eine Wissensbasis noch eine Validierung der erzeugten Zusammenfassung eingesetzt, da nur vorhandene Daten zusammengefasst und keine Krankheitsbilder erklärt werden.
+
+### Konsequenzen
+Die Patientinnen und Patienten erhalten ein verständliches Gesamtbild und können sich besser auf einen Termin vorbereiten. Da die erzeugte Zusammenfassung nicht validiert wird, kann sie ungeprüfte Hinweise enthalten, weshalb der Hinweis auf das ärztliche Gespräch wesentlich ist und die Qualität von der Vollständigkeit der Daten abhängt.
