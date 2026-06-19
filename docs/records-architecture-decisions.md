@@ -139,7 +139,7 @@ Einsatz von **SignalR** (Hub unter `/hubs/medication`); die App empfängt Remind
 **Status:** accepted
 
 ### Kontext
-Die Gesundheitsdaten verteilen sich auf Diagnosen, Medikamente und Symptome. Für Patientinnen und Patienten ist es schwierig, daraus ein Gesamtbild zu gewinnen und die Zusammenhänge zwischen diesen Daten zu erkennen. Ziel ist daher eine verständliche Übersicht, die mögliche Verbindungen zwischen Diagnosen, Medikamenten und Symptomen aufzeigt und auf ein Arztgespräch vorbereitet.
+Gesundheitsdaten verteilen sich auf Diagnosen, Medikamente und Symptome, deren Zusammenhänge für Laien schwer zu erkennen sind. Der Checkup soll daraus eine verständliche Übersicht erstellen, die zum Beispiel auf ein Arztgespräch vorbereitet.
 
 ### Entscheidung
 Das Backend sammelt die Diagnosen, Medikamente und Symptome für einen gewählten Zeitraum, und der KI-Dienst übernimmt nur die sprachliche Aufbereitung. Daraus entsteht eine verständliche Zusammenfassung mit einem Überblick über die Diagnosen, einer Medikamentenübersicht, möglichen Zusammenhängen und Hinweisen für das nächste Arztgespräch. Das Sprachniveau richtet sich nach dem Kommunikationslevel, und jede Zusammenfassung weist darauf hin, dass sie eine ärztliche Beurteilung nicht ersetzt. Bewusst werden weder eine Wissensbasis noch eine Validierung der erzeugten Zusammenfassung eingesetzt, da nur vorhandene Daten zusammengefasst und keine Krankheitsbilder erklärt werden.
