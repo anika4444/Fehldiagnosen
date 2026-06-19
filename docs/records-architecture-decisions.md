@@ -76,14 +76,13 @@ Der Zugriff auf Gesundheitsdaten muss authentifiziert und einem Patienten zugeor
 **Status:** accepted
 
 ### Kontext
-Das Backend soll wartbar, testbar und unabhängig von der konkreten Datenbank sein. **Betrachtete Optionen:** Clean Architecture mit Repository-Pattern · direkter DbContext-Zugriff in Controllern.
+Das Backend soll wartbar und testbar sein und nicht von der konkreten Datenbank abhängen. Als Optionen kamen eine Gliederung nach Clean Architecture mit Repository-Pattern oder ein direkter Datenbankzugriff in den Controllern infrage.
 
 ### Entscheidung
-Gliederung in die Schichten **Api → Application → Domain ← Infrastructure**; der Datenzugriff erfolgt über **Repository-Interfaces** mit **Dependency Injection**.
+Das Backend ist innerhalb eines .NET-Projekts in die vier Schichten Api, Application, Domain und Infrastructure gegliedert. Die Abhängigkeiten zeigen nach innen zur Domäne, die weder die Datenbank noch das Web kennt. Der Datenzugriff erfolgt über Repository-Schnittstellen, die in den inneren Schichten definiert und in der Infrastructure mit Entity Framework Core und MySQL umgesetzt werden. Diese Umkehr der Abhängigkeiten (Dependency Inversion) wird beim Start über Dependency Injection in Program.cs verbunden.
 
 ### Konsequenzen
-**Einfacher:** testbare, infrastrukturfreie Domäne, austauschbare Datenbank, klare Verantwortlichkeiten im Team.
-**Schwerer:** mehr Schichten und Boilerplate, höhere Einstiegshürde.
+Die Domäne bleibt unabhängig von der Technik und lässt sich gut testen, und die Datenbank wäre austauschbar. Die klare Trennung der Verantwortlichkeiten erleichtert die Arbeit im Team. Nachteilig sind die zusätzlichen Schichten und der etwas höhere Aufwand durch Schnittstelle, Implementierung und Mapper sowie eine höhere Einstiegshürde.
 
 ---
 
