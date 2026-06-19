@@ -19,7 +19,7 @@ ADAM besteht aus folgenden Bausteinen:
 | **Patienten-App** | React Native + Expo (TypeScript) | Mobile Oberfläche für Patient:innen |
 | **Backend-API** | ASP.NET Core (.NET, Clean Architecture) | Geschäftslogik, Persistenz, Auth |
 | **KI-Service** | Node.js / Express + LangChain | Diagnose-Erklärung, Checkup-Zusammenfassung, Arztbrief-Interpretation |
-| **Anonymisierung / OCR** | Python (NER) + Tesseract | Texterkennung aus Bildern/Briefen, Anonymisierung vor LLM-Aufruf |
+| **Anonymisierung** | Python (NER: Presidio + spaCy) | Personenbezogene Daten vor dem LLM-Aufruf entfernen |
 | **Datenbank** | MySQL (EF Core) | Persistente Speicherung aller Daten |
 
 ```mermaid
@@ -27,16 +27,16 @@ flowchart LR
     APP["📱 Patienten-App\n(React Native / Expo)"]
     API["⚙️ Backend-API\n(ASP.NET Core)"]
     AI["🤖 KI-Service\n(Node.js + LangChain)"]
-    PY["🐍 Anonymizer / OCR\n(Python + Tesseract)"]
+    PY["🐍 Anonymizer\n(Python NER)"]
     DB[("🗄️ MySQL")]
     LLM["☁️ LLM-Provider\n(Mistral / OpenAI)"]
 
     APP -- "REST + JWT" --> API
     APP -. "SignalR (Medikamenten-Reminder)" .-> API
     API -- "EF Core" --> DB
-    API -- "Process / stdin" --> PY
+    API -- "Anonymisierung (stdin)" --> PY
     API -- "HTTP /ai/*" --> AI
-    AI -- "Abstract Factory" --> LLM
+    AI --> LLM
 ```
 
 **Backend-Schichtung (Clean Architecture):**
@@ -238,7 +238,7 @@ flowchart TD
 | **Home / Dashboard** | `app/(tabs)/index.tsx` | Begrüßung + „Gesundheitstipp des Tages" (KI) |
 | **Symptom-Tracker** | `app/(tabs)/symptom.tsx` | Symptome nach Datum erfassen; Autocomplete über SymptomDefinitions |
 | **Daten** | `app/(tabs)/data.tsx` | Menü zu allen Datenbereichen + Logout |
-| **Medikamente** | `app/medications.tsx` | Medikation pflegen, Autocomplete, **Wechselwirkungs-Warnung**, **Foto-Scan (OCR)** |
+| **Medikamente** | `app/medications.tsx` | Medikation pflegen, Autocomplete, **Wechselwirkungs-Warnung**, **Foto-Upload (KI-Auslesung)** |
 | **Diagnosen** | `app/diagnosis.tsx` | Diagnosen verwalten, KI-Erklärung, **Arztbrief hochladen → KI-Interpretation** |
 | **Vorerkrankungen** | `app/medicalhistory.tsx` | Historie, KI-Erklärung einer Vorerkrankung |
 | **Familienanamnese** | `app/familyhistory.tsx` | Erbliche Erkrankungen erfassen |
@@ -255,21 +255,16 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 
 | Nr. | Entscheidung | Gewählt | Betrachtete Optionen | Kerngrund |
 |-----|--------------|---------|----------------------|-----------|
-| **ADR 01** | Frontend Ärzteansicht | **React** | Vue.js | Vorhandene Kenntnisse, großes Ökosystem, Wiederverwendbarkeit |
-| **ADR 02** | Frontend Patientenansicht (Framework) | **React Native + Expo** | React, RN ohne Expo | Cross-Platform, Push, Hardware-Zugriff, Hot Reload |
-| **ADR 03** | Patientenansicht als **App** (nicht Website) | **Mobile App** | Website | Niedrige Einstiegsbarriere für ältere Nutzer, Push-Reminder, biometrischer Login |
-| **ADR 04** | Backend-Framework | **ASP.NET Core Web API** | Node.js, Spring Boot, PHP, Python | Sicherheit/Compliance, Performance, Typsicherheit, EF Core |
-| **ADR 05** | Datenbank | **MySQL** | PostgreSQL, MSSQL | ACID, Zuverlässigkeit, .NET-Integration, Kosten/Hosting |
-| **ADR 06** | KI-Logik als eigener Dienst | **Node.js-Service (LangChain)** | KI im .NET-Backend, Python-Service | Reiferes LLM-Ökosystem, lose Kopplung |
-| **ADR 07** | LLM-Anbieter-Anbindung | **Abstract Factory** | feste Anbindung an einen Provider | Kein Vendor-Lock-in, Wechsel in 1 Zeile |
-| **ADR 08** | Qualität der KI-Erklärungen | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
-| **ADR 09** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
-| **ADR 10** | Erfassung per Bild/Dokument | **Tesseract-OCR (lokal)** | Cloud-OCR, nur manuelle Eingabe | Komfort, weniger Fehler, keine Bild-Cloud |
-| **ADR 11** | Backend-Struktur | **Clean Architecture + Repository** | direkter DbContext in Controllern | Testbarkeit, austauschbare Infrastruktur |
-| **ADR 12** | Authentifizierung | **JWT + ASP.NET Identity** | Server-Sessions, externer IdP | Zustandslos, passend für mobile App |
-| **ADR 13** | Echtzeit-Reminder | **SignalR** | HTTP-Polling | Push in Echtzeit, weniger Last |
+| **ADR 01** | Frontend Patientenansicht (App) | **React Native + Expo** | Website, RN ohne Expo | Niedrige Einstiegshürde, Push-Reminder, Cross-Platform |
+| **ADR 02** | Backend (später + Node für KI) | **ASP.NET Core, zusätzlich Node.js** | Node.js, Spring Boot, PHP, Python | Sicherheit/Performance; Node später ergänzt für reiferes LLM-Ökosystem |
+| **ADR 03** | Datenbank | **MySQL** | PostgreSQL, MSSQL | ACID, Zuverlässigkeit, EF-Core-Integration, Kosten |
+| **ADR 04** | Authentifizierung | **JWT + ASP.NET Identity** | Server-Sessions, externer IdP | Zustandslos, passend für mobile App |
+| **ADR 05** | Backend-Struktur | **Clean Architecture + Repository** | direkter DbContext in Controllern | Testbarkeit, austauschbare Infrastruktur |
+| **ADR 06** | Qualität der KI-Erklärungen | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
+| **ADR 07** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
+| **ADR 08** | Echtzeit-Reminder | **SignalR** | HTTP-Polling | Push in Echtzeit, weniger Last |
 
-> ADR 01–05 wurden zu Projektbeginn getroffen; **ADR 06–13** wurden im Lauf der Umsetzung getroffen und nachträglich dokumentiert (im Code belegt). Volle Records im verlinkten ADR-Dokument.
+> Volle Records (mit Status, Kontext, Entscheidung, Konsequenzen) im verlinkten ADR-Dokument.
 
 ### KI-Endpunkte (Node.js-Service, Port 3000)
 
@@ -278,22 +273,6 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 | `POST /ai/explain` | Diagnose/Vorerkrankung patientengerecht erklären (RAG + Validator) |
 | `POST /ai/checkup-summary` | Gesundheitsdaten zu einer lesbaren Zusammenfassung verdichten |
 | `POST /ai/interpret-medical-letter` | Hochgeladenen Arztbrief in strukturierte Daten/Erklärung übersetzen |
-
-### Eingesetzte Design Patterns
-
-Patterns wurden bewusst nur dort eingesetzt, wo sie konkreten Nutzen bringen.
-
-**Klar umgesetzt**
-- **Abstract Factory** – das KI-Modul kapselt Modell und Prompt hinter einer Provider-Factory (`IAIProviderFactory` mit `MistralProviderFactory`/`OpenAIProviderFactory`); ein Anbieterwechsel erfordert nur den Austausch der Factory.
-- **Factory Method / Simple Factory** – `modelFactory` (`createModel`, `createValidatorModel`) und `promptFactory` (`createPrompt`) erzeugen Modelle und Prompts zentral.
-- **Builder** – der `ChainBuilder` baut die KI-Pipeline über ein Fluent Interface (`withPrompt`, `withModel`, `withParser`, `build`) schrittweise auf.
-- **Repository** – ein generisches `IRepository<TEntity>` und entitätsspezifische Repositories entkoppeln den Datenzugriff von der Fachlogik.
-
-**Framework- bzw. datengetrieben vorhanden**
-- **Observer (Publish-Subscribe)** – über SignalR (`MedicationHub`) werden Medikamenten-Reminder in Echtzeit an die Clients verteilt.
-- **Facade** – der `CheckupService` bündelt Patienten-, Diagnose-, Medikations- und Symptomdaten samt KI-Aufbereitung hinter einer einfachen Schnittstelle.
-- **Adapter (implizit)** – der `AIService` übersetzt die Domänenobjekte auf die HTTP-Schnittstelle des Node.js-KI-Services.
-- **Strategy (datengetrieben)** – das Kommunikationslevel steuert über hinterlegte Prompts den Erklärstil (L1/L2/L3).
 
 ---
 
@@ -312,20 +291,15 @@ Die Git-Historie bestätigt diesen Workflow durchgängig (Feature-Branches + Mer
 - **Trennung KI-Service vom Backend** war richtig – das KI-Modul konnte unabhängig (RAG, Validator, Provider-Wechsel, Checkup, Arztbrief-Interpretation) weiterentwickelt werden.
 - **Kommunikationslevel als eigene Entität** ermöglicht es, KI-Erklärungen wirklich an das Vorwissen anzupassen, statt nur einen festen Prompt zu nutzen – Kern des „Fehldiagnosen"-Gedankens (Verständnis auf Augenhöhe).
 - **Datenschutz ernst genommen** – die nachträglich eingezogene Anonymisierungs-Stufe (Python-NER) vor jedem externen LLM-Aufruf zeigt das Bewusstsein für den sensiblen Datentyp.
-- **Iterative Weiterentwicklung** sichtbar an der Diagnose-Entität: vom einfachen `MedicalHistoryEntry` mit String-Status hin zu typisiertem `ConditionStatus`/`EntryBy`, integrierter `AiExplanation` und schließlich Foto-/Brief-Upload mit OCR.
+- **Iterative Weiterentwicklung** sichtbar an der Diagnose-Entität: vom einfachen `MedicalHistoryEntry` mit String-Status hin zu typisiertem `ConditionStatus`/`EntryBy`, integrierter `AiExplanation` und KI-gestützter Auslesung von Bild-/Brief-Uploads.
 - **Dosierung** wurde nachträglich in Menge + Einheit getrennt und mit Validierung/Auto-Befüllung versehen – Beispiel für nutzergetriebene Verfeinerung.
 - **Digitaler Checkup** bündelt verstreute Einzeldaten zu einer verständlichen Gesamtsicht – der konkrete Mehrwert für Patient:innen.
 
 ### Offene Punkte / Ausblick
-- Ärzteansicht (React-Web, ADR 01) ist konzipiert, aber im Repo noch nicht umgesetzt – aktuell nur die Patienten-App.
-- Wechselwirkungs- und Referenzdaten (`KnownMedication`, `DrugInteraction`, `DrugDetail`) basieren auf importierten CSVs (`medicinal-products.csv`, `AlleMedikationenStrukturiert.csv`); Datenpflege/-aktualisierung wäre zu klären.
-- Anonymizer/OCR setzen Python und Tesseract auf dem Host voraus – Deployment-/Setup-Anforderungen dokumentieren.
-- Die gelockerte Passwort-Policy (ADR 12) muss vor produktivem Einsatz verschärft werden.
-
-**Geplante Design-Pattern-Verbesserungen (echter Mehrwert):**
-- Einführung einer generischen Basis-Repository-Klasse (Template Method), um die wiederholte CRUD-Logik der Repositories zu reduzieren (DRY).
-- Decorator-Pattern für die KI-Pipeline (Anonymisierung, Logging, Caching) auf Basis einer gemeinsamen `IAiClient`-Schnittstelle.
-- Explizite Adapter-Schnittstelle (`IAiExplanationClient`) zur Kapselung des Node.js-KI-Services.
+- Eine separate **Ärzteansicht** (Web/React) ist geplant, aber noch nicht umgesetzt – aktuell existiert nur die Patienten-App.
+- Wechselwirkungs- und Referenzdaten (`KnownMedication`, `DrugInteraction`, `DrugDetail`) basieren auf importierten CSVs; Datenpflege/-aktualisierung wäre zu klären.
+- Der Anonymizer setzt Python (Presidio/spaCy) auf dem Host voraus – Deployment-/Setup-Anforderungen dokumentieren.
+- Die gelockerte Passwort-Policy (ADR 04) muss vor produktivem Einsatz verschärft werden.
 
 ---
 
