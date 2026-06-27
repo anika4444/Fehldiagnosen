@@ -137,26 +137,34 @@ export function MedicationForm({
   const savedFrequency = initialData?.intakeFrequency ?? "";
   const isStandardFrequency = STANDARD_FREQUENCIES.includes(savedFrequency);
 
-  const mappedInitialData: FormValues | null = initialData
-    ? {
-        name: initialData.name,
-        dosageAmount: initialDosage.amount,
-        dosageUnit: initialDosage.unit,
-        intakeFrequency: savedFrequency
-          ? isStandardFrequency
-            ? savedFrequency
-            : CUSTOM_FREQUENCY_OPTION
-          : "",
-        customFrequency:
-          savedFrequency && !isStandardFrequency ? savedFrequency : "",
-        durationInDays: initialData.durationInDays?.toString() ?? "",
-        intakeStartDate: initialData.intakeStartDate?.split("T")[0] ?? "",
-        indication: initialData.indication ?? "",
-        doctorName: initialData.doctorName ?? "",
-        notes: initialData.notes ?? "",
-        atcCode: initialData.atcCode ?? "",
-      }
-    : null;
+  const mappedInitialData: FormValues | null = React.useMemo(() => {
+    if (!initialData) return null;
+
+    return {
+      name: initialData.name,
+      dosageAmount: initialDosage.amount,
+      dosageUnit: initialDosage.unit,
+      intakeFrequency: savedFrequency
+        ? isStandardFrequency
+          ? savedFrequency
+          : CUSTOM_FREQUENCY_OPTION
+        : "",
+      customFrequency:
+        savedFrequency && !isStandardFrequency ? savedFrequency : "",
+      durationInDays: initialData.durationInDays?.toString() ?? "",
+      intakeStartDate: initialData.intakeStartDate?.split("T")[0] ?? "",
+      indication: initialData.indication ?? "",
+      doctorName: initialData.doctorName ?? "",
+      notes: initialData.notes ?? "",
+      atcCode: initialData.atcCode ?? "",
+    };
+  }, [
+    initialData,
+    initialDosage.amount,
+    initialDosage.unit,
+    savedFrequency,
+    isStandardFrequency,
+  ]);
 
   const { values, errors, handleChange, handleSubmit } =
     useFormValidation<FormValues>(
@@ -182,16 +190,19 @@ export function MedicationForm({
         // Dosierung ist Pflicht: Menge + Einheit müssen angegeben und die Menge
         // muss plausibel sein.
         const amount = vals.dosageAmount.trim();
+        
         if (!amount) {
           errs.dosageAmount = "Bitte eine Menge angeben.";
         } else {
           const num = Number(amount.replace(",", "."));
+          
           if (Number.isNaN(num) || num <= 0) {
             errs.dosageAmount = "Bitte eine gültige Menge größer als 0 angeben.";
           } else if (num > MAX_DOSAGE_AMOUNT) {
             errs.dosageAmount = "Die Menge erscheint unrealistisch hoch.";
           }
         }
+
         if (!vals.dosageUnit) {
           errs.dosageUnit = "Bitte eine Einheit wählen.";
         }
@@ -266,26 +277,42 @@ export function MedicationForm({
 
   const formData = new FormData();
 
-// Web: blob aus der URI holen
-const imageResponse = await fetch(asset.uri);
-const blob = await imageResponse.blob();
-formData.append("image", blob, "scan.jpg");
+  const imageResponse = await fetch(asset.uri);
+  const blob = await imageResponse.blob();
+  formData.append("image", blob, "scan.jpg");
 
-  try {
-    const response = await fetch(
-      "http://localhost:5238/api/medications/scan",
-      {
-        method: "POST",
-        body: formData,
+  handleChange("name", "");
+  setIsMedicationValid(true);
+  handleChange("dosageAmount", "");
+  handleChange("dosageUnit", "");
+
+    try {
+      const response = await fetch(
+        "http://localhost:5238/api/medications/scan",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("Backend Antwort:", JSON.stringify(data));
+
+      if (data.name && data.name !== values.name) {
+        handleChange("name", data.name);
+        setIsMedicationValid(true);
       }
-    );
 
-    const data = await response.json();
-    console.log("Backend Antwort:", JSON.stringify(data));
-  } catch (err) {
-    console.error("Upload fehlgeschlagen:", err);
-  }
-};
+      if (
+        data.dosage && !isNaN(Number(data.dosage)) && String(data.dosage) !== values.dosageAmount
+      ) {
+        handleChange("dosageAmount", String(data.dosage));
+      }
+
+    } catch (err) {
+      console.error("Upload fehlgeschlagen:", err);
+    }
+  };
 
   return (
     <ModalCard

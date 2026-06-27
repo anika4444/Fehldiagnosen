@@ -11,7 +11,10 @@ import { ChainBuilder } from "./chainBuilder.js";
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(express.json({
+    extended: true,
+    limit: "25mb"
+}));
 
 const MAX_ATTEMPTS = parseInt(process.env.MAX_VALIDATION_ATTEMPTS || "3");
 const factory = new MistralProviderFactory();
@@ -78,6 +81,17 @@ const explainModel = new ChatOpenAI({
 
 const diagnosisModel = new ChatOpenAI({
     model: process.env.AI_MODEL_NAME_DIAGNOSIS,
+    apiKey: process.env.AI_API_KEY,
+    temperature: 0.1,
+    configuration: { baseURL: process.env.AI_BASE_URL },
+    defaultHeaders: {
+        "HTTP-Referer": process.env.AI_SCRIPT_URL,
+        "X-Title": "adam-med-app-prototype",
+    },
+});
+
+const medicationModel = new ChatOpenAI({
+    model: process.env.AI_MODEL_NAME_MEDICATION,
     apiKey: process.env.AI_API_KEY,
     temperature: 0.1,
     configuration: { baseURL: process.env.AI_BASE_URL },
@@ -263,17 +277,6 @@ app.post("/ai/interpret-medical-letter", async (req, res) => {
 });
 
 // ─── SERVICE 3: MEDIKAMENTEN-BILD ANALYSE (/ai/interpret-medication-image) ──
-const MedicationFields = z.object({
-    name: z.string(),
-    dosage: z.string(),
-    intakeFrequency: z.string(),
-    indication: z.string(),
-    atcCode: z.string(),
-    notes: z.string(),
-});
-
-const medicationModelWithFields = explainModel.withStructuredOutput(MedicationFields);
-
 app.post("/ai/interpret-medication-image", async (req, res) => {
     try {
         const { imageBase64, mimeType } = req.body;
@@ -287,16 +290,43 @@ app.post("/ai/interpret-medication-image", async (req, res) => {
         const messages = [
             {
                 role: "system",
-                content: `Du bist ein medizinischer Dokumentationsassistent.
-Analysiere das Bild (z.B. Medikamentenpackung, Rezept, Beipackzettel) und extrahiere folgende Felder:
+                content: `Du bist ein medizinischer Analyse-Assistent für Medikamentenverpackungen.
 
-- name: Handelsname oder Wirkstoffname des Medikaments.
-- dosage: Stärke/Dosierung (z.B. "500mg", "10mg/ml").
+DEINE AUFGABE:
+Extrahiere strukturierte Informationen aus dem Bild einer Medikamentenverpackung.
 
-Regeln:
-- Erfinde keine Informationen die nicht sichtbar sind.
-- Lasse Felder leer ("") wenn die Information nicht erkennbar ist.
-- Alle Strings müssen UTF-8-konform sein.`,
+GIB IMMER EIN JSON ZURÜCK (KEIN TEXT!).
+
+FELDER:
+- brand: Hersteller/Marke (z.B. Aspirin, Thomapyrin, Mexalen)
+- productName: Produktzusatz (z.B. Complex, Classic, Ibuforte Express)
+- activeIngredient: Wirkstoff(e) falls sichtbar
+- dosage: Stärke (z.B. 500 mg, 400 mg/30 mg)
+- form: Darreichungsform (z.B. Tabletten, Filmtabletten, Granulat, Kapseln)
+
+REGELN:
+- KEINE Zusammenfassung
+- KEINE Erklärung
+- KEIN Fließtext
+- NUR reines JSON ohne Markdown-Formatierung
+- KEINE Backticks, KEIN \`\`\`json, KEIN \`\`\`
+- NICHT raten, wenn unsicher → null setzen
+- ERHALTE ALLE sichtbaren Informationen
+- NICHT vereinfachen
+
+BEISPIELE:
+
+INPUT: Aspirin Complex 500 mg/30 mg Granulat
+OUTPUT:
+{
+  "brand": "Aspirin",
+  "productName": "Complex",
+  "activeIngredient": "Acetylsalicylsäure + Pseudoephedrin",
+  "dosage": "500 mg/30 mg",
+  "form": "Granulat"
+}
+
+`
             },
             {
                 role: "user",
@@ -309,23 +339,46 @@ Regeln:
                     },
                     {
                         type: "text",
-                        text: "Extrahiere die Medikamenten-Felder aus diesem Bild.",
-                    },
+                        text: "Extrahiere die strukturierten Medikamenteninformationen."
+                    }
                 ],
             },
         ];
 
-        const extracted = await medicationModelWithFields.invoke(messages);
+        console.log("🔍 [MedScan] Bild empfangen, sende an KI...");
 
-        const name = extracted.name;
-        const dosage = extracted.dosage;
-        console.log("💊 Name:", name);
-        console.log("💊 Dosage:", dosage);
+        const aiResponse = await medicationModel.invoke(messages);
 
-        return res.json({ extracted });
+        console.log("🤖 [MedScan] KI Rohantwort:", aiResponse.content);
+
+        let parsed;
+
+        try {
+            const raw = aiResponse.content
+                .replace(/```json\s*/gi, "")
+                .replace(/```\s*/gi, "")
+                .trim();
+
+            console.log("🧹 [MedScan] Nach Strip:", raw);
+
+            parsed = JSON.parse(raw);
+
+            console.log("✅ [MedScan] Parsed:", JSON.stringify(parsed));
+        } catch (e) {
+            console.error("❌ [MedScan] JSON Parse Error:", aiResponse.content);
+            return res.status(500).json({ error: "Ungültige KI-Antwort" });
+        }
+
+        return res.json({
+            brand:            parsed.brand            ?? null,
+            productName:      parsed.productName      ?? null,
+            activeIngredient: parsed.activeIngredient ?? null,
+            dosage:           parsed.dosage           ?? null,
+            form:             parsed.form             ?? null,
+        });
 
     } catch (error) {
-        console.error("AI Medication Error:", error?.message || error);
+        console.error("❌ [MedScan] Fehler:", error?.message || error);
         return res.status(500).json({ error: "KI-Service aktuell nicht erreichbar." });
     }
 });
@@ -335,7 +388,7 @@ Regeln:
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);
-    console.log(`   → POST /ai/explain (Mistral / Validator Loop)`);
+    console.log(`   → POST /ai/explain`);
     console.log(`   → POST /ai/interpret-medical-letter`);
-    //console.log(`   → POST /ai/interpret-medication-image`);
+    console.log(`   → POST /ai/interpret-medication-image`);
 });

@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Services;
 using Backend.Application.Services.AIService;
 using Backend.Application.Services.MedicationService;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,13 @@ namespace Backend.Api.Controller;
 public class MedicationController : BaseApiController
 {
     private readonly IMedicationService _medicationService;
+    private readonly IKnownMedicationService _knownMedicationService;
     private readonly IAIService _aiService;
 
-    public MedicationController(IMedicationService medicationService, IAIService aiService)
+    public MedicationController(IMedicationService medicationService, IKnownMedicationService knownMedicationService, IAIService aiService)
     {
         _medicationService = medicationService;
+        _knownMedicationService = knownMedicationService;
         _aiService = aiService;
     }
 
@@ -55,6 +58,28 @@ public class MedicationController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ScanMedication([FromForm] IFormFile image)
     {
+        /*if (image == null || image.Length == 0)
+            return BadRequest("Kein Bild übermittelt.");
+
+        using var ms = new MemoryStream();
+        await image.CopyToAsync(ms);
+        var base64 = Convert.ToBase64String(ms.ToArray());
+
+        var result = await _aiService.InterpretMedicationImage(base64, image.ContentType);
+
+        if(!result.IsSuccess)
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+
+        var extractedName = result.Data?.Name;
+
+        var medication = await _knownMedicationService.IdentifyAsync(extractedName);
+
+        return Ok(new
+        {
+            name = medication?.Name,
+            dosage = medication?.Dosage,
+        });*/
+
         if (image == null || image.Length == 0)
             return BadRequest("Kein Bild übermittelt.");
 
@@ -64,19 +89,27 @@ public class MedicationController : BaseApiController
 
         var result = await _aiService.InterpretMedicationImage(base64, image.ContentType);
 
-        if (result.IsSuccess)
-        {
-            return Ok(result.Data);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
 
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        var data = result.Data;
 
-        /*return Ok(new
+        Console.WriteLine($"[Scan] KI → brand={data?.Brand}, productName={data?.ProductName}, activeIngredient={data?.ActiveIngredient}, dosage={data?.Dosage}, form={data?.Form}");
+
+        var medication = await _knownMedicationService.IdentifyAsync(
+            brand: data?.Brand,
+            productName: data?.ProductName,
+            activeIngredient: data?.ActiveIngredient,
+            dosage: data?.Dosage,
+            form: data?.Form
+        );
+
+        Console.WriteLine($"[Scan] DB-Treffer → name={medication?.Name}, dosage={medication?.Dosage}");
+
+        return Ok(new
         {
-            fileName = image.FileName,
-            size = image.Length,
-            mimeType = image.ContentType,
-            base64Preview = base64[..Math.Min(100, base64.Length)] + "..."
-        });*/
+            name = medication?.Name,
+            dosage = medication?.Dosage,
+        });
     }
 }

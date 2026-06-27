@@ -54,7 +54,6 @@ namespace Backend.Application.Services.AIService
             var communicationLevel = communicationLevels?.ToList()?.FirstOrDefault(level => level.Id == patient?.CommunicationLevel?.Id)
                          ?? communicationLevels?.ToList()?.FirstOrDefault();
 
-            // Mapping Diagnose-Entität -> Node.js /ai/explain API
             var payload = new {
                 langLevel = communicationLevel?.Name ?? "L1",
                 kiPrompt = communicationLevel?.KiPrompt ?? "",
@@ -177,7 +176,9 @@ namespace Backend.Application.Services.AIService
         public async Task<ServiceResult<MedicationScanResponse>> InterpretMedicationImage(string base64, string mimeType)
         {
             if (string.IsNullOrWhiteSpace(_medicationScanEndpoint))
+            {
                 return ServiceResult<MedicationScanResponse>.InternalServerError("KI-MedicationScan-Endpunkt nicht konfiguriert");
+            }
 
             var payload = new { imageBase64 = base64, mimeType };
 
@@ -187,26 +188,35 @@ namespace Backend.Application.Services.AIService
                 using var response = await httpClient.PostAsJsonAsync(_medicationScanEndpoint, payload);
 
                 if (!response.IsSuccessStatusCode)
+                {
                     return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service antwortete mit Fehler");
+                }
 
                 var responseBody = await response.Content.ReadAsStringAsync();
 
-      
-                var wrapper = JsonSerializer.Deserialize<MedicationNodeWrapper>(responseBody,
+                Console.WriteLine("=== NODE RESPONSE ===");
+                Console.WriteLine(responseBody);
+
+                var result = JsonSerializer.Deserialize<MedicationScanResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                if (wrapper?.Extracted == null)
+                // Brand ist jetzt der Pflicht-Anker statt Name
+                if (result == null || string.IsNullOrWhiteSpace(result.Brand))
+                {
                     return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Extraktion fehlgeschlagen");
+                }
 
-                return ServiceResult<MedicationScanResponse>.Success(wrapper.Extracted);
+                Console.WriteLine($"[AIService] brand={result.Brand}, productName={result.ProductName}, activeIngredient={result.ActiveIngredient}, dosage={result.Dosage}, form={result.Form}");
+
+                return ServiceResult<MedicationScanResponse>.Success(result);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
     }
-
 
     public sealed class InterpretMedicalLetterResponse
     {
@@ -226,12 +236,11 @@ namespace Backend.Application.Services.AIService
 
     public sealed class MedicationScanResponse
     {
-        public string? Name { get; set; }
+        public string? Brand { get; set; }
+        public string? ProductName { get; set; }
+        public string? ActiveIngredient { get; set; }
         public string? Dosage { get; set; }
-        public string? Strength { get; set; }
         public string? Form { get; set; }
-        public string? Manufacturer { get; set; }
-        public string? Notes { get; set; }
     }
 }
 public sealed class ExplainDiagnosisRequest

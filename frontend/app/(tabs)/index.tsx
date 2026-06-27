@@ -221,7 +221,9 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: "100%",
+    height: "100%",
     alignItems: "center",
+    marginBottom: 0,
     paddingVertical: 16,
   },
   statCardHover: {
