@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Modal, View, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -128,6 +128,7 @@ export function MedicationForm({
   onCancel,
 }: MedicationFormProps) {
   const [isMedicationValid, setIsMedicationValid] = useState(!!initialData);
+  const [showScanFailedOverlay, setShowScanFailedOverlay] = useState(false);
 
   const initialDosage = parseDosage(initialData?.dosage);
 
@@ -224,67 +225,67 @@ export function MedicationForm({
       },
     );
 
-  const handleMedicationSelect = (medication: KnownMedicationResult) => {
-    // Dosis zuerst aus dem Stärke-Feld der Datenbank versuchen. Liefert das
-    // keine saubere Einzeldosis – etwa weil die Einheit fehlt (DB-Stärke "500",
-    // Einheit steht separat) oder weil es ein Kombipräparat ist – aus dem
-    // Produktnamen extrahieren ("Aspirin 500 mg Kautabletten"). Bei echten
-    // Kombis ("800 mg/480 mg") liefern beide Quellen nichts → bleibt leer.
-    let dosage = extractDosage(medication.dosage);
-    if (!dosage.amount) dosage = extractDosage(medication.name);
+    const handleMedicationSelect = (medication: KnownMedicationResult) => {
+      // Dosis zuerst aus dem Stärke-Feld der Datenbank versuchen. Liefert das
+      // keine saubere Einzeldosis – etwa weil die Einheit fehlt (DB-Stärke "500",
+      // Einheit steht separat) oder weil es ein Kombipräparat ist – aus dem
+      // Produktnamen extrahieren ("Aspirin 500 mg Kautabletten"). Bei echten
+      // Kombis ("800 mg/480 mg") liefern beide Quellen nichts → bleibt leer.
+      let dosage = extractDosage(medication.dosage);
+      if (!dosage.amount) dosage = extractDosage(medication.name);
 
-    handleChange("name", medication.name);
-    handleChange("dosageAmount", dosage.amount);
-    handleChange("dosageUnit", dosage.unit);
-    handleChange("atcCode", medication.atcCode ?? "");
-  };
+      handleChange("name", medication.name);
+      handleChange("dosageAmount", dosage.amount);
+      handleChange("dosageUnit", dosage.unit);
+      handleChange("atcCode", medication.atcCode ?? "");
+    };
 
-  const onFinalSave = async (validatedData: FormValues) => {
-    // Bei "Sonstiges" wird der eingegebene Freitext gespeichert, sonst der
-    // ausgewählte Standardwert (z.B. "2x täglich").
-    const finalIntakeFrequency =
-      validatedData.intakeFrequency === CUSTOM_FREQUENCY_OPTION
-        ? validatedData.customFrequency.trim()
-        : validatedData.intakeFrequency;
+    const onFinalSave = async (validatedData: FormValues) => {
+      // Bei "Sonstiges" wird der eingegebene Freitext gespeichert, sonst der
+      // ausgewählte Standardwert (z.B. "2x täglich").
+      const finalIntakeFrequency =
+        validatedData.intakeFrequency === CUSTOM_FREQUENCY_OPTION
+          ? validatedData.customFrequency.trim()
+          : validatedData.intakeFrequency;
 
-    await onSave({
-      name: validatedData.name.trim(),
-      dosage: combineDosage(validatedData.dosageAmount, validatedData.dosageUnit),
-      intakeFrequency: finalIntakeFrequency || undefined,
-      durationInDays: validatedData.durationInDays
-        ? parseInt(validatedData.durationInDays)
-        : undefined,
-      intakeStartDate: validatedData.intakeStartDate.trim() || undefined,
-      indication: validatedData.indication.trim() || undefined,
-      doctorName: validatedData.doctorName.trim() || undefined,
-      notes: validatedData.notes.trim() || undefined,
-      atcCode: validatedData.atcCode || undefined,
+      await onSave({
+        name: validatedData.name.trim(),
+        dosage: combineDosage(validatedData.dosageAmount, validatedData.dosageUnit),
+        intakeFrequency: finalIntakeFrequency || undefined,
+        durationInDays: validatedData.durationInDays
+          ? parseInt(validatedData.durationInDays)
+          : undefined,
+        intakeStartDate: validatedData.intakeStartDate.trim() || undefined,
+        indication: validatedData.indication.trim() || undefined,
+        doctorName: validatedData.doctorName.trim() || undefined,
+        notes: validatedData.notes.trim() || undefined,
+        atcCode: validatedData.atcCode || undefined,
+      });
+    };
+
+    const handleScan = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 0.85,
     });
-  };
 
-  const handleScan = async () => {
-  const { status } = await ImagePicker.requestCameraPermissionsAsync();
-  if (status !== "granted") return;
+    if (result.canceled || !result.assets?.[0]) return;
 
-  const result = await ImagePicker.launchCameraAsync({
-    mediaTypes: ["images"],
-    quality: 0.85,
-  });
+    const asset = result.assets[0];
 
-  if (result.canceled || !result.assets?.[0]) return;
+    const formData = new FormData();
 
-  const asset = result.assets[0];
+    const imageResponse = await fetch(asset.uri);
+    const blob = await imageResponse.blob();
+    formData.append("image", blob, "scan.jpg");
 
-  const formData = new FormData();
-
-  const imageResponse = await fetch(asset.uri);
-  const blob = await imageResponse.blob();
-  formData.append("image", blob, "scan.jpg");
-
-  handleChange("name", "");
-  setIsMedicationValid(true);
-  handleChange("dosageAmount", "");
-  handleChange("dosageUnit", "");
+    handleChange("name", "");
+    setIsMedicationValid(true);
+    handleChange("dosageAmount", "");
+    handleChange("dosageUnit", "");
 
     try {
       const response = await fetch(
@@ -296,108 +297,148 @@ export function MedicationForm({
       );
 
       const data = await response.json();
-      console.log("Backend Antwort:", JSON.stringify(data));
+      console.log("[Scan] Backend Antwort:", JSON.stringify(data));
 
-      if (data.name && data.name !== values.name) {
+      if (data.name) {
         handleChange("name", data.name);
         setIsMedicationValid(true);
-      }
 
-      if (
-        data.dosage && !isNaN(Number(data.dosage)) && String(data.dosage) !== values.dosageAmount
-      ) {
-        handleChange("dosageAmount", String(data.dosage));
+        if (data.dosage || data.name) {
+          let dosage = extractDosage(data.dosage);
+
+          if (!dosage.amount && data.name) {
+            console.log("[Scan] Fallback → extrahiere Dosage aus Name:", data.name);
+            dosage = extractDosage(data.name);
+          }
+
+          console.log("[Scan] extractDosage Ergebnis:", dosage);
+
+          if (dosage.amount) {
+            handleChange("dosageAmount", dosage.amount);
+          }
+          if (dosage.unit) {
+            handleChange("dosageUnit", dosage.unit);
+          }
+        }
+      } else {
+        setShowScanFailedOverlay(true);
       }
 
     } catch (err) {
-      console.error("Upload fehlgeschlagen:", err);
+      console.error("[Scan] Upload fehlgeschlagen:", err);
+      setShowScanFailedOverlay(true);
     }
   };
 
   return (
-    <ModalCard
-      title={initialData ? "Medikament bearbeiten" : "Neues Medikament"}
-      onClose={onCancel}
-      onSave={() => handleSubmit(onFinalSave)}
-      saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
-    >
-      <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-        <Ionicons name="camera-outline" size={20} color="#fff" />
-      </TouchableOpacity>
-      <MedicationAutocomplete
-        value={values.name}
-        onChangeText={(v) => handleChange("name", v)}
-        onSelect={handleMedicationSelect}
-        onValidChange={setIsMedicationValid}
-        errorText={errors.name}
-      />
-      <FormInput
-        label="Wirkung/Dosierung – Menge"
-        isRequired
-        keyboardType="decimal-pad"
-        value={values.dosageAmount}
-        onChangeText={(v) => handleChange("dosageAmount", v)}
-        errorText={errors.dosageAmount}
-        maxLength={7}
-        placeholder="z. B. 500"
-      />
-      <FormPicker
-        label="Einheit"
-        isRequired
-        selectedValue={values.dosageUnit}
-        options={DOSAGE_UNITS}
-        onValueChange={(v) => handleChange("dosageUnit", v)}
-        errorText={errors.dosageUnit}
-      />
-      <FormPicker
-        label="Einnahmehäufigkeit"
-        isRequired
-        selectedValue={values.intakeFrequency}
-        options={INTAKE_FREQUENCY_OPTIONS}
-        onValueChange={(v) => handleChange("intakeFrequency", v)}
-        errorText={errors.intakeFrequency}
-      />
-      {values.intakeFrequency === CUSTOM_FREQUENCY_OPTION && (
-        <FormInput
-          label="Einnahmehäufigkeit (Freitext)"
-          isRequired
-          value={values.customFrequency}
-          onChangeText={(v) => handleChange("customFrequency", v)}
-          errorText={errors.customFrequency}
-          maxLength={100}
-          placeholder='z. B. „morgens und abends"'
+    <>
+      <Modal
+        visible={showScanFailedOverlay}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowScanFailedOverlay(false)}
+      >
+        <View style={styles.overlayBackdrop}>
+          <View style={styles.overlayCard}>
+            <Ionicons name="alert-circle-outline" size={36} color="#E57373" style={styles.overlayIcon} />
+            <Text style={styles.overlayTitle}>Scan nicht erfolgreich</Text>
+            <Text style={styles.overlayMessage}>
+              Es konnte kein Medikament anhand des Scans identifiziert werden. Bitte versuchen Sie es erneut oder geben Sie den Namen manuell ein.
+            </Text>
+            <TouchableOpacity
+              style={styles.overlayButton}
+              onPress={() => setShowScanFailedOverlay(false)}
+            >
+              <Text style={styles.overlayButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <ModalCard
+        title={initialData ? "Medikament bearbeiten" : "Neues Medikament"}
+        onClose={onCancel}
+        onSave={() => handleSubmit(onFinalSave)}
+        saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
+      >
+        <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
+          <Ionicons name="camera-outline" size={20} color="#fff" />
+        </TouchableOpacity>
+        <MedicationAutocomplete
+          value={values.name}
+          onChangeText={(v) => handleChange("name", v)}
+          onSelect={handleMedicationSelect}
+          onValidChange={setIsMedicationValid}
+          errorText={errors.name}
         />
-      )}
-      <FormInput
-        label="Einnahmedauer (in Tagen)"
-        keyboardType="numeric"
-        value={values.durationInDays}
-        onChangeText={(v) => handleChange("durationInDays", v)}
-      />
-      <FormInput
-        label="Startdatum (JJJJ-MM-TT)"
-        value={values.intakeStartDate}
-        onChangeText={(v) => handleChange("intakeStartDate", v)}
-      />
-      <FormInput
-        label="Indikation"
-        value={values.indication}
-        onChangeText={(v) => handleChange("indication", v)}
-      />
-      <FormInput
-        label="Verschrieben von"
-        value={values.doctorName}
-        onChangeText={(v) => handleChange("doctorName", v)}
-      />
-      <FormInput
-        label="Anmerkungen"
-        value={values.notes}
-        onChangeText={(v) => handleChange("notes", v)}
-        multiline
-        numberOfLines={3}
-        style={{ minHeight: 80, textAlignVertical: "top", paddingTop: 12 }}
-      />
-    </ModalCard>
+        <FormInput
+          label="Wirkung/Dosierung – Menge"
+          isRequired
+          keyboardType="decimal-pad"
+          value={values.dosageAmount}
+          onChangeText={(v) => handleChange("dosageAmount", v)}
+          errorText={errors.dosageAmount}
+          maxLength={7}
+          placeholder="z. B. 500"
+        />
+        <FormPicker
+          label="Einheit"
+          isRequired
+          selectedValue={values.dosageUnit}
+          options={DOSAGE_UNITS}
+          onValueChange={(v) => handleChange("dosageUnit", v)}
+          errorText={errors.dosageUnit}
+        />
+        <FormPicker
+          label="Einnahmehäufigkeit"
+          isRequired
+          selectedValue={values.intakeFrequency}
+          options={INTAKE_FREQUENCY_OPTIONS}
+          onValueChange={(v) => handleChange("intakeFrequency", v)}
+          errorText={errors.intakeFrequency}
+        />
+        {values.intakeFrequency === CUSTOM_FREQUENCY_OPTION && (
+          <FormInput
+            label="Einnahmehäufigkeit (Freitext)"
+            isRequired
+            value={values.customFrequency}
+            onChangeText={(v) => handleChange("customFrequency", v)}
+            errorText={errors.customFrequency}
+            maxLength={100}
+            placeholder='z. B. „morgens und abends"'
+          />
+        )}
+        <FormInput
+          label="Einnahmedauer (in Tagen)"
+          keyboardType="numeric"
+          value={values.durationInDays}
+          onChangeText={(v) => handleChange("durationInDays", v)}
+        />
+        <FormInput
+          label="Startdatum (JJJJ-MM-TT)"
+          value={values.intakeStartDate}
+          onChangeText={(v) => handleChange("intakeStartDate", v)}
+        />
+        <FormInput
+          label="Indikation"
+          value={values.indication}
+          onChangeText={(v) => handleChange("indication", v)}
+        />
+        <FormInput
+          label="Verschrieben von"
+          value={values.doctorName}
+          onChangeText={(v) => handleChange("doctorName", v)}
+        />
+        <FormInput
+          label="Anmerkungen"
+          value={values.notes}
+          onChangeText={(v) => handleChange("notes", v)}
+          multiline
+          numberOfLines={3}
+          style={{ minHeight: 80, textAlignVertical: "top", paddingTop: 12 }}
+        />
+      </ModalCard>
+    </>
   );
 }
 
@@ -408,5 +449,52 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
+  },
+  overlayBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+  },
+  overlayCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 28,
+    alignItems: "center",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  overlayIcon: {
+    marginBottom: 12,
+  },
+  overlayTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1a1a1a",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  overlayMessage: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  overlayButton: {
+    backgroundColor: "#1D9E75",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+  },
+  overlayButtonText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

@@ -51,45 +51,10 @@ namespace Backend.Infrastructure.Repositories
             await _context.KnownMedications.AddRangeAsync(medications);
             await _context.SaveChangesAsync();
         }
-
-        public async Task<IEnumerable<KnownMedication>> IdentifyAsync(string? brand,string? productName, string? activeIngredient, string? dosage, string? form)
+        public async Task<IEnumerable<KnownMedication>> IdentifyAsync(string? brand, string? productName, string? activeIngredient, string? dosage, string? form)
         {
-            /*var brandLower = brand?.Trim().ToLowerInvariant() ?? string.Empty;
-            var activeIngredientLower = activeIngredient?.Trim().ToLowerInvariant() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(brandLower) && string.IsNullOrWhiteSpace(activeIngredientLower))
-            {
-                Console.WriteLine("[Repository] Kein Brand und kein Wirkstoff → kein Match möglich");
-                return Enumerable.Empty<KnownMedication>();
-            }
-
-            List<KnownMedication> candidates;
-
-            if (!string.IsNullOrWhiteSpace(brandLower) && !string.IsNullOrWhiteSpace(activeIngredientLower))
-            {
-                candidates = await _context.KnownMedications
-                    .Where(m => m.Name.ToLower().Contains(brandLower) ||
-                                m.Substance.ToLower().Contains(activeIngredientLower))
-                    .Take(200)
-                    .ToListAsync();
-            }
-            else if (!string.IsNullOrWhiteSpace(brandLower))
-            {
-                candidates = await _context.KnownMedications
-                    .Where(m => m.Name.ToLower().Contains(brandLower))
-                    .Take(200)
-                    .ToListAsync();
-            }
-            else
-            {
-                candidates = await _context.KnownMedications
-                    .Where(m => m.Substance.ToLower().Contains(activeIngredientLower))
-                    .Take(200)
-                    .ToListAsync();
-            }*/
-
             var brandLower = brand?.Trim().ToLowerInvariant() ?? string.Empty;
-            var brandNoSpace = brandLower.Replace(" ", "");
+            var brandFirstWord = brandLower.Split(' ')[0];
             var activeIngredientLower = activeIngredient?.Trim().ToLowerInvariant() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(brandLower) && string.IsNullOrWhiteSpace(activeIngredientLower))
@@ -100,28 +65,25 @@ namespace Backend.Infrastructure.Repositories
 
             List<KnownMedication> candidates;
 
-            // Erstes Wort des Brands als Anker (robuster gegen Leerzeichen-Unterschiede)
-            var brandFirstWord = brandLower.Split(' ')[0];
-
             if (!string.IsNullOrWhiteSpace(brandLower) && !string.IsNullOrWhiteSpace(activeIngredientLower))
             {
                 candidates = await _context.KnownMedications
-                    .Where(m => m.Name.ToLower().Contains(brandFirstWord) ||
-                                m.Substance.ToLower().Contains(activeIngredientLower))
+                    .Where(medication => medication.Name.ToLower().Contains(brandFirstWord) ||
+                                         medication.Substance.ToLower().Contains(activeIngredientLower))
                     .Take(200)
                     .ToListAsync();
             }
             else if (!string.IsNullOrWhiteSpace(brandLower))
             {
                 candidates = await _context.KnownMedications
-                    .Where(m => m.Name.ToLower().Contains(brandFirstWord))
+                    .Where(medication => medication.Name.ToLower().Contains(brandFirstWord))
                     .Take(200)
                     .ToListAsync();
             }
             else
             {
                 candidates = await _context.KnownMedications
-                    .Where(m => m.Substance.ToLower().Contains(activeIngredientLower))
+                    .Where(medication => medication.Substance.ToLower().Contains(activeIngredientLower))
                     .Take(200)
                     .ToListAsync();
             }
@@ -129,24 +91,30 @@ namespace Backend.Infrastructure.Repositories
             Console.WriteLine($"[Repository] Kandidaten nach Vorfilter: {candidates.Count}");
 
             if (!candidates.Any())
+            {
                 return Enumerable.Empty<KnownMedication>();
+            }
 
             var scored = candidates
-                .Select(m => new
+                .Select(medication => new
                 {
-                    Medication = m,
-                    Score = CalculateStructuredScore(m, brand, productName, activeIngredient, dosage, form)
+                    Medication = medication,
+                    Score = CalculateStructuredScore(medication, brand, productName, activeIngredient, dosage, form)
                 })
-                .Where(x => x.Score > 0)
-                .OrderByDescending(x => x.Score)
+                .Where(entry => entry.Score > 0)
+                .OrderByDescending(entry => entry.Score)
                 .ToList();
 
             Console.WriteLine($"[Repository] Nach Scoring: {scored.Count} Treffer");
-            foreach (var s in scored.Take(3))
-                Console.WriteLine($"  → {s.Medication.Name} | Score={s.Score}");
+            foreach (var entry in scored.Take(3))
+            {
+                Console.WriteLine($"  → {entry.Medication.Name} | Score={entry.Score}");
+            }
 
             if (!scored.Any())
+            {
                 return Enumerable.Empty<KnownMedication>();
+            }
 
             var best = scored.First();
 
@@ -158,16 +126,19 @@ namespace Backend.Infrastructure.Repositories
 
             if (scored.Count > 1 && scored[1].Score >= best.Score)
             {
-                var topCandidates = scored.Where(x => x.Score == best.Score).ToList();
+                var topCandidates = scored.Where(entry => entry.Score == best.Score).ToList();
                 Console.WriteLine($"[Repository] Gleichstand bei {topCandidates.Count} Kandidaten, starte Tiebreaker...");
 
                 var dosageLower = dosage?.ToLowerInvariant() ?? "";
                 var formLower = form?.ToLowerInvariant() ?? "";
+                var productNameLower = productName?.ToLowerInvariant() ?? "";
 
-                // Exakter Match: Dosage UND Form im DB-Namen
-                var exactMatch = topCandidates.FirstOrDefault(x =>
-                    (!string.IsNullOrWhiteSpace(dosageLower) && x.Medication.Name.ToLowerInvariant().Contains(dosageLower)) &&
-                    (!string.IsNullOrWhiteSpace(formLower) && x.Medication.Name.ToLowerInvariant().Contains(formLower)));
+                // Tiebreaker 1: Dosage UND Form im DB-Namen
+                var exactMatch = topCandidates.FirstOrDefault(entry =>
+                    !string.IsNullOrWhiteSpace(dosageLower) &&
+                    entry.Medication.Name.ToLowerInvariant().Contains(dosageLower) &&
+                    !string.IsNullOrWhiteSpace(formLower) &&
+                    entry.Medication.Name.ToLowerInvariant().Contains(formLower));
 
                 if (exactMatch != null)
                 {
@@ -175,10 +146,47 @@ namespace Backend.Infrastructure.Repositories
                     return new[] { exactMatch.Medication };
                 }
 
-                // Nur Dosage passt
-                var dosageMatch = topCandidates.FirstOrDefault(x =>
+                // Tiebreaker 2: ProductName-Wörter im DB-Namen
+                if (!string.IsNullOrWhiteSpace(productNameLower))
+                {
+                    var productWords = productNameLower
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Where(word => word.Length > 2)
+                        .ToList();
+
+                    var productMatch = topCandidates
+                        .Select(entry => new
+                        {
+                            entry.Medication,
+                            entry.Score,
+                            ProductWordMatches = productWords.Count(word =>
+                                entry.Medication.Name.ToLowerInvariant().Contains(word))
+                        })
+                        .Where(entry => entry.ProductWordMatches > 0)
+                        .OrderByDescending(entry => entry.ProductWordMatches)
+                        .FirstOrDefault();
+
+                    if (productMatch != null)
+                    {
+                        var secondBestMatches = topCandidates
+                            .Where(entry => entry.Medication.Name != productMatch.Medication.Name)
+                            .Select(entry => productWords.Count(word =>
+                                entry.Medication.Name.ToLowerInvariant().Contains(word)))
+                            .DefaultIfEmpty(0)
+                            .Max();
+
+                        if (productMatch.ProductWordMatches > secondBestMatches)
+                        {
+                            Console.WriteLine($"[Repository] Tiebreaker Treffer (ProductName): {productMatch.Medication.Name}");
+                            return new[] { productMatch.Medication };
+                        }
+                    }
+                }
+
+                // Tiebreaker 3: Nur Dosage
+                var dosageMatch = topCandidates.FirstOrDefault(entry =>
                     !string.IsNullOrWhiteSpace(dosageLower) &&
-                    x.Medication.Name.ToLowerInvariant().Contains(dosageLower));
+                    entry.Medication.Name.ToLowerInvariant().Contains(dosageLower));
 
                 if (dosageMatch != null)
                 {
@@ -194,78 +202,7 @@ namespace Backend.Infrastructure.Repositories
             return new[] { best.Medication };
         }
 
-        /*private static int CalculateStructuredScore(
-            KnownMedication m,
-            string? brand,
-            string? productName,
-            string? activeIngredient,
-            string? dosage,
-            string? form)
-        {
-            int score = 0;
-            var name = m.Name?.ToLowerInvariant() ?? "";
-            var substance = m.Substance?.ToLowerInvariant() ?? "";
-            var dbDosage = m.Dosage?.ToLowerInvariant() ?? "";
-
-            if (!string.IsNullOrWhiteSpace(brand))
-            {
-                var b = brand.ToLowerInvariant();
-                if (name.Contains(b) || b.Contains(name.Split(' ')[0]))
-                    score += 5;
-            }
-
-            if (!string.IsNullOrWhiteSpace(productName))
-            {
-                var p = productName.ToLowerInvariant();
-                if (name.Contains(p))
-                    score += 2;
-            }
-
-            if (!string.IsNullOrWhiteSpace(activeIngredient))
-            {
-                var ingredients = activeIngredient
-                    .ToLowerInvariant()
-                    .Split(new[] { ',', '+', '/' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(i => i.Trim())
-                    .Where(i => i.Length > 2);
-
-                foreach (var ing in ingredients)
-                {
-                    if (substance.Contains(ing))
-                        score += 3;
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(dosage))
-            {
-                var d = dosage.ToLowerInvariant();
-                if (dbDosage.Contains(d) || name.Contains(d))
-                    score += 2;
-            }
-
-            if (!string.IsNullOrWhiteSpace(form))
-            {
-                var f = form.ToLowerInvariant();
-                var formVariants = f.Contains("filmtabletten")
-                    ? new[] { f, "tabletten" }
-                    : f.Contains("tabletten") && !f.Contains("film")
-                        ? new[] { f, "filmtabletten" }
-                        : new[] { f };
-
-                if (formVariants.Any(fv => name.Contains(fv)))
-                    score += 1;
-            }
-
-            return score;
-        }*/
-
-        private static int CalculateStructuredScore(
-    KnownMedication m,
-    string? brand,
-    string? productName,
-    string? activeIngredient,
-    string? dosage,
-    string? form)
+        private static int CalculateStructuredScore(KnownMedication m, string? brand, string? productName, string? activeIngredient, string? dosage, string? form)
         {
             int score = 0;
             var name = m.Name?.ToLowerInvariant() ?? "";

@@ -314,7 +314,7 @@ REGELN:
 - ERHALTE ALLE sichtbaren Informationen
 - NICHT vereinfachen
 
-BEISPIELE:
+BEISPIEL:
 
 INPUT: Aspirin Complex 500 mg/30 mg Granulat
 OUTPUT:
@@ -344,8 +344,6 @@ OUTPUT:
                 ],
             },
         ];
-
-        console.log("🔍 [MedScan] Bild empfangen, sende an KI...");
 
         const aiResponse = await medicationModel.invoke(messages);
 
