@@ -1,10 +1,39 @@
 import { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
-export const useDatePicker = (initialDate: Date = new Date()) => {
-  const [date, setDate] = useState(initialDate);
+export const useDatePicker = (
+  initialDateString?: string | null,
+  onDateChange?: (formattedDate: string) => void,
+) => {
+  const parseInitialDate = (): Date => {
+    if (!initialDateString) return new Date();
+    const parsed = new Date(initialDateString);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+  };
+  const [date, setDate] = useState(parseInitialDate());
   const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (initialDateString) {
+      const parsed = new Date(initialDateString);
+      if (!isNaN(parsed.getTime())) {
+        setDate(parsed);
+      }
+    }
+  }, [initialDateString]);
+
+  const toBackendFormat = (d: Date): string => {
+    return d.toISOString().split("T")[0];
+  };
+
+  const formatDisplayDate = (d: Date): string => {
+    return d.toLocaleDateString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === "android") {
@@ -13,6 +42,9 @@ export const useDatePicker = (initialDate: Date = new Date()) => {
 
     if (selectedDate) {
       setDate(selectedDate);
+      if (onDateChange) {
+        onDateChange(toBackendFormat(selectedDate));
+      }
     }
   };
 
@@ -24,10 +56,6 @@ export const useDatePicker = (initialDate: Date = new Date()) => {
     setShow,
     onChange,
     toggleDatePicker,
-    formattedDate: date.toLocaleDateString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }),
+    formattedDate: formatDisplayDate(date),
   };
 };

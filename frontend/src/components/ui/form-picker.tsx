@@ -1,11 +1,11 @@
-import { Picker } from "@react-native-picker/picker";
 import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
 import { ThemedText } from "../themed-text";
+import { BaseInlinePicker } from "./base-inline-picker";
 
 interface FormPickerProps {
   label: string;
@@ -27,6 +27,8 @@ export function FormPicker({
   const theme = Colors[useColorScheme() ?? "light"];
   const hasError = !!errorText;
 
+  const validOptions = options.filter((o): o is string => !!o);
+
   return (
     <View style={styles.inputGroup}>
       <ThemedText style={styles.label}>
@@ -40,37 +42,14 @@ export function FormPicker({
         )}
       </ThemedText>
 
-      <View
-        style={[
-          styles.pickerContainer,
-          hasError && { borderColor: theme.surface, borderWidth: 1.5 },
-        ]}
-      >
-        <Picker
+      <View style={styles.pickerFlexWrapper}>
+        <BaseInlinePicker
           selectedValue={selectedValue}
           onValueChange={onValueChange}
-          style={[
-            styles.picker,
-            {
-              color: theme.text,
-              backgroundColor: theme.background,
-              borderColor: theme.surface,
-            },
-            Platform.OS === "web" && { borderWidth: 0, outline: "none" },
-          ]}
-          dropdownIconColor={theme.text}
-        >
-          <Picker.Item
-            label="Bitte wählen..."
-            value=""
-            color={theme.tabIconDefault}
-          />
-
-          {options.map((option, index) => {
-            if (!option) return null;
-            return <Picker.Item key={index} label={option} value={option} />;
-          })}
-        </Picker>
+          options={validOptions}
+          placeholder="Bitte wählen..."
+          hasError={hasError}
+        />
       </View>
 
       {typeof errorText === "string" && (
@@ -94,18 +73,8 @@ const styles = StyleSheet.create({
   requiredAsterisk: {
     fontWeight: "bold",
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 12,
-    overflow: "hidden",
-    justifyContent: "center",
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-  },
-  inputError: {
-    borderWidth: 1.5,
+  pickerFlexWrapper: {
+    flexDirection: "row",
   },
   errorText: {
     fontSize: 12,

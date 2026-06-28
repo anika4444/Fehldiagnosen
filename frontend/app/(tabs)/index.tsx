@@ -50,9 +50,14 @@ const StatCard = ({ icon, value, label, onPress }: StatCardProps) => {
       >
         <View style={styles.statIconContainer}>{icon}</View>
         <ThemedText type="title" style={styles.statValue}>
-          {value}
+          {value ?? 0}
         </ThemedText>
-        <ThemedText type="smallText" style={styles.statLabel}>
+        <ThemedText
+          type="smallText"
+          style={styles.statLabel}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
           {label}
         </ThemedText>
       </Card>
@@ -76,7 +81,9 @@ const Dashboard = () => {
   const { medications } = useMedications(patientId);
   const { entries: diagnoses } = useDiagnosis(patientId);
 
-  const greeting = firstName ? `Willkommen, ${firstName}!` : "Willkommen zurück!";
+  const greeting = firstName
+    ? `Willkommen, ${firstName}!`
+    : "Willkommen zurück!";
   const initials = firstName ? firstName.trim().charAt(0).toUpperCase() : "?";
 
   return (
@@ -169,13 +176,12 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
 const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
   sectionTitle: {
-    marginTop: 8,
+    marginTop: 16,
     marginBottom: 12,
   },
   row: {
@@ -183,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   iconContainer: {
-    marginRight: 20,
+    marginRight: 16,
     backgroundColor: "rgba(0, 150, 136, 0.15)",
     padding: 12,
     borderRadius: 12,
@@ -215,14 +221,17 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: 10,
+    width: "100%",
   },
   statCardWrapper: {
-    width: "31%",
+    flex: 1,
   },
   statCard: {
     width: "100%",
     alignItems: "center",
-    paddingVertical: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 4,
   },
   statCardHover: {
     shadowColor: "#000",
@@ -245,5 +254,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     marginTop: 2,
     textAlign: "center",
+    fontSize: 12,
   },
 });

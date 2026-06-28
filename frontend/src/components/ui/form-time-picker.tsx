@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import {
+  Button,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -28,10 +29,24 @@ export function FormTimePicker({
 }: FormTimePickerProps) {
   const theme = Colors[useColorScheme() ?? "light"];
   const [showPicker, setShowPicker] = useState(false);
+  const [tempTime, setTempTime] = useState<Date>(time);
 
   const handleChange = (event: any, selectedTime?: Date) => {
-    setShowPicker(Platform.OS === "ios");
-    onTimeChange(event, selectedTime);
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+      if (selectedTime) {
+        onTimeChange(event, selectedTime);
+      }
+    } else {
+      if (selectedTime) {
+        setTempTime(selectedTime);
+      }
+    }
+  };
+
+  const handleIosConfirm = () => {
+    setShowPicker(false);
+    onTimeChange({}, tempTime);
   };
 
   return (
@@ -52,7 +67,10 @@ export function FormTimePicker({
           styles.rowInput,
           { backgroundColor: theme.background },
         ]}
-        onPress={() => setShowPicker(true)}
+        onPress={() => {
+          setTempTime(time);
+          setShowPicker(true);
+        }}
       >
         <MaterialCommunityIcons
           name="clock-outline"
@@ -64,12 +82,24 @@ export function FormTimePicker({
         </ThemedText>
       </TouchableOpacity>
       {showPicker && (
-        <DateTimePicker
-          value={time}
-          mode="time"
-          onChange={handleChange}
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-        />
+        <View style={Platform.OS === "ios" ? styles.iosPickerContainer : null}>
+          {Platform.OS === "ios" && (
+            <View style={styles.iosHeader}>
+              <Button
+                title="Fertig"
+                onPress={handleIosConfirm}
+                color={theme.primary}
+              />
+            </View>
+          )}
+          <DateTimePicker
+            value={Platform.OS === "ios" ? tempTime : time}
+            mode="time"
+            is24Hour={true}
+            onChange={handleChange}
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+          />
+        </View>
       )}
     </View>
   );
@@ -98,5 +128,17 @@ const styles = StyleSheet.create({
   rowInput: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  iosPickerContainer: {
+    backgroundColor: "rgba(0,0,0,0.03)",
+    borderRadius: 12,
+    marginTop: 8,
+    paddingBottom: 8,
+  },
+  iosHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: 12,
+    paddingTop: 8,
   },
 });

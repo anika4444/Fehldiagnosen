@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useExplainMedicalHistory } from "@/hooks/use-explain-medical-history";
+import { useFormattedDate } from "@/hooks/use-formatted-date";
 import { DiagnosisEntryResponse } from "@/types/diagnosis-type";
 
 import { DetailField } from "../ui/detail-field";
@@ -30,6 +31,8 @@ export const DiagnosisCard = ({
     setAiExplanation,
   } = useExplainMedicalHistory(patientId, entry, onSave);
 
+  const formattedDiagnosisDate = useFormattedDate(entry.diagnosisDate);
+
   useEffect(() => {
     setAiExplanation(entry.aiExplanation || null);
   }, [entry.aiExplanation, setAiExplanation]);
@@ -54,7 +57,7 @@ export const DiagnosisCard = ({
       />
       <DetailField label="Medikamente" value={entry.medicationText} />
       <DetailField label="Notiz" value={entry.note} />
-      <DetailField label="Datum" value={entry.diagnosisDate} />
+      <DetailField label="Datum" value={formattedDiagnosisDate} />
       {aiExplanation && (
         <DetailField label="KI-Erklärung" value={aiExplanation} />
       )}
