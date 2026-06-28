@@ -5,9 +5,9 @@ import { StyleSheet, useColorScheme, View } from "react-native";
 import { Colors } from "@/constants/theme";
 import { PatientSymptomResponse } from "@/types/symptom-type";
 
+import { ThemedText } from "../themed-text";
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
-import { ThemedText } from "../themed-text";
 
 interface SymptomCardProps {
   symptom: PatientSymptomResponse;

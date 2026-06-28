@@ -1,12 +1,17 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { SymptomCard } from "@/components/symptom/symptom-card";
 import { SymptomForm } from "@/components/symptom/symptom-form";
 import { ThemedText } from "@/components/themed-text";
 import { Card } from "@/components/ui/card";
-import { DataList } from "@/components/ui/data-list";
 import { DatePickerField } from "@/components/ui/date-picker-field";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -51,19 +56,19 @@ const Symptom = () => {
     confirmDeleteDialog(async () => {
       try {
         await deleteSymptom(symptomId);
-      } catch (err) {
+      } catch {
         showErrorAlert("Löschen fehlgeschlagen.");
       }
     });
   };
 
-  return (
-    <ScrollView style={{ backgroundColor: theme.background }}>
+  const renderHeader = () => (
+    <View>
       <HeaderView
         title="Symptom-Tracker"
         subtitle="Erfassen Sie Ihre täglichen Beschwerden"
       />
-      <View style={styles.content}>
+      <View style={styles.headerContent}>
         <Card style={styles.mainCard}>
           <DatePickerField
             label="Datum auswählen:"
@@ -73,6 +78,7 @@ const Symptom = () => {
             backgroundColor={theme.background}
           />
         </Card>
+
         {show && (
           <DateTimePicker
             value={date}
@@ -80,6 +86,7 @@ const Symptom = () => {
             display={Platform.OS === "ios" ? "spinner" : "default"}
             onChange={onChange}
             maximumDate={new Date()}
+            locale="de-DE"
           />
         )}
 
@@ -87,50 +94,98 @@ const Symptom = () => {
           <PrimaryButton
             title="Neues Symptom hinzufügen"
             icon="plus"
-            onPress={() => {
-              openForm();
-            }}
+            onPress={openForm}
           />
         ) : (
           <SymptomForm
             selectedDate={date}
             initialData={editingItem}
             onSave={handleSave}
-            onCancel={() => {
-              closeForm();
-            }}
+            onCancel={closeForm}
           />
         )}
 
-        <ThemedText type="subtitle">Symptome am {formattedDate}</ThemedText>
-
-        <DataList
-          data={symptoms}
-          isLoading={isLoading}
-          error={error}
-          emptyMessage="Keine Symptome für dieses Datum gefunden."
-          themeColor={theme.primary}
-          renderItem={(symptom) => (
-            <SymptomCard
-              key={symptom.id}
-              symptom={symptom}
-              onDelete={handleDelete}
-              onEdit={() => {
-                openForm(symptom);
-              }}
-            />
-          )}
-        />
+        <ThemedText type="subtitle" style={styles.titleSpacing}>
+          Symptome am {formattedDate}
+        </ThemedText>
       </View>
-    </ScrollView>
+    </View>
+  );
+
+  const renderStatusComponent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.statusContainer}>
+          <ActivityIndicator size="small" color={theme.primary} />
+        </View>
+      );
+    }
+    if (error) {
+      return (
+        <View style={styles.statusContainer}>
+          <ThemedText style={{ color: "red" }}>{error}</ThemedText>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.statusContainer}>
+        <ThemedText style={styles.emptyText}>
+          Keine Symptome für dieses Datum gefunden.
+        </ThemedText>
+      </View>
+    );
+  };
+
+  return (
+    <FlatList
+      data={symptoms}
+      keyExtractor={(item: any) => item.id.toString()}
+      contentContainerStyle={[
+        styles.scrollContainer,
+        { backgroundColor: theme.background },
+      ]}
+      ListHeaderComponent={renderHeader}
+      ListEmptyComponent={renderStatusComponent}
+      renderItem={({ item: symptom }) => (
+        <View style={styles.listItemWrapper}>
+          <SymptomCard
+            symptom={symptom}
+            onDelete={handleDelete}
+            onEdit={() => openForm(symptom)}
+          />
+        </View>
+      )}
+    />
   );
 };
 
 export default Symptom;
-
 const styles = StyleSheet.create({
-  content: {
-    padding: 20,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  headerContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  listItemWrapper: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  titleSpacing: {
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  statusContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    opacity: 0.6,
+    textAlign: "center",
   },
   mainCard: {
     paddingVertical: 8,
@@ -143,20 +198,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 3,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  datePickerTrigger: {
-    paddingVertical: 8,
-  },
-  iconBadge: {
-    padding: 12,
-    borderRadius: 14,
-    marginRight: 16,
-  },
-  textColumn: {
-    flex: 1,
   },
 });

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -16,7 +16,6 @@ import { ThemedText } from "@/components/themed-text";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 
-
 interface Props {
   value: string;
   onChangeText: (text: string) => void;
@@ -26,6 +25,7 @@ interface Props {
 export function SymptomAutocomplete({ value, onChangeText, errorText }: Props) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
+  const hasError = !!errorText;
 
   const [suggestions, setSuggestions] = useState<SymptomDefinitionResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,10 +41,16 @@ export function SymptomAutocomplete({ value, onChangeText, errorText }: Props) {
     }
 
     setIsLoading(true);
-    const results = await symptomDefinitionService.search(text);
-    setSuggestions(results);
-    setShowSuggestions(results.length > 0);
-    setIsLoading(false);
+    try {
+      const results = await symptomDefinitionService.search(text);
+      setSuggestions(results || []);
+      setShowSuggestions(results && results.length > 0);
+    } catch {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSelect = (symptom: SymptomDefinitionResult) => {
@@ -56,75 +62,104 @@ export function SymptomAutocomplete({ value, onChangeText, errorText }: Props) {
   return (
     <View style={styles.container}>
       <ThemedText style={styles.label}>
-        Symptomname <ThemedText style={styles.required}>*</ThemedText>
+        Symptomname{" "}
+        <ThemedText style={[styles.required, { color: theme.closeIconColor }]}>
+          *
+        </ThemedText>
       </ThemedText>
 
-      <TextInput
-        style={[
-          styles.input,
-          {
-            borderColor: theme.primary,
-            color: theme.text,
-            backgroundColor: theme.background,
-          },
-        ]}
-        value={value}
-        onChangeText={handleChangeText}
-        placeholder="z.B. Kopfschmerzen"
-        placeholderTextColor={theme.text + "80"}
-      />
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={[
+            styles.input,
+            {
+              color: theme.text,
+              backgroundColor: theme.background,
+            },
+            hasError && { borderColor: theme.closeIconColor, borderWidth: 1.5 },
+          ]}
+          value={value}
+          onChangeText={handleChangeText}
+          placeholder="z.B. Kopfschmerzen"
+          placeholderTextColor={theme.text + "80"}
+        />
+        {isLoading && (
+          <ActivityIndicator
+            size="small"
+            color={theme.primary}
+            style={styles.loadingIndicator}
+          />
+        )}
+      </View>
 
-      {errorText && <ThemedText style={styles.error}>{errorText}</ThemedText>}
-      {isLoading && <ActivityIndicator size="small" color={theme.primary} />}
+      {errorText && (
+        <ThemedText style={[styles.error, { color: theme.closeIconColor }]}>
+          {errorText}
+        </ThemedText>
+      )}
 
       {showSuggestions && (
-        <View
-          style={[
-            styles.dropdown,
-            { backgroundColor: theme.background, borderColor: theme.primary },
-          ]}
-        >
-          <FlatList
-            data={suggestions}
-            keyExtractor={(item) => item.id.toString()}
-            keyboardShouldPersistTaps="handled"
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.suggestionItem}
-                onPress={() => handleSelect(item)}
-              >
-                <ThemedText style={styles.suggestionName}>
-                  {item.name}
-                </ThemedText>
-              </TouchableOpacity>
-            )}
-            ItemSeparatorComponent={() => (
-              <View
-                style={[styles.separator, { borderColor: theme.primary + "30" }]}
-              />
-            )}
-          />
+        <View style={[styles.dropdown, { backgroundColor: theme.background }]}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {suggestions.map((item, index) => (
+              <View key={item.id.toString()}>
+                <TouchableOpacity
+                  style={styles.suggestionItem}
+                  onPress={() => handleSelect(item)}
+                >
+                  <ThemedText style={styles.suggestionName}>
+                    {item.name}
+                  </ThemedText>
+                </TouchableOpacity>
+                {index < suggestions.length - 1 && (
+                  <View
+                    style={[
+                      styles.separator,
+                      { borderColor: theme.surface + "50" },
+                    ]}
+                  />
+                )}
+              </View>
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { marginBottom: 12, zIndex: 999 },
-  label: { fontSize: 14, marginBottom: 6, fontWeight: "500" },
-  required: { color: "red" },
-  input: { borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 15 },
-  error: { color: "red", fontSize: 12, marginTop: 4 },
+  container: {
+    marginBottom: 16,
+    zIndex: 9999,
+    position: "relative",
+  },
+  label: { fontSize: 14, marginBottom: 8, fontWeight: "500" },
+  required: { fontWeight: "bold" },
+  inputWrapper: {
+    position: "relative",
+    justifyContent: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    paddingRight: 40,
+    fontSize: 15,
+  },
+  loadingIndicator: {
+    position: "absolute",
+    right: 12,
+  },
+  error: { fontSize: 12, marginTop: 4 },
   dropdown: {
     position: "absolute",
-    top: 75,
+    top: 76,
     left: 0,
     right: 0,
     borderWidth: 1,
-    borderRadius: 8,
-    maxHeight: 200,
-    zIndex: 999,
+    borderRadius: 12, // Angepasst auf 12
+    maxHeight: 180,
+    zIndex: 9999,
     elevation: 5,
   },
   suggestionItem: { padding: 12 },

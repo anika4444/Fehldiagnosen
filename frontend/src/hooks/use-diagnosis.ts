@@ -55,5 +55,6 @@ export const useDiagnosis = (patientId: number | null) => {
     error,
     saveEntry,
     deleteEntry,
+    fetchEntries,
   };
 };

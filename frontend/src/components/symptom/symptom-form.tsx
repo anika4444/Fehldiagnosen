@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { symptomService } from "@/api/symptomService";
 import { useFormValidation } from "@/hooks/use-form-validation";
@@ -8,13 +8,13 @@ import {
   SymptomFormData,
 } from "@/types/symptom-type";
 
+import { DurationInput } from "../ui/duration-input";
 import { FormInput } from "../ui/form-input";
 import { FormPicker } from "../ui/form-picker";
 import { FormSlider } from "../ui/form-slider";
 import { FormTimePicker } from "../ui/form-time-picker";
 import { ModalCard } from "../ui/modal-card";
 import { SymptomAutocomplete } from "./symptom-autocomplete";
-import { DurationInput } from "../ui/duration-input";
 
 interface SymptomFormProps {
   selectedDate: Date;
@@ -42,85 +42,103 @@ export function SymptomForm({
   const [dynamicFields, setDynamicFields] = useState<SymptomFieldResponse[]>(
     [],
   );
+  const mappedInitialData = useMemo(() => {
+    if (!initialData) return null;
 
-  const sanitizedDetails: Record<string, string> = {};
-  if (initialData?.details) {
-    Object.entries(initialData.details).forEach(([key, value]) => {
-      sanitizedDetails[key] = value ?? "";
-    });
-  }
+    const sanitizedDetails: Record<string, string> = {};
+    if (initialData.details) {
+      Object.entries(initialData.details).forEach(([key, value]) => {
+        sanitizedDetails[key] = value ?? "";
+      });
+    }
 
-  const mappedInitialData: FormValues | null = initialData
-    ? {
-        symptomName: initialData.symptomName || "",
-        time: initialData.occurrenceTime
-          ? new Date(initialData.occurrenceTime)
-          : new Date(),
-        intensity: initialData.intensity || 5,
-        duration: initialData.duration || "",
-        possibleTriggers: initialData.possibleTrigger || "",
-        notes: initialData.notes || "",
-        details: sanitizedDetails,
-      }
-    : null;
+    return {
+      symptomName: initialData.symptomName || "",
+      time: initialData.occurrenceTime
+        ? new Date(initialData.occurrenceTime)
+        : new Date(),
+      intensity: initialData.intensity || 5,
+      duration: initialData.duration || "",
+      possibleTriggers: initialData.possibleTrigger || "",
+      notes: initialData.notes || "",
+      details: sanitizedDetails,
+    };
+  }, [initialData]);
 
-  const { values, errors, handleChange, handleSubmit } =
-    useFormValidation<FormValues>(
-      mappedInitialData,
-      {
-        symptomName: "",
-        time: new Date(),
-        intensity: 5,
-        duration: "",
-        possibleTriggers: "",
-        notes: "",
-        details: {},
-      },
-      (vals) => {
-        const errs: Record<string, string> = {};
-        if (!vals.symptomName.trim()) errs.symptomName = "Name fehlt";
-        if (!vals.duration.trim()) errs.duration = "Dauer fehlt";
-
-        // Dynamische Felder validieren
-        dynamicFields.forEach((f) => {
-          if (f.isRequired && !vals.details[f.name]?.trim()) {
-            errs[f.name] = `${f.name} fehlt`;
-          }
-        });
-        return errs;
-      },
-    );
-
-  useEffect(() => {
-    if (values.symptomName.length < 2) return setDynamicFields([]);
-    const timeoutId = setTimeout(async () => {
-      const defs = await symptomService.getSymptomDefinitions(
-        values.symptomName,
-      );
-      setDynamicFields(defs?.[0]?.fields || []);
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  }, [values.symptomName]);
-
-  const onFinalSave = async (validatedData: FormValues) => {
-  const occurrenceTime = new Date(selectedDate);
-  occurrenceTime.setHours(
-    validatedData.time.getHours(),
-    validatedData.time.getMinutes(),
-    0,
-    0,
+  const defaultValues = useMemo(
+    () => ({
+      symptomName: "",
+      time: new Date(),
+      intensity: 5,
+      duration: "",
+      possibleTriggers: "",
+      notes: "",
+      details: {},
+    }),
+    [],
   );
 
-  await onSave({
-    symptomName: validatedData.symptomName,
-    occurrenceTime: occurrenceTime.toISOString(),
-    intensity: validatedData.intensity,
-    duration: validatedData.duration,
-    possibleTriggers: validatedData.possibleTriggers,
-    notes: validatedData.notes,
-    details: validatedData.details,
-  });
-};
+  const { values, errors, handleChange, handleSubmit } =
+    useFormValidation<FormValues>(mappedInitialData, defaultValues, (vals) => {
+      const errs: Record<string, string> = {};
+      if (!vals.symptomName || !vals.symptomName.trim())
+        errs.symptomName = "Name fehlt";
+      if (!vals.duration || !vals.duration.trim())
+        errs.duration = "Dauer fehlt";
+
+      dynamicFields.forEach((f) => {
+        if (
+          f.isRequired &&
+          (!vals.details[f.name] || !vals.details[f.name].trim())
+        ) {
+          errs[f.name] = `${f.name} fehlt`;
+        }
+      });
+      return errs;
+    });
+
+  useEffect(() => {
+    const currentName = values?.symptomName;
+    if (!currentName || currentName.length < 2) {
+      setDynamicFields([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const defs = await symptomService.getSymptomDefinitions(currentName);
+        const fields = defs?.[0]?.fields || [];
+
+        setDynamicFields((prev) =>
+          JSON.stringify(prev) === JSON.stringify(fields) ? prev : fields,
+        );
+      } catch {
+        setDynamicFields([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [values?.symptomName]);
+
+  const onFinalSave = async (validatedData: FormValues) => {
+    const occurrenceTime = new Date(selectedDate);
+    occurrenceTime.setHours(
+      validatedData.time.getHours(),
+      validatedData.time.getMinutes(),
+      0,
+      0,
+    );
+
+    await onSave({
+      symptomName: validatedData.symptomName,
+      occurrenceTime: occurrenceTime.toISOString(),
+      intensity: validatedData.intensity,
+      duration: validatedData.duration,
+      possibleTriggers: validatedData.possibleTriggers,
+      notes: validatedData.notes,
+      details: validatedData.details,
+    });
+  };
 
   const handleDetailChange = (key: string, value: string) => {
     handleChange("details", { ...values.details, [key]: value });
@@ -134,10 +152,10 @@ export function SymptomForm({
       saveButtonText="Symptom speichern"
     >
       <SymptomAutocomplete
-  value={values.symptomName}
-  onChangeText={(value) => handleChange("symptomName", value)}
-  errorText={errors.symptomName}
-/>
+        value={values.symptomName}
+        onChangeText={(value) => handleChange("symptomName", value)}
+        errorText={errors.symptomName}
+      />
 
       {dynamicFields.map((field) =>
         field.type === "select" ? (
@@ -176,12 +194,12 @@ export function SymptomForm({
         onValueChange={(value) => handleChange("intensity", value)}
       />
       <DurationInput
-  label="Dauer"
-  isRequired
-  value={values.duration}
-  onChangeText={(value) => handleChange("duration", value)}
-  errorText={errors.duration}
-/>
+        label="Dauer"
+        isRequired
+        value={values.duration}
+        onChangeText={(value) => handleChange("duration", value)}
+        errorText={errors.duration}
+      />
       <FormInput
         label="Auslöser"
         value={values.possibleTriggers}

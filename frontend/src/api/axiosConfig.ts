@@ -2,7 +2,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const LAN_IP = "10.142.162.128";
+const LAN_IP = "192.168.178.185";
 
 const getBaseURL = () => {
   if (__DEV__) {

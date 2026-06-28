@@ -1,13 +1,8 @@
-import React, { useState } from "react";
-import * as FileSystem from "expo-file-system";
-import { Asset } from "expo-asset";
+import React from "react";
 
 import { DetailField } from "@/components/ui/detail-field";
 import { ModalCard } from "@/components/ui/modal-card";
 import { MedicationResponse } from "@/types/medication-type";
-import { PrimaryButton } from "@/components/ui/primary-button";
-import { aiService } from "@/api/aiService";
-import { showSuccessAlert, showErrorAlert } from "@/utils/alerts";
 
 interface MedicationCardProps {
   medication: MedicationResponse;

@@ -1,20 +1,23 @@
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 
 import api from "@/api/axiosConfig";
 import { ThemedText } from "@/components/themed-text";
 import { Card } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { HeaderView } from "@/components/ui/header-view";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useDatePicker } from "@/hooks/use-date-picker";
 import { usePatient } from "@/hooks/use-patient";
 
 interface CheckupDiagnosis {
@@ -57,8 +60,22 @@ const Checkup = () => {
 
   const { patientId } = usePatient();
 
-  const [fromInput, setFromInput] = useState("2026-01-01");
-  const [toInput, setToInput] = useState(todayStr);
+  const currentYear = new Date().getFullYear();
+  const {
+    date: fromDate,
+    show: showFromPicker,
+    onChange: onFromChange,
+    toggleDatePicker: toggleFromPicker,
+    formattedDate: displayFromDate,
+  } = useDatePicker(`${currentYear}-01-01`);
+
+  const {
+    date: toDate,
+    show: showToPicker,
+    onChange: onToChange,
+    toggleDatePicker: toggleToPicker,
+    formattedDate: displayToDate,
+  } = useDatePicker(todayStr);
 
   const [summary, setSummary] = useState<CheckupSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,9 +85,12 @@ const Checkup = () => {
     if (!patientId) return;
     setIsLoading(true);
     setError(null);
+    const fromParam = fromDate.toISOString().split("T")[0];
+    const toParam = toDate.toISOString().split("T")[0];
+
     try {
       const response = await api.get(`/checkup/${patientId}`, {
-        params: { from: fromInput, to: `${toInput}T23:59:59` },
+        params: { from: fromParam, to: `${toParam}T23:59:59` },
       });
       setSummary(response.data);
     } catch (err: any) {
@@ -78,7 +98,7 @@ const Checkup = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [patientId, fromInput, toInput]);
+  }, [patientId, fromDate, toDate]);
 
   const renderSummary = (text: string) =>
     text.split("\n").map((rawLine, index) => {
@@ -129,42 +149,47 @@ const Checkup = () => {
       <View style={styles.content}>
         <View style={styles.dateRow}>
           <View style={styles.dateField}>
-            <ThemedText type="smallText">Von (JJJJ-MM-TT)</ThemedText>
-            <TextInput
-              value={fromInput}
-              onChangeText={setFromInput}
-              placeholder="2026-01-01"
-              placeholderTextColor={theme.icon}
-              autoCapitalize="none"
-              style={[
-                styles.input,
-                {
-                  color: theme.text,
-                  borderColor: theme.primary,
-                  backgroundColor: theme.surface,
-                },
-              ]}
+            <DatePickerField
+              label="Von:"
+              value={displayFromDate}
+              onPress={toggleFromPicker}
+              primaryColor={theme.primary}
+              backgroundColor={theme.background}
             />
           </View>
           <View style={styles.dateField}>
-            <ThemedText type="smallText">Bis (JJJJ-MM-TT)</ThemedText>
-            <TextInput
-              value={toInput}
-              onChangeText={setToInput}
-              placeholder={todayStr}
-              placeholderTextColor={theme.icon}
-              autoCapitalize="none"
-              style={[
-                styles.input,
-                {
-                  color: theme.text,
-                  borderColor: theme.primary,
-                  backgroundColor: theme.surface,
-                },
-              ]}
+            <DatePickerField
+              label="Bis:"
+              value={displayToDate}
+              onPress={toggleToPicker}
+              primaryColor={theme.primary}
+              backgroundColor={theme.background}
             />
           </View>
         </View>
+
+        {showFromPicker && (
+          <DateTimePicker
+            value={fromDate}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={onFromChange}
+            maximumDate={toDate} // "Von" kann nicht nach "Bis" liegen
+            locale="de-DE"
+          />
+        )}
+
+        {showToPicker && (
+          <DateTimePicker
+            value={toDate}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={onToChange}
+            minimumDate={fromDate} // "Bis" kann nicht vor "Von" liegen
+            maximumDate={new Date()} // Kann nicht in der Zukunft liegen
+            locale="de-DE"
+          />
+        )}
 
         <PrimaryButton
           title={isLoading ? "Wird geladen..." : "Checkup erstellen"}
@@ -249,11 +274,15 @@ const Checkup = () => {
             ) : (
               summary.symptoms.map((s) => (
                 <Card key={s.id} style={styles.card}>
-                  <ThemedText type="defaultSemiBold">{s.symptomName}</ThemedText>
+                  <ThemedText type="defaultSemiBold">
+                    {s.symptomName}
+                  </ThemedText>
                   <ThemedText type="smallText">
                     {[
                       s.occurrenceTime ? s.occurrenceTime.slice(0, 10) : null,
-                      s.intensity != null ? `Intensität ${s.intensity}/10` : null,
+                      s.intensity != null
+                        ? `Intensität ${s.intensity}/10`
+                        : null,
                       s.duration,
                     ]
                       .filter(Boolean)

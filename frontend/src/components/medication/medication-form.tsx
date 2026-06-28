@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
 import { KnownMedicationResult } from "@/api/knownMedicationService";
 import { useFormValidation } from "@/hooks/use-form-validation";
@@ -10,6 +10,7 @@ import {
   MedicationResponse,
 } from "@/types/medication-type";
 
+import { ThemedText } from "../themed-text";
 import { FormInput } from "../ui/form-input";
 import { FormPicker } from "../ui/form-picker";
 import { ModalCard } from "../ui/modal-card";
@@ -88,7 +89,9 @@ function extractDosage(text?: string | null): { amount: string; unit: string } {
   const trimmed = (text ?? "").trim();
   if (!trimmed) return { amount: "", unit: "" };
 
-  const unitPattern = DOSAGE_UNITS.map((u) => u.replace(/\./g, "\\.")).join("|");
+  const unitPattern = DOSAGE_UNITS.map((u) => u.replace(/\./g, "\\.")).join(
+    "|",
+  );
   const regex = new RegExp(`(\\d+(?:[.,]\\d+)?)\\s*(${unitPattern})`, "gi");
   const matches = [...trimmed.matchAll(regex)];
 
@@ -187,7 +190,8 @@ export function MedicationForm({
         } else {
           const num = Number(amount.replace(",", "."));
           if (Number.isNaN(num) || num <= 0) {
-            errs.dosageAmount = "Bitte eine gültige Menge größer als 0 angeben.";
+            errs.dosageAmount =
+              "Bitte eine gültige Menge größer als 0 angeben.";
           } else if (num > MAX_DOSAGE_AMOUNT) {
             errs.dosageAmount = "Die Menge erscheint unrealistisch hoch.";
           }
@@ -238,7 +242,10 @@ export function MedicationForm({
 
     await onSave({
       name: validatedData.name.trim(),
-      dosage: combineDosage(validatedData.dosageAmount, validatedData.dosageUnit),
+      dosage: combineDosage(
+        validatedData.dosageAmount,
+        validatedData.dosageUnit,
+      ),
       intakeFrequency: finalIntakeFrequency || undefined,
       durationInDays: validatedData.durationInDays
         ? parseInt(validatedData.durationInDays)
@@ -252,40 +259,40 @@ export function MedicationForm({
   };
 
   const handleScan = async () => {
-  const { status } = await ImagePicker.requestCameraPermissionsAsync();
-  if (status !== "granted") return;
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") return;
 
-  const result = await ImagePicker.launchCameraAsync({
-    mediaTypes: ["images"],
-    quality: 0.85,
-  });
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 0.85,
+    });
 
-  if (result.canceled || !result.assets?.[0]) return;
+    if (result.canceled || !result.assets?.[0]) return;
 
-  const asset = result.assets[0];
+    const asset = result.assets[0];
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-// Web: blob aus der URI holen
-const imageResponse = await fetch(asset.uri);
-const blob = await imageResponse.blob();
-formData.append("image", blob, "scan.jpg");
+    // Web: blob aus der URI holen
+    const imageResponse = await fetch(asset.uri);
+    const blob = await imageResponse.blob();
+    formData.append("image", blob, "scan.jpg");
 
-  try {
-    const response = await fetch(
-      "http://localhost:5238/api/medications/scan",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    try {
+      const response = await fetch(
+        "http://localhost:5238/api/medications/scan",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
-    const data = await response.json();
-    console.log("Backend Antwort:", JSON.stringify(data));
-  } catch (err) {
-    console.error("Upload fehlgeschlagen:", err);
-  }
-};
+      const data = await response.json();
+      console.log("Backend Antwort:", JSON.stringify(data));
+    } catch (err) {
+      console.error("Upload fehlgeschlagen:", err);
+    }
+  };
 
   return (
     <ModalCard
@@ -295,7 +302,10 @@ formData.append("image", blob, "scan.jpg");
       saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
     >
       <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-        <Ionicons name="camera-outline" size={20} color="#fff" />
+        <Ionicons name="camera-outline" size={22} color="#fff" />
+        <ThemedText style={styles.scanButtonText}>
+          Medikament scannen
+        </ThemedText>
       </TouchableOpacity>
       <MedicationAutocomplete
         value={values.name}
@@ -376,10 +386,18 @@ formData.append("image", blob, "scan.jpg");
 
 const styles = StyleSheet.create({
   scanButton: {
-    alignSelf: "flex-end",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#1D9E75",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginBottom: 20,
+    gap: 8,
+  },
+  scanButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

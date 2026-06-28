@@ -15,14 +15,14 @@ export const MENU_ITEMS: MenuItem[] = [
   {
     id: "meds",
     title: "Aktuelle Medikamente",
-    subtitle: "2 Medikamente",
+    subtitle: "Meine Medikamente",
     icon: "pill",
     route: "/medications" as Href,
   },
   {
     id: "family",
     title: "Familienanamnese",
-    subtitle: "1 Eintrag",
+    subtitle: "Meine Familienanamnese",
     icon: "account-group-outline",
     route: "/familyhistory" as Href,
   },
@@ -34,13 +34,6 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/diagnosis" as Href,
   },
   {
-    id: "medicalhistory",
-    title: "Medizinische Vorgeschichte",
-    subtitle: "3 Einträge",
-    icon: "history",
-    route: "/medicalhistory" as Href,
-  },
-  {
     id: "communication",
     title: "Kommunikationstool",
     subtitle: "Kommunikationslevel einstellen",
@@ -48,10 +41,10 @@ export const MENU_ITEMS: MenuItem[] = [
     route: "/communicationlevel" as Href,
   },
   {
-  id: "checkup",
-  title: "Digitaler Checkup",
-  subtitle: "KI-Zusammenfassung Ihrer Daten",
-  icon: "heart-pulse",
-  route: "/checkup" as Href,
-}
+    id: "checkup",
+    title: "Digitaler Checkup",
+    subtitle: "KI-Zusammenfassung Ihrer Daten",
+    icon: "heart-pulse",
+    route: "/checkup" as Href,
+  },
 ];

@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
 import React from "react";
 import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
 

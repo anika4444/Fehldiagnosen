@@ -30,7 +30,7 @@ const Diagnosis = () => {
   const theme = Colors[colorScheme];
 
   const { patientId } = usePatient();
-  const { entries, isLoading, error, saveEntry, deleteEntry } =
+  const { entries, isLoading, error, saveEntry, deleteEntry, fetchEntries } =
     useDiagnosis(patientId);
 
   const { isFormVisible, editingItem, openForm, closeForm } =
@@ -78,6 +78,8 @@ const Diagnosis = () => {
         name: file.name,
         type: file.mimeType ?? "image/jpeg",
       });
+
+      await fetchEntries();
 
       showSuccessAlert(
         "Arztbrief erfolgreich analysiert und als Diagnose hinzugefügt! Das Datum müsste nochmals angepasst werden, da es aktuell auf das heutige Datum gesetzt wird.",

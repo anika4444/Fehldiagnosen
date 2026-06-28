@@ -1,5 +1,7 @@
-import { StyleSheet } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Platform, Pressable, StyleSheet } from "react-native";
 
+import { useDatePicker } from "@/hooks/use-date-picker";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
   CreateDiagnosisEntryRequest,
@@ -34,7 +36,9 @@ export const DiagnosisForm = ({
       findings: "",
       therapeuticMeasures: "",
       note: "",
-      diagnosisDate: "",
+      diagnosisDate: initialData?.diagnosisDate
+        ? initialData.diagnosisDate.split("T")[0]
+        : new Date().toISOString().split("T")[0],
     },
     (vals) => {
       const errs: Record<string, string> = {};
@@ -44,6 +48,11 @@ export const DiagnosisForm = ({
       return errs;
     },
   );
+
+  const { date, show, onChange, toggleDatePicker, formattedDate } =
+    useDatePicker(values.diagnosisDate, (newDateString) =>
+      handleChange("diagnosisDate", newDateString),
+    );
 
   return (
     <ModalCard
@@ -138,14 +147,26 @@ export const DiagnosisForm = ({
         numberOfLines={3}
         style={{ minHeight: 80, textAlignVertical: "top", paddingTop: 12 }}
       />
-      <FormInput
-        label="Diagnosedatum"
-        isRequired
-        placeholder="z. B. 2024-01-15"
-        value={values.diagnosisDate}
-        onChangeText={(value) => handleChange("diagnosisDate", value)}
-        errorText={errors.diagnosisDate}
-      />
+      <Pressable onPress={toggleDatePicker}>
+        <FormInput
+          label="Diagnosedatum"
+          isRequired
+          editable={false}
+          pointerEvents="none"
+          value={formattedDate}
+          errorText={errors.diagnosisDate}
+        />
+      </Pressable>
+      {show && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={onChange}
+          maximumDate={new Date()}
+          locale="de-DE"
+        />
+      )}
     </ModalCard>
   );
 };
