@@ -50,6 +50,8 @@ flowchart LR
 
 Zentrale Entität ist der **Patient**. Alle medizinischen Datensätze hängen über `PatientId` an ihm. Authentifizierung läuft über ASP.NET Identity (`ApplicationUser`), das per `UserId` mit dem Patienten verknüpft ist.
 
+> **Hinweis:** Das Modell ist datenzentriert. Die Entitäten enthalten nur Daten und keine Methoden, weshalb es einem Entity-Relationship-Modell nahekommt. Die fachliche Logik liegt in den Services.
+
 ```mermaid
 classDiagram
     class Patient {
@@ -96,15 +98,6 @@ classDiagram
         string Indication
         string AtcCode
         EntryBy EntryBy
-    }
-    class MedicalHistoryEntry {
-        int Id
-        string ICD10Code
-        string Diagnosis
-        int Year
-        ConditionStatus Status
-        EntryBy EntryBy
-        string AiExplanation
     }
     class Diagnosis {
         int Id
@@ -164,7 +157,6 @@ classDiagram
     Patient "1" --> "0..1" CommunicationLevel
     Patient "1" --> "*" PatientSymptom
     Patient "1" --> "*" Medication
-    Patient "1" --> "*" MedicalHistoryEntry
     Patient "1" --> "*" Diagnosis
     Patient "1" --> "*" FamilyHistoryEntry
     Patient "1" --> "*" MedicalLetter
@@ -183,7 +175,6 @@ classDiagram
 | **PatientSymptom** | Tägliche Beschwerden | Intensität (1–10), Dauer, Trigger, freie `Details` |
 | **SymptomDefinition / SymptomField** | Vorlagen + dynamische Felder für Symptomerfassung | Aliases, Feldtyp, Pflichtfeld, Optionen |
 | **Medication** | Medikation des Patienten | Dosierung, Häufigkeit, Dauer (→ berechnetes `EndDate`), ATC-Code |
-| **MedicalHistoryEntry** | Vorerkrankungen | ICD-10, Diagnose, Jahr, Status, KI-Erklärung |
 | **Diagnosis** | Detaillierte Diagnose (Arzt/Patient) | ICD, Schweregrad, Symptome, Befund, Therapie, KI-Erklärung |
 | **FamilyHistoryEntry** | Familienanamnese | Verwandtschaftsgrad, Diagnose, Kommentar |
 | **MedicalLetter** | Arztbrief (KI-Entwurf/-Interpretation + Überarbeitung) | Betreff, Empfänger, Status (Validation/Confirmed) |
@@ -261,11 +252,10 @@ Die ADRs folgen dem **Template nach Michael Nygard** (Titel · Status · Kontext
 | **ADR 02** | Backend (später + Node für KI) | **ASP.NET Core, zusätzlich Node.js** | Node.js, Spring Boot, PHP, Python | Sicherheit/Performance; Node später ergänzt für reiferes LLM-Ökosystem |
 | **ADR 03** | Datenbank | **MySQL** | PostgreSQL, MSSQL | ACID, Zuverlässigkeit, EF-Core-Integration, Kosten |
 | **ADR 04** | Authentifizierung | **JWT + ASP.NET Identity** | Server-Sessions, externer IdP | Zustandslos, passend für mobile App |
-| **ADR 05** | Backend-Struktur | **Clean Architecture + Repository** | direkter DbContext in Controllern | Testbarkeit, austauschbare Infrastruktur |
-| **ADR 06** | Patientengerechte Diagnoseerklärung | **RAG-Light + Validator-Pipeline** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
-| **ADR 07** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
-| **ADR 08** | Echtzeit-Reminder | **SignalR** | HTTP-Polling | Push in Echtzeit, weniger Last |
-| **ADR 09** | Automatisierte Datenzusammenfassung (Checkup) | **KI-Zusammenfassung aggregierter Daten** | – | Gesamtbild + Zusammenhänge, Vorbereitung aufs Arztgespräch |
+| **ADR 05** | Patientengerechte Diagnoseerklärung | **LangChain-Dienst, RAG-Light + Validator, Mistral** | reiner Prompt, volle Vektor-RAG | Korrekt + laienverständlich, weniger Halluzination |
+| **ADR 06** | Datenschutz bei LLM-Aufrufen | **Anonymisierung (Python-NER) vor Versand** | Klartext-Versand, lokales Modell | DSGVO: keine Klartext-Patientendaten an Dritte |
+| **ADR 07** | Automatisierte Datenzusammenfassung (Checkup) | **KI-Zusammenfassung aggregierter Daten** | – | Gesamtbild + Zusammenhänge, Vorbereitung aufs Arztgespräch |
+| **ADR 08** | Medikamenten-Wechselwirkungsprüfung | **Regelbasiert, DrugBank-Datenbank** | KI/LLM | Belegte Warnungen, keine Halluzination |
 
 > Volle Records (mit Status, Kontext, Entscheidung, Konsequenzen) im verlinkten ADR-Dokument.
 
