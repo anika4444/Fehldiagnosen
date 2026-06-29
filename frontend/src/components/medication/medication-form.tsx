@@ -1,16 +1,24 @@
-import React, { useState } from "react";
-import { TouchableOpacity, StyleSheet, Modal, View, Text } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { KnownMedicationResult } from "@/api/knownMedicationService";
+import { medicationService } from "@/api/medicationService";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
   CreateMedicationRequest,
   MedicationResponse,
 } from "@/types/medication-type";
 
-import { ThemedText } from "../themed-text";
 import { FormInput } from "../ui/form-input";
 import { FormPicker } from "../ui/form-picker";
 import { ModalCard } from "../ui/modal-card";
@@ -132,6 +140,7 @@ export function MedicationForm({
 }: MedicationFormProps) {
   const [isMedicationValid, setIsMedicationValid] = useState(!!initialData);
   const [showScanFailedOverlay, setShowScanFailedOverlay] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const initialDosage = parseDosage(initialData?.dosage);
 
@@ -194,12 +203,12 @@ export function MedicationForm({
         // Dosierung ist Pflicht: Menge + Einheit müssen angegeben und die Menge
         // muss plausibel sein.
         const amount = vals.dosageAmount.trim();
-        
+
         if (!amount) {
           errs.dosageAmount = "Bitte eine Menge angeben.";
         } else {
           const num = Number(amount.replace(",", "."));
-          
+
           if (Number.isNaN(num) || num <= 0) {
             errs.dosageAmount =
               "Bitte eine gültige Menge größer als 0 angeben.";
@@ -229,79 +238,76 @@ export function MedicationForm({
       },
     );
 
-    const handleMedicationSelect = (medication: KnownMedicationResult) => {
-      // Dosis zuerst aus dem Stärke-Feld der Datenbank versuchen. Liefert das
-      // keine saubere Einzeldosis – etwa weil die Einheit fehlt (DB-Stärke "500",
-      // Einheit steht separat) oder weil es ein Kombipräparat ist – aus dem
-      // Produktnamen extrahieren ("Aspirin 500 mg Kautabletten"). Bei echten
-      // Kombis ("800 mg/480 mg") liefern beide Quellen nichts → bleibt leer.
-      let dosage = extractDosage(medication.dosage);
-      if (!dosage.amount) dosage = extractDosage(medication.name);
+  const handleMedicationSelect = (medication: KnownMedicationResult) => {
+    // Dosis zuerst aus dem Stärke-Feld der Datenbank versuchen. Liefert das
+    // keine saubere Einzeldosis – etwa weil die Einheit fehlt (DB-Stärke "500",
+    // Einheit steht separat) oder weil es ein Kombipräparat ist – aus dem
+    // Produktnamen extrahieren ("Aspirin 500 mg Kautabletten"). Bei echten
+    // Kombis ("800 mg/480 mg") liefern beide Quellen nichts → bleibt leer.
+    let dosage = extractDosage(medication.dosage);
+    if (!dosage.amount) dosage = extractDosage(medication.name);
 
-      handleChange("name", medication.name);
-      handleChange("dosageAmount", dosage.amount);
-      handleChange("dosageUnit", dosage.unit);
-      handleChange("atcCode", medication.atcCode ?? "");
-    };
+    handleChange("name", medication.name);
+    handleChange("dosageAmount", dosage.amount);
+    handleChange("dosageUnit", dosage.unit);
+    handleChange("atcCode", medication.atcCode ?? "");
+  };
 
-    const onFinalSave = async (validatedData: FormValues) => {
-      // Bei "Sonstiges" wird der eingegebene Freitext gespeichert, sonst der
-      // ausgewählte Standardwert (z.B. "2x täglich").
-      const finalIntakeFrequency =
-        validatedData.intakeFrequency === CUSTOM_FREQUENCY_OPTION
-          ? validatedData.customFrequency.trim()
-          : validatedData.intakeFrequency;
+  const onFinalSave = async (validatedData: FormValues) => {
+    // Bei "Sonstiges" wird der eingegebene Freitext gespeichert, sonst der
+    // ausgewählte Standardwert (z.B. "2x täglich").
+    const finalIntakeFrequency =
+      validatedData.intakeFrequency === CUSTOM_FREQUENCY_OPTION
+        ? validatedData.customFrequency.trim()
+        : validatedData.intakeFrequency;
 
-      await onSave({
-        name: validatedData.name.trim(),
-        dosage: combineDosage(validatedData.dosageAmount, validatedData.dosageUnit),
-        intakeFrequency: finalIntakeFrequency || undefined,
-        durationInDays: validatedData.durationInDays
-          ? parseInt(validatedData.durationInDays)
-          : undefined,
-        intakeStartDate: validatedData.intakeStartDate.trim() || undefined,
-        indication: validatedData.indication.trim() || undefined,
-        doctorName: validatedData.doctorName.trim() || undefined,
-        notes: validatedData.notes.trim() || undefined,
-        atcCode: validatedData.atcCode || undefined,
-      });
-    };
-
-    const handleScan = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") return;
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ["images"],
-      quality: 0.85,
+    await onSave({
+      name: validatedData.name.trim(),
+      dosage: combineDosage(
+        validatedData.dosageAmount,
+        validatedData.dosageUnit,
+      ),
+      intakeFrequency: finalIntakeFrequency || undefined,
+      durationInDays: validatedData.durationInDays
+        ? parseInt(validatedData.durationInDays)
+        : undefined,
+      intakeStartDate: validatedData.intakeStartDate.trim() || undefined,
+      indication: validatedData.indication.trim() || undefined,
+      doctorName: validatedData.doctorName.trim() || undefined,
+      notes: validatedData.notes.trim() || undefined,
+      atcCode: validatedData.atcCode || undefined,
     });
+  };
 
+  const handleScan = async () => {
+    let result;
+
+    if (Platform.OS === "web") {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.85,
+      });
+    } else {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") return;
+
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        quality: 0.85,
+      });
+    }
     if (result.canceled || !result.assets?.[0]) return;
 
     const asset = result.assets[0];
-
-    const formData = new FormData();
-
-    const imageResponse = await fetch(asset.uri);
-    const blob = await imageResponse.blob();
-    formData.append("image", blob, "scan.jpg");
 
     handleChange("name", "");
     setIsMedicationValid(true);
     handleChange("dosageAmount", "");
     handleChange("dosageUnit", "");
+    setIsScanning(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:5238/api/medications/scan",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-      console.log("[Scan] Backend Antwort:", JSON.stringify(data));
+      const data = await medicationService.scanMedicationImage(asset);
 
       if (data.name) {
         handleChange("name", data.name);
@@ -311,11 +317,8 @@ export function MedicationForm({
           let dosage = extractDosage(data.dosage);
 
           if (!dosage.amount && data.name) {
-            console.log("[Scan] Fallback → extrahiere Dosage aus Name:", data.name);
             dosage = extractDosage(data.name);
           }
-
-          console.log("[Scan] extractDosage Ergebnis:", dosage);
 
           if (dosage.amount) {
             handleChange("dosageAmount", dosage.amount);
@@ -327,10 +330,11 @@ export function MedicationForm({
       } else {
         setShowScanFailedOverlay(true);
       }
-
     } catch (err) {
       console.error("[Scan] Upload fehlgeschlagen:", err);
       setShowScanFailedOverlay(true);
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -344,10 +348,17 @@ export function MedicationForm({
       >
         <View style={styles.overlayBackdrop}>
           <View style={styles.overlayCard}>
-            <Ionicons name="alert-circle-outline" size={36} color="#E57373" style={styles.overlayIcon} />
+            <Ionicons
+              name="alert-circle-outline"
+              size={36}
+              color="#E57373"
+              style={styles.overlayIcon}
+            />
             <Text style={styles.overlayTitle}>Scan nicht erfolgreich</Text>
             <Text style={styles.overlayMessage}>
-              Es konnte kein Medikament anhand des Scans identifiziert werden. Bitte versuchen Sie es erneut oder geben Sie den Namen manuell ein.
+              Es konnte kein Medikament anhand des Scans identifiziert werden.
+              Bitte versuchen Sie es erneut oder geben Sie den Namen manuell
+              ein.
             </Text>
             <TouchableOpacity
               style={styles.overlayButton}
@@ -365,8 +376,24 @@ export function MedicationForm({
         onSave={() => handleSubmit(onFinalSave)}
         saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
       >
-        <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-          <Ionicons name="camera-outline" size={20} color="#fff" />
+        <TouchableOpacity
+          style={[styles.scanButton, isScanning && styles.scanButtonDisabled]}
+          onPress={handleScan}
+          disabled={isScanning}
+        >
+          {isScanning ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Ionicons name="camera-outline" size={20} color="#fff" />
+          )}
+          <Text
+            style={[
+              styles.scanButtonText,
+              isScanning && styles.scanButtonTextDisabled,
+            ]}
+          >
+            {isScanning ? "Wird analysiert..." : "Medikament scannen"}
+          </Text>
         </TouchableOpacity>
         <MedicationAutocomplete
           value={values.name}
@@ -456,11 +483,18 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginBottom: 20,
     gap: 8,
+    minHeight: 48,
+  },
+  scanButtonDisabled: {
+    backgroundColor: "#A2D9C7",
   },
   scanButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  scanButtonTextDisabled: {
+    color: "rgba(255, 255, 255, 0.8)",
   },
   overlayBackdrop: {
     flex: 1,

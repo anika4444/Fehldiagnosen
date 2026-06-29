@@ -1,6 +1,9 @@
+import { Platform } from "react-native";
+
 import {
   CreateMedicationRequest,
   MedicationResponse,
+  MedicationScanResponse,
 } from "@/types/medication-type";
 
 import axiosConfig from "./axiosConfig";
@@ -48,6 +51,35 @@ export const medicationService = {
     const response = await axiosConfig.put(
       `/patients/${patientId}/medications/${medicationId}`,
       data,
+    );
+    return response.data;
+  },
+
+  scanMedicationImage: async (
+    imageAsset: any,
+  ): Promise<MedicationScanResponse> => {
+    const formData = new FormData();
+
+    if (Platform.OS === "web") {
+      const response = await fetch(imageAsset.uri);
+      const blob = await response.blob();
+      formData.append("image", blob, imageAsset.fileName ?? "scan.jpg");
+    } else {
+      formData.append("image", {
+        uri: imageAsset.uri,
+        name: imageAsset.fileName ?? "scan.jpg",
+        type: imageAsset.mimeType ?? "image/jpeg",
+      } as any);
+    }
+
+    const response = await axiosConfig.post<MedicationScanResponse>(
+      "/medications/scan",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
     return response.data;
   },
