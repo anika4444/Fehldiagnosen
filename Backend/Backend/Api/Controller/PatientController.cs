@@ -5,7 +5,6 @@ using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.FamilyHistoryService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
-using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.MedicationService.Dto;
 using Backend.Application.Services.SymptomService;
@@ -24,16 +23,14 @@ public class PatientController : BaseApiController
     private readonly ISymptomService _symptomService;
     private readonly IMedicationService _medicationService;
     private readonly IMedicalHistoryEntryService _medicalHistoryEntryService;
-    private readonly IMedicationNotificationService _medicationNotificationService;
     private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
     private readonly IDiagnosisService _diagnosisService;
 
-    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationNotificationService medicationNotificationService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService, IDiagnosisService diagnosisService)
+    public PatientController(ISymptomService symptomService, IMedicalHistoryEntryService medicalHistoryEntryService, IMedicationService medicationService, IFamilyHistoryEntryService familyHistoryEntryService, IDiagnosisService diagnosisService)
     {
         _symptomService = symptomService;
         _medicationService = medicationService;
         _medicalHistoryEntryService = medicalHistoryEntryService;
-        _medicationNotificationService = medicationNotificationService;
         _familyHistoryEntryService = familyHistoryEntryService;
         _diagnosisService = diagnosisService;
     }
@@ -62,7 +59,6 @@ public class PatientController : BaseApiController
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicationService.CreateAsync(patientId, request, userId);
-        await _medicationNotificationService.NotifyMedicationChanged();
 
         if (result.IsSuccess)
             return CreatedAtAction(nameof(MedicationController.GetById), "Medication", new { id = result.Data.Id }, result.Data);

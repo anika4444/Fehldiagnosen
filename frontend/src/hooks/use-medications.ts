@@ -29,35 +29,11 @@ export const useMedications = (patientId: number | null) => {
     }
   }, [patientId]);
 
-  // Initiales Laden & SignalR Setup
+  // Initiales Laden
   useEffect(() => {
     if (!patientId) return;
 
     fetchMedications();
-
-    const backendUrl =
-      Platform.OS === "android"
-        ? "http://10.0.2.2:5238"
-        : "http://localhost:5238";
-
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${backendUrl}/hubs/medication`)
-      .build();
-
-    connection.on("RefreshMedications", () => {
-      if (!isSavingRef.current) {
-        console.log("SignalR: Aktualisiere Liste von externem Event");
-        fetchMedications();
-      } else {
-        console.log("SignalR: Ignoriere Event, da wir selbst speichern.");
-      }
-    });
-
-    connection.start().catch((err) => console.log("SignalR Error:", err));
-
-    return () => {
-      connection.stop();
-    };
   }, [patientId]);
 
   const saveMedication = async (

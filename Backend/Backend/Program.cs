@@ -8,7 +8,6 @@ using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.HealthTipService;
 using Backend.Application.Services.MedicalHistoryEntryService;
-using Backend.Application.Services.MedicationNotification;
 using Backend.Application.Services.MedicationService;
 using Backend.Application.Services.PatientService;
 using Backend.Application.Services.SymptomService;
@@ -55,7 +54,6 @@ builder.Services.AddScoped<IMedicationService, MedicationService>();
 builder.Services.AddScoped<IMedicalHistoryEntryService, MedicalHistoryEntryService>();
 builder.Services.AddScoped<IFamilyHistoryEntryService, FamilyHistoryEntryService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IMedicationNotificationService, MedicationNotificationService>();
 builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddScoped<IKnownMedicationRepository, MySqlKnownMedicationRepository>();
 builder.Services.AddScoped<IKnownMedicationService, KnownMedicationService>();
@@ -68,8 +66,6 @@ builder.Services.AddScoped<ICheckupService, CheckupService>();
 
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 builder.Services.AddScoped<IAnonymizerService, AnonymizerService>();
-
-builder.Services.AddSignalR();
 
 builder.Services.AddTransient<DtoMapper>();
 
@@ -134,7 +130,6 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
-app.MapHub<MedicationHub>("/hubs/medication");
 app.UseAuthentication();
 app.UseAuthorization();
 
