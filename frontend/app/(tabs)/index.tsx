@@ -229,9 +229,11 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: "100%",
+    height: "100%",
     alignItems: "center",
     paddingVertical: 14,
     paddingHorizontal: 4,
+    marginBottom: 0,
   },
   statCardHover: {
     shadowColor: "#000",

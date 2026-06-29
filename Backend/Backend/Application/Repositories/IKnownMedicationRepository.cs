@@ -6,6 +6,9 @@ namespace Backend.Application.Repositories
     public interface IKnownMedicationRepository
     {
         Task<IEnumerable<KnownMedication>> SearchAsync(string query);
+
         Task RebuildFromCsvAsync(string csvPath);
+
+        Task<IEnumerable<KnownMedication>> IdentifyAsync(string? brand, string? productName, string? activeIngredient, string? dosage, string? form);
     }
 }

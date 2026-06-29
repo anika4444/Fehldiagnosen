@@ -25,5 +25,23 @@ namespace Backend.Application.Services
         {
             await _repository.RebuildFromCsvAsync(csvPath);
         }
+
+        public async Task<KnownMedication?> IdentifyAsync(string? brand, string? productName, string? activeIngredient, string? dosage, string? form)
+        {
+            if (string.IsNullOrWhiteSpace(brand) &&
+                string.IsNullOrWhiteSpace(activeIngredient) &&
+                string.IsNullOrWhiteSpace(dosage))
+            {
+                return null;
+            }
+
+            Console.WriteLine($"AI-Extraktion → brand: {brand}, productName: {productName}, activeIngredient: {activeIngredient}, dosage: {dosage}, form: {form}");
+
+            var candidates = await _repository.IdentifyAsync(brand, productName, activeIngredient, dosage, form);
+
+            Console.WriteLine($"Treffer: {candidates.Count()}");
+
+            return candidates.FirstOrDefault();
+        }
     }
 }
