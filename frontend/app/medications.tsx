@@ -35,14 +35,16 @@ export default function Medications() {
 
   const handleSave = async (payload: CreateMedicationRequest) => {
     try {
+      const isEditing = !!editingItem?.id; // Prüfen, ob es ein Update oder ein neuer Eintrag ist
+
       const savedMedication: MedicationResponse = await saveMedication(
         payload,
         editingItem?.id,
       );
 
-      closeForm();
-
+      // Falls Wechselwirkungen vorhanden sind (passiert laut deinem Backend nur beim Erstellen)
       if (
+        !isEditing && // WICHTIG: Nur beim Erstellen prüfen, wie von dir gewünscht
         savedMedication.interactionWarnings &&
         savedMedication.interactionWarnings.length > 0
       ) {
@@ -52,13 +54,32 @@ export default function Medications() {
 
         if (Platform.OS === "web") {
           alert(`${alertTitle}\n\n${alertMessage}`);
+          closeForm(); // Erst danach schließen
         } else {
-          Alert.alert(alertTitle, alertMessage, [
-            { text: "Verstanden", style: "default" },
-          ]);
+          // Auf iOS/Android: Zeige den Alert DIREKT. Das Formular schließt sich,
+          // sobald der Patient auf den Button drückt. Das verhindert das "Verschlucken" auf iOS.
+          Alert.alert(
+            alertTitle,
+            alertMessage,
+            [
+              {
+                text: "Verstanden",
+                style: "default",
+                onPress: () => {
+                  closeForm(); // Schließt das Formular erst, wenn "Verstanden" geklickt wurde
+                },
+              },
+            ],
+            { cancelable: false },
+          );
         }
       } else {
-        showSuccessAlert("Medikament erfolgreich gespeichert.");
+        // Keine Wechselwirkungen oder es war ein Editier-Vorgang
+        closeForm();
+        // Kurzer Puffer für die normale Erfolgsmeldung
+        setTimeout(() => {
+          showSuccessAlert("Medikament erfolgreich gespeichert.");
+        }, 150);
       }
     } catch (err) {
       showErrorAlert("Medikament konnte nicht gespeichert werden.");

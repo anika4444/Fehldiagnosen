@@ -8,7 +8,7 @@ import {
 
 export const useExplainMedicalHistory = (
   patientId: number | null,
-  entry: DiagnosisEntryResponse, // TODO: entfernen
+  entry: DiagnosisEntryResponse,
   onSave: (payload: DiagnosisEntryRequest, id?: number) => Promise<void>,
 ) => {
   const [isExplaining, setIsExplaining] = useState(false);

@@ -25,3 +25,12 @@ export interface CreateMedicationRequest {
   notes?: string;
   atcCode?: string;
 }
+
+export interface MedicationScanResponse {
+  name?: string;
+  dosage?: string;
+  strength?: string;
+  form?: string;
+  manufacturer?: string;
+  notes?: string;
+}
