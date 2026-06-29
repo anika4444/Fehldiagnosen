@@ -7,8 +7,6 @@ import { ChatOpenAI } from "@langchain/openai";
 import { MistralProviderFactory } from "./providers/MistralProviderFactory.js";
 import { getIcdContext } from "./icd10Lookup.js";
 import { ChainBuilder } from "./chainBuilder.js";
-import medicalHistoryRouter from "./medicalHistoryExplanation.js";
-import checkupSummaryRouter from "./checkupSummary.js";
 
 dotenv.config();
 
