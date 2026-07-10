@@ -14,7 +14,7 @@ namespace Backend.Infrastructure.Repositories
         }
         public async Task<MedicalLetter> AddAsync(MedicalLetter entity)
         {
-            var newMedicalLetter = await _context.AddAsync(entity);
+            await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity;
         }
@@ -41,7 +41,7 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<MedicalLetter> UpdateAsync(MedicalLetter entity)
         {
-            var updatetLetter =  _context.MedicalLetters.Update(entity);
+            _context.MedicalLetters.Update(entity);
             await _context.SaveChangesAsync();
             return  entity;
         }

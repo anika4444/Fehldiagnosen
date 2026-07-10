@@ -1,29 +1,30 @@
 # 🚀 ADAM
 
-Willkommen bei ADAM! Ein Tool, dass dir bei der Verwaltung von medizinischen Daten hilft!
+Willkommen bei ADAM! Ein Tool, dass dir bei der Verwaltung von medizinischen Daten hilft.
 
 ## 🛠 Voraussetzungen
 
 Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
 
-- **Node.js** (wird benötigt, um die Pakete über `npm` zu installieren)
+- **Node.js**: Wird benötigt, um die Pakete über `npm` zu installieren
 - **Docker**
-- _(Optional)_ **Expo Go App** (Lade dir diese App auf dein Smartphone herunter – egal ob iOS oder Android) -> jedoch müsste hier im Frontend im axiosConfig die LAN_IP und die Plattform welches es benutzen sollte angepasst werden
-- _(Optional)_ **Android Studio** (Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst.)
-- **Visual Studio** mit .NET 10
-- für AI einen gültigen API-Key plus die passenden Env-Variablen.
-- **Drugbank XML** (aus folgendem Link https://fhvorarlberg-my.sharepoint.com/:f:/g/personal/asc9769_students_fhv_at/IgAba5IWyJyFTre7A00NZZYNAdOH0OawLz2UUscFsOQMz9w?e=TcmbgT)
+- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend müssen im Frontend in der axiosConfig die LAN_IP sowie die zu verwendende Plattform angepasst werden
+- _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
+- **Visual Studio**: Mit .NET 10
+- **.env**: Für unsere AI-Services (Unterordner _AI_) werden ein gültiger **API-Key** sowie die dazugehörigen **Umgebungsvariablen** benötigt
+- **Drugbank XML**: Aus folgendem Link: https://fhvorarlberg-my.sharepoint.com/:f:/g/personal/asc9769_students_fhv_at/IgAba5IWyJyFTre7A00NZZYNAdOH0OawLz2UUscFsOQMz9w?e=TcmbgT
 
 ## 💻 Installation & Start
 
-Folge diesen Schritten, um unser Projekt lokal auf deinem Rechner zum Laufen zu bringen:
+Befolge diese Schritte, um das Projekt lokal auf deinem Rechner zum Laufen zu bringen:
 
 ### 1. Repository klonen & updaten
 
-Lade dir das Projekt auf deinen Rechner herunter:
+Klone das Projekt auf deinen Rechner:
 
 ```bash
-git clone https://github.com/anika4444/Fehldiagnosen.git
+git clone https://github.com/anika4444/Fehldiagnosen.git dein-projekt
+
 cd dein-projekt
 ```
 
@@ -31,72 +32,82 @@ cd dein-projekt
 
 ```bash
 # 1. Lege die Drugbank XML ab. Diese gehört zu dem folgenden Pfad -> Fehldiagnosen\Backend\Backend\src\KnownMedications\interaction_database.xml
-# 2. Installiere die Datenbank. Navigiere hierzu im Eingabeaufforderung zu Fehldiagnosen\Backend\Backend\Docker und führe folgenden Befehl aus
-docker compose up
-# 3. Als nächstes muss die Datenbank erstellt werden. Navigiere hierzu im Powershell zu Fehldiagnosen\Backend\Backend\ und führe folgenden Befehl aus
+
+# 2. Installiere die Datenbank. Navigiere hierzu in PowerShell oder in der Eingabeaufforderung zu Fehldiagnosen\Backend\Backend\Docker und führe folgenden Befehl aus:
+docker compose up -d
+
+# 3. Als nächstes muss die Datenbank erstellt werden. Navigiere im Terminal zu Fehldiagnosen\Backend\Backend\ und führe folgenden Befehl aus:
 dotnet ef database update
-# 4. Starte als nächstes dein Backend
-# 5. Nun müssen zwei Wissensdatenbanken geladen werden. Öffne hierzu Scalar -> http://localhost:5238/scalar/
-Navigiere nun zu "KnownMedication" und führe folgende Schnittstellen aus:
+
+# 4. Starte dein Backend:
+dotnet run
+
+# 5. Nun müssen zwei Wissensdatenbanken geladen werden. Öffne hierfür Scalar -> http://localhost:5238/scalar/
+Navigiere in Scalar zum Tab "KnownMedication" und rufe folgende API-Endpoints auf:
 - post /api/known-medications/rebuild
 - post /api/known-medications/rebuild-interactions
 ```
 
 ### 3. Frontend starten (Expo)
 
-Wir nutzen für unser Frontend Expo. So bekommst du es zum Laufen:
+Wir nutzen für unser Frontend die Entwicklungsplattform Expo. Öffne das Projekt dazu in einer neuen IDE-Instanz
 
 ```bash
-# 1. In den Frontend-Ordner wechseln (Name ggf. anpassen)
+# 1. Navigiere zum Frontend-Ordner
 cd frontend
 
-# 2. Alle Abhängigkeiten installieren (nur beim ersten Mal nötig)
+# 2. Installiere alle Abhängigkeiten des Frontends (nur beim ersten Mal nötig)
 npm install
 
-# 3. Den Entwicklungsserver starten
+# 3. Starte den Entwicklungsserver
 npx expo start
 ```
 
 ### 4. AI Service starten
 
+Öffne hierfür ein neues Terminal in derselben IDE-Instanz
+
 ```bash
-# 1. Öffne ein neues Terminal
-# 2. Navigiere zu Fehldiagnosen/AI
-# 3. Führe folgendes aus
+# 1. Navigiere zum Ordner AI
+cd AI
+
+# 2. Installiere alle Abhängigkeiten des AI-Service (nur beim ersten Mal nötig)
 npm install
-# 4. Starte den AI Service mit: node aiServices.js
+
+# 3. Starte den AI-Service:
+node aiServices.js
 ```
 
-### 🚀 Die App benutzen
+### 🚀 Verwendung der App
 
-**Am Handy benutzen**
-Hierfür benötigst du die Expo App. Zusätzlich musst du im axiosConfig im Frontend die LAN_IP und die darunterliegende Schleife (bezüglich Betriebssystem). Wichtig ist, dass das Handy und der Laptop im gleichen WLAN sind. Um es zu starten, muss dann der QR-Code gescannt werden.
+**Am Handy**
+Hierfür benötigst du die Expo App. Zusätzlich musst du in der axiosConfig im Frontend die LAN_IP sowie die darunterliegende Schleife (abhängig vom Betriebssystem) anpassen. Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
 
-**Im Webbrowser benutzen:**
-Möchtest du die App direkt auf dem PC im Browser sehen?
+**Im Webbrowser**
+Möchtest du die App direkt auf dem PC im Browser öffnen?
 
-- Drücke in deinem Terminal, in dem der Expo-Server läuft, einfach die Taste **`w`**.
-- _Hinweis: Expo öffnet dann automatisch einen neuen Tab mit unserer App._
-- Hierbei sind jedoch nicht alle Features möglich. Eine Registrierung funktioniert nur auf einem Handy. In diesem Fall muss sonst mittels Scalar ein Account erstellt werden. Hierfür muss die JSON so aussehen:
+- Drücke in demselben Terminal, in dem der Expo-Server läuft, die Taste **`w`**.
+- _Hinweis: Expo öffnet dann automatisch einen neuen Browser-Tab mit der App._
+- Im Browser stehen jedoch nicht alle Features zur Verfügung. Eine Registrierung über das Frontend funktioniert beispielsweise nur auf einem mobilen Gerät. Alternativ kann über Scalar ein Account erstellt werden. Der JSON-Body des Requests muss dabei folgendem Muster entsprechen:
 
 ```json
 {
   "userName": "max",
   "email": "max.mustermann@fhv.at",
-  "password": "passwort",
+  "password": "12345678",
   "role": "Patient",
   "firstName": "Max",
   "lastName": "Mustermann",
   "dateOfBirth": "2001-01-01",
-  "gender": 1
+  "gender": 0
 }
 ```
 
-**🤖 Auf einem virtuellen Handy testen (Android Studio):**
+**🤖 Auf einem Emulator testen (Android Studio):**
 Wenn du dir das ständige Scannen mit dem echten Handy sparen willst, kannst du dir ein virtuelles Smartphone auf deinem PC einrichten:
 
 1. Öffne Android Studio, klicke auf **More Actions** (oder gehe ins Menü) und öffne den **Virtual Device Manager**.
 2. Klicke auf "Create Device" und richte dir ein virtuelles Smartphone ein (z.B. ein Pixel 6).
-3. Starte dieses virtuelle Handy (über den kleinen Play-Button).
-4. Sobald das virtuelle Handy auf deinem Bildschirm hochgefahren ist, drücke in deinem Terminal (wo Expo läuft) einfach die Taste **`a`**.
-5. Expo installiert die App jetzt vollautomatisch auf deinem Emulator!
+3. Starte den Emulator über den kleinen Play-Button.
+4. Sobald das virtuelle Handy auf deinem Bildschirm hochgefahren ist, drücke in demselben Terminal, in dem der Expo-Server läuft, die Taste **`a`**.
+5. Expo installiert die App jetzt vollautomatisch auf deinem Emulator

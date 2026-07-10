@@ -58,28 +58,6 @@ public class MedicationController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ScanMedication([FromForm] IFormFile image)
     {
-        /*if (image == null || image.Length == 0)
-            return BadRequest("Kein Bild übermittelt.");
-
-        using var ms = new MemoryStream();
-        await image.CopyToAsync(ms);
-        var base64 = Convert.ToBase64String(ms.ToArray());
-
-        var result = await _aiService.InterpretMedicationImage(base64, image.ContentType);
-
-        if(!result.IsSuccess)
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
-
-        var extractedName = result.Data?.Name;
-
-        var medication = await _knownMedicationService.IdentifyAsync(extractedName);
-
-        return Ok(new
-        {
-            name = medication?.Name,
-            dosage = medication?.Dosage,
-        });*/
-
         if (image == null || image.Length == 0)
             return BadRequest("Kein Bild übermittelt.");
 

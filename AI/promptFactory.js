@@ -1,8 +1,5 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-// ─── Template-Definitionen ───────────────────────────────────────────────────
-// Alle Prompt-Templates zentral an einem Ort.
-
 const TEMPLATES = {
   // Medizinischer Erklärungs-Prompt (Hauptmodell)
   medicalHistory: ChatPromptTemplate.fromMessages([

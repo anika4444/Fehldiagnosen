@@ -2,7 +2,6 @@ import { ChatOpenAI } from "@langchain/openai";
 import dotenv from "dotenv";
 dotenv.config();
 
-// ─── Basis-Konfiguration (aus .env) ─────────────────────────────────────────
 const BASE_CONFIG = {
   apiKey: process.env.AI_API_KEY,
   configuration: {
