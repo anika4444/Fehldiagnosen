@@ -11,7 +11,7 @@ Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
 - _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend müssen im Frontend in der axiosConfig die LAN_IP sowie die zu verwendende Plattform angepasst werden
 - _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
 - **Visual Studio**: Mit .NET 10
-- **Python**: Für die Anwendung des Arztbrief-Scans
+- **Python**: Für die Durchführung des Arztbrief-Scans
 - **.env**: Für unsere AI-Services (Unterordner _AI_) werden ein gültiger **API-Key** sowie die dazugehörigen **Umgebungsvariablen** benötigt
 - **Drugbank XML**: Aus folgendem Link: https://fhvorarlberg-my.sharepoint.com/:f:/g/personal/asc9769_students_fhv_at/IgAba5IWyJyFTre7A00NZZYNAdOH0OawLz2UUscFsOQMz9w?e=TcmbgT
 
@@ -42,10 +42,13 @@ dotnet ef database update
 
 # 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml.
 
-# 5. Starte dein Backend:
+# 5. Installiere die benötigte Python-Abhängigkeit für das Scannen des Arztbriefs. Führe dazu im bestehenden Terminal folgenden Befehl aus:
+python -m pip install presidio-analyzer
+
+# 6. Starte nun dein Backend:
 dotnet run
 
-# 6. Nun müssen zwei Wissensdatenbanken geladen werden. Öffne hierfür Scalar -> http://localhost:5238/scalar/
+# 7. Nun müssen zwei Wissensdatenbanken geladen werden. Öffne hierfür Scalar -> http://localhost:5238/scalar/
 Navigiere in Scalar zum Tab "KnownMedication" und rufe folgende API-Endpoints auf:
 - post /api/known-medications/rebuild
 - post /api/known-medications/rebuild-interactions
