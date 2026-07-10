@@ -1,6 +1,13 @@
 import { router } from "expo-router";
 import React from "react";
-import { Alert, Platform, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import { MedicationCard } from "@/components/medication/medication-card";
 import { MedicationForm } from "@/components/medication/medication-form";
@@ -97,49 +104,63 @@ export default function Medications() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <HeaderView
         title="Aktuelle Medikamente"
         subtitle="Verwalten Sie Ihre medizinischen Daten"
         onBackPress={() => router.back()}
       />
 
-      <View style={styles.content}>
-        {!isFormVisible ? (
+      {isFormVisible ? (
+        // Wenn das Formular offen ist, MUSS es scrollbar sein
+        <FlatList
+          data={[]} // Leeres Array, da wir keine echten Listen-Items rendern
+          renderItem={() => null}
+          ListHeaderComponent={
+            <MedicationForm
+              initialData={editingItem}
+              onSave={handleSave}
+              onCancel={closeForm}
+            />
+          }
+          contentContainerStyle={styles.content}
+          // Wichtig, damit Dropdowns/Autocomplete beim Antippen richtig funktionieren:
+          keyboardShouldPersistTaps="handled"
+        />
+      ) : (
+        // Wenn das Formular zu ist, ist NUR die Liste da.
+        // Sie bekommt ein eigenes ScrollView verpasst, ODER (besser) wir rendern den Button fix oben.
+        <View style={[styles.content, { flex: 1 }]}>
           <PrimaryButton
             title="Eintrag hinzufügen"
             icon="plus"
             onPress={() => openForm()}
           />
-        ) : (
-          <MedicationForm
-            initialData={editingItem}
-            onSave={handleSave}
-            onCancel={closeForm}
-          />
-        )}
 
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Einträge
-        </ThemedText>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Einträge
+          </ThemedText>
 
-        <DataList
-          data={medications}
-          isLoading={isLoading}
-          error={error}
-          themeColor={theme.primary}
-          emptyMessage="Keine Medikamente vorhanden."
-          renderItem={(medication) => (
-            <MedicationCard
-              key={medication.id}
-              medication={medication}
-              onEdit={openForm}
-              onDelete={handleDelete}
+          <View style={{ flex: 1 }}>
+            <DataList
+              data={medications}
+              isLoading={isLoading}
+              error={error}
+              themeColor={theme.primary}
+              emptyMessage="Keine Medikamente vorhanden."
+              renderItem={(medication) => (
+                <MedicationCard
+                  key={medication.id}
+                  medication={medication}
+                  onEdit={openForm}
+                  onDelete={handleDelete}
+                />
+              )}
             />
-          )}
-        />
-      </View>
-    </ScrollView>
+          </View>
+        </View>
+      )}
+    </View>
   );
 }
 

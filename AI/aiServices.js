@@ -7,14 +7,18 @@ import { ChatOpenAI } from "@langchain/openai";
 import { MistralProviderFactory } from "./providers/MistralProviderFactory.js";
 import { getIcdContext } from "./icd10Lookup.js";
 import { ChainBuilder } from "./chainBuilder.js";
+import checkupSummaryRouter from "./checkupSummary.js";
 
 dotenv.config();
 
 const app = express();
-app.use(express.json({
+app.use(
+  express.json({
     extended: true,
-    limit: "25mb"
-}));
+    limit: "25mb",
+  }),
+);
+app.use(checkupSummaryRouter);
 
 const MAX_ATTEMPTS = parseInt(process.env.MAX_VALIDATION_ATTEMPTS || "3");
 const factory = new MistralProviderFactory();
@@ -87,25 +91,25 @@ const explainModel = new ChatOpenAI({
 });
 
 const diagnosisModel = new ChatOpenAI({
-    model: process.env.AI_MODEL_NAME_DIAGNOSIS,
-    apiKey: process.env.AI_API_KEY,
-    temperature: 0.1,
-    configuration: { baseURL: process.env.AI_BASE_URL },
-    defaultHeaders: {
-        "HTTP-Referer": process.env.AI_SCRIPT_URL,
-        "X-Title": "adam-med-app-prototype",
-    },
+  model: process.env.AI_MODEL_NAME_DIAGNOSIS,
+  apiKey: process.env.AI_API_KEY,
+  temperature: 0.1,
+  configuration: { baseURL: process.env.AI_BASE_URL },
+  defaultHeaders: {
+    "HTTP-Referer": process.env.AI_SCRIPT_URL,
+    "X-Title": "adam-med-app-prototype",
+  },
 });
 
 const medicationModel = new ChatOpenAI({
-    model: process.env.AI_MODEL_NAME_MEDICATION,
-    apiKey: process.env.AI_API_KEY,
-    temperature: 0.1,
-    configuration: { baseURL: process.env.AI_BASE_URL },
-    defaultHeaders: {
-        "HTTP-Referer": process.env.AI_SCRIPT_URL,
-        "X-Title": "adam-med-app-prototype",
-    },
+  model: process.env.AI_MODEL_NAME_MEDICATION,
+  apiKey: process.env.AI_API_KEY,
+  temperature: 0.1,
+  configuration: { baseURL: process.env.AI_BASE_URL },
+  defaultHeaders: {
+    "HTTP-Referer": process.env.AI_SCRIPT_URL,
+    "X-Title": "adam-med-app-prototype",
+  },
 });
 
 // ─── SERVICE 1: DIAGNOSE ÜBERSETZUNG (/ai/explain) ───────────────────────────
@@ -328,10 +332,10 @@ app.post("/ai/interpret-medication-image", async (req, res) => {
 
     const mime = mimeType || "image/jpeg";
 
-        const messages = [
-            {
-                role: "system",
-                content: `Du bist ein medizinischer Analyse-Assistent für Medikamentenverpackungen.
+    const messages = [
+      {
+        role: "system",
+        content: `Du bist ein medizinischer Analyse-Assistent für Medikamentenverpackungen.
 
 DEINE AUFGABE:
 Extrahiere strukturierte Informationen aus dem Bild einer Medikamentenverpackung.
@@ -367,66 +371,67 @@ OUTPUT:
   "form": "Granulat"
 }
 
-`
+`,
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${mime};base64,${imageBase64}`,
             },
-            {
-                role: "user",
-                content: [
-                    {
-                        type: "image_url",
-                        image_url: {
-                            url: `data:${mime};base64,${imageBase64}`,
-                        },
-                    },
-                    {
-                        type: "text",
-                        text: "Extrahiere die strukturierten Medikamenteninformationen."
-                    }
-                ],
-            },
-        ];
+          },
+          {
+            type: "text",
+            text: "Extrahiere die strukturierten Medikamenteninformationen.",
+          },
+        ],
+      },
+    ];
 
-        const aiResponse = await medicationModel.invoke(messages);
+    const aiResponse = await medicationModel.invoke(messages);
 
-        console.log("🤖 [MedScan] KI Rohantwort:", aiResponse.content);
+    console.log("🤖 [MedScan] KI Rohantwort:", aiResponse.content);
 
-        let parsed;
+    let parsed;
 
-        try {
-            const raw = aiResponse.content
-                .replace(/```json\s*/gi, "")
-                .replace(/```\s*/gi, "")
-                .trim();
+    try {
+      const raw = aiResponse.content
+        .replace(/```json\s*/gi, "")
+        .replace(/```\s*/gi, "")
+        .trim();
 
-            console.log("🧹 [MedScan] Nach Strip:", raw);
+      console.log("🧹 [MedScan] Nach Strip:", raw);
 
-            parsed = JSON.parse(raw);
+      parsed = JSON.parse(raw);
 
-            console.log("✅ [MedScan] Parsed:", JSON.stringify(parsed));
-        } catch (e) {
-            console.error("❌ [MedScan] JSON Parse Error:", aiResponse.content);
-            return res.status(500).json({ error: "Ungültige KI-Antwort" });
-        }
-
-        return res.json({
-            brand:            parsed.brand            ?? null,
-            productName:      parsed.productName      ?? null,
-            activeIngredient: parsed.activeIngredient ?? null,
-            dosage:           parsed.dosage           ?? null,
-            form:             parsed.form             ?? null,
-        });
-
-    } catch (error) {
-        console.error("❌ [MedScan] Fehler:", error?.message || error);
-        return res.status(500).json({ error: "KI-Service aktuell nicht erreichbar." });
+      console.log("✅ [MedScan] Parsed:", JSON.stringify(parsed));
+    } catch (e) {
+      console.error("❌ [MedScan] JSON Parse Error:", aiResponse.content);
+      return res.status(500).json({ error: "Ungültige KI-Antwort" });
     }
+
+    return res.json({
+      brand: parsed.brand ?? null,
+      productName: parsed.productName ?? null,
+      activeIngredient: parsed.activeIngredient ?? null,
+      dosage: parsed.dosage ?? null,
+      form: parsed.form ?? null,
+    });
+  } catch (error) {
+    console.error("❌ [MedScan] Fehler:", error?.message || error);
+    return res
+      .status(500)
+      .json({ error: "KI-Service aktuell nicht erreichbar." });
+  }
 });
 
 // ─── SERVER START ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);
-    console.log(`   → POST /ai/explain`);
-    console.log(`   → POST /ai/interpret-medical-letter`);
-    console.log(`   → POST /ai/interpret-medication-image`);
+  console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);
+  console.log(`   → POST /ai/explain`);
+  console.log(`   → POST /ai/interpret-medical-letter`);
+  console.log(`   → POST /ai/interpret-medication-image`);
 });

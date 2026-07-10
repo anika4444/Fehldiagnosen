@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller
 {
-    [Authorize]
     [ApiController]
     [Route("api/known-medications")]
     public class KnownMedicationController : ControllerBase
@@ -22,6 +21,7 @@ namespace Backend.Api.Controller
             _drugInteractionService = drugInteractionService;
         }
 
+        [Authorize]
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string q)
         {
@@ -55,6 +55,7 @@ namespace Backend.Api.Controller
             return BadRequest(results.ErrorMessage);
         }
 
+        [Authorize]
         [HttpPost("identify")]
         public async Task<IActionResult> Identify([FromBody] IdentifyRequest request)
         {
