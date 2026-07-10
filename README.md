@@ -23,21 +23,23 @@ Befolge diese Schritte, um das Projekt lokal auf deinem Rechner zum Laufen zu br
 Klone das Projekt auf deinen Rechner:
 
 ```bash
-git clone https://github.com/anika4444/Fehldiagnosen.git dein-projekt
+git clone https://github.com/anika4444/Fehldiagnosen.git adam
 
-cd dein-projekt
+cd adam
 ```
 
 ### 2. Backend einrichten
 
 ```bash
-# 1. Lege die Drugbank XML ab. Diese gehört zu dem folgenden Pfad -> Fehldiagnosen\Backend\Backend\src\KnownMedications\interaction_database.xml
+# 1. Lade die Drugbank-XML (interaction_database.xml) herunter und lege sie unter folgendem Pfad ab: adam\Backend\Backend\src\KnownMedications
 
-# 2. Installiere die Datenbank. Navigiere hierzu in PowerShell oder in der Eingabeaufforderung zu Fehldiagnosen\Backend\Backend\Docker und führe folgenden Befehl aus:
+# 2. Starte den Datenbankserver in einem Docker-Container. Navigiere dazu in PowerShell oder in der Eingabeaufforderung zu adam\Backend\Backend\Docker und führe folgenden Befehl aus:
 docker compose up -d
 
-# 3. Als nächstes muss die Datenbank erstellt werden. Navigiere im Terminal zu Fehldiagnosen\Backend\Backend\ und führe folgenden Befehl aus:
+# 3. Als nächstes muss die Datenbankstruktur erstellt werden. Navigiere im Terminal zu adam\Backend\Backend und führe folgenden Befehl aus:
 dotnet ef database update
+
+# 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml.
 
 # 4. Starte dein Backend:
 dotnet run
