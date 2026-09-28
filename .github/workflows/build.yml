@@ -28,6 +28,14 @@ jobs:
       - name: Build backend
         run: dotnet build Backend/Backend.slnx --configuration Release --no-restore
 
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: Backend/**/bin/Release/
+          if-no-files-found: error
+          retention-days: 14
+
   build-frontend-and-ai:
     name: Build Frontend & AI
     runs-on: ubuntu-latest
@@ -52,6 +60,14 @@ jobs:
       - name: Build frontend (Expo web export)
         working-directory: frontend
         run: npx expo export --platform web
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-web
+          path: frontend/dist
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Install AI dependencies
         working-directory: AI
