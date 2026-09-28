@@ -36,8 +36,8 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  build-frontend-and-ai:
-    name: Build Frontend & AI
+  build-frontend:
+    name: Build Frontend (Expo Web)
     runs-on: ubuntu-latest
 
     steps:
@@ -47,11 +47,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
-          cache-dependency-path: |
-            frontend/package-lock.json
-            AI/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
         working-directory: frontend
@@ -69,6 +67,62 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  build-ai:
+    name: Build AI Service (Node.js)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: AI/package-lock.json
+
       - name: Install AI dependencies
         working-directory: AI
-        run: npm ci
+        run: npm ci --omit=dev
+
+      - name: Syntax check
+        working-directory: AI
+        run: |
+          find . -name "*.js" -not -path "./node_modules/*" -print0 \
+            | xargs -0 -n1 node --check
+
+      # Startet den Service kurz mit Dummy-Werten. Schlägt fehl, wenn ein Import
+      # fehlt oder der Server beim Start abstürzt. Es werden keine KI-Calls gemacht.
+      - name: Smoke test (service starts)
+        working-directory: AI
+        env:
+          AI_API_KEY: ci-dummy-key
+          AI_BASE_URL: http://localhost:9999
+          AI_MODEL_NAME: dummy
+          AI_MODEL_NAME_DIAGNOSIS: dummy
+          AI_MODEL_NAME_MEDICATION: dummy
+          VALIDATOR_MODEL_NAME: dummy
+          PORT: 3000
+        run: |
+          node aiServices.js > server.log 2>&1 &
+          SERVER_PID=$!
+          if curl -s -o /dev/null --retry 15 --retry-delay 1 --retry-connrefused http://localhost:3000/; then
+            echo "AI service started successfully"
+            kill $SERVER_PID
+          else
+            echo "AI service failed to start:"
+            cat server.log
+            exit 1
+          fi
+
+      - name: Package AI service
+        run: tar --exclude='AI/.env' --exclude='AI/server.log' -czf ai-service.tar.gz AI
+
+      - name: Upload AI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-service
+          path: ai-service.tar.gz
+          if-no-files-found: error
+          retention-days: 14
