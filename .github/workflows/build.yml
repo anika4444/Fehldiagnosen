@@ -1,0 +1,55 @@
+name: Build Project
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-backend:
+    name: Build Backend (.NET)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore backend dependencies
+        run: dotnet restore Backend/Backend.slnx
+
+      - name: Build backend
+        run: dotnet build Backend/Backend.slnx --configuration Release --no-restore
+
+  build-frontend-and-ai:
+    name: Build Frontend & AI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            AI/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend (Expo web export)
+        working-directory: frontend
+        run: npx expo export --platform web
+
+      - name: Install AI dependencies
+        working-directory: AI
+        run: npm ci
