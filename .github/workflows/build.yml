@@ -126,3 +126,197 @@ jobs:
           path: ai-service.tar.gz
           if-no-files-found: error
           retention-days: 14
+
+  # ─── Statische Tests ────────────────────────────────────────────────────────
+
+  static-frontend:
+    name: Static Tests Frontend (ESLint + TypeScript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint (ESLint)
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Type check (TypeScript)
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+  # ─── Security Checks ────────────────────────────────────────────────────────
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [csharp, javascript-typescript]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-and-quality
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+
+  audit-npm:
+    name: Vulnerability Audit (${{ matrix.project }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [frontend, AI]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Schlägt nur bei Schwachstellen mit Schweregrad "high" oder "critical" fehl.
+      - name: npm audit
+        working-directory: ${{ matrix.project }}
+        run: npm audit --omit=dev --audit-level=high
+
+  audit-nuget:
+    name: Vulnerability Audit (Backend)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore backend dependencies
+        run: dotnet restore Backend/Backend.slnx
+
+      # Schlägt nur bei Schwachstellen mit Schweregrad "High" oder "Critical" fehl.
+      - name: Check for vulnerable NuGet packages
+        shell: pwsh
+        run: |
+          $output = dotnet list Backend/Backend.slnx package --vulnerable --include-transitive 2>&1
+          $output | Out-String | Write-Host
+          if ($output | Select-String -Pattern '\b(High|Critical)\b') {
+            Write-Error "Vulnerable packages with severity High/Critical found."
+            exit 1
+          }
+
+  # ─── License Checks ─────────────────────────────────────────────────────────
+
+  license-npm:
+    name: License Check (${{ matrix.project }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [frontend, AI]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: npm ci --omit=dev
+
+      # Schlägt fehl, wenn eine Produktiv-Abhängigkeit unter einer Copyleft-Lizenz steht.
+      - name: Check licenses
+        working-directory: ${{ matrix.project }}
+        run: >
+          npx --yes license-checker-rseidelsohn
+          --production
+          --excludePrivatePackages
+          --summary
+          --failOn "GPL-2.0;GPL-2.0-only;GPL-2.0-or-later;GPL-3.0;GPL-3.0-only;GPL-3.0-or-later;AGPL-3.0;AGPL-3.0-only;AGPL-3.0-or-later;LGPL-2.1;LGPL-2.1-only;LGPL-2.1-or-later;LGPL-3.0;LGPL-3.0-only;LGPL-3.0-or-later;SSPL-1.0"
+
+  # Erlaubte Lizenzen (.github/allowed-licenses.json):
+  # Alles permissive Lizenzen. Der Code darf verwendet, verändert und auch in
+  # geschlossenen/kommerziellen Projekten ausgeliefert werden. Pflicht ist meist
+  # nur, Lizenztext und Copyright-Hinweis mitzuliefern. Der eigene Code muss nie
+  # offengelegt werden.
+  #
+  #   MIT          - Häufigste Lizenz. Alles erlaubt, Copyright-Hinweis bleibt erhalten.
+  #   Apache-2.0   - Wie MIT, plus ausdrückliche Patentlizenz. Änderungen kennzeichnen.
+  #   BSD-2-Clause - Praktisch wie MIT.
+  #   BSD-3-Clause - Wie BSD-2, zusätzlich keine Werbung mit dem Namen der Autoren.
+  #   ISC          - Inhaltlich wie MIT, kürzer formuliert (häufig bei npm).
+  #   0BSD         - Nicht einmal ein Copyright-Hinweis nötig.
+  #   MS-PL        - Microsoft Public License, freizügig (ältere .NET-Pakete).
+  #   Unlicense    - Praktisch gemeinfrei (Public Domain).
+  #   Zlib         - Sehr freizügig (Kompressions-/Grafikbibliotheken).
+  #   PostgreSQL   - Freizügig, ähnlich wie MIT/BSD.
+  #
+  # Bewusst NICHT erlaubt: GPL, LGPL, AGPL (Copyleft). Wer solchen Code einbaut und
+  # weitergibt, muss evtl. den eigenen Quellcode unter derselben Lizenz offenlegen,
+  # bei AGPL sogar schon beim Betrieb als Webservice. Solche Lizenzen nur nach
+  # bewusster Prüfung in die Liste aufnehmen.
+  #
+  # Hinweis: JSON erlaubt keine Kommentare, deshalb steht die Erklärung hier.
+  license-nuget:
+    name: License Check (Backend)
+    runs-on: windows-latest
+    env:
+      DOTNET_ROLL_FORWARD: Major
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore backend dependencies
+        run: dotnet restore Backend/Backend.slnx
+
+      - name: Install nuget-license
+        run: dotnet tool install --global nuget-license
+
+      # Erlaubte Lizenzen stehen in .github/allowed-licenses.json
+      - name: Check licenses
+        run: nuget-license -i Backend/Backend/Backend.csproj -a .github/allowed-licenses.json
