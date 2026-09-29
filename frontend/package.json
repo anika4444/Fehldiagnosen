@@ -56,5 +56,10 @@
     "typescript": "~5.9.2",
     "babel-plugin-module-resolver": "^5.0.0"
   },
+  "overrides": {
+    "@expo/metro-config": {
+      "postcss": "^8.5.28"
+    }
+  },
   "private": true
 }
