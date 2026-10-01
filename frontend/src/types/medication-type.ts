@@ -1,0 +1,36 @@
+export interface MedicationResponse {
+  id: number;
+  name: string;
+  patientId?: number;
+  dosage?: string;
+  intakeFrequency?: string;
+  durationInDays?: number;
+  intakeStartDate?: string;
+  endDate?: string;
+  indication?: string;
+  doctorName?: string;
+  notes?: string;
+  atcCode?: string;
+  interactionWarnings?: string[];
+}
+
+export interface CreateMedicationRequest {
+  name: string;
+  dosage?: string;
+  intakeFrequency?: string;
+  durationInDays?: number;
+  intakeStartDate?: string;
+  indication?: string;
+  doctorName?: string;
+  notes?: string;
+  atcCode?: string;
+}
+
+export interface MedicationScanResponse {
+  name?: string;
+  dosage?: string;
+  strength?: string;
+  form?: string;
+  manufacturer?: string;
+  notes?: string;
+}
