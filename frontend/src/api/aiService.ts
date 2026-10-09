@@ -1,9 +1,6 @@
-import axiosConfig from "./axiosConfig";
+import { ExplainDiagnosisResponse } from "@/types/ai-type";
 
-interface ExplainDiagnosisApiResponse {
-  text: string;
-  disclaimer?: string;
-}
+import axiosConfig from "./axiosConfig";
 
 interface InterpretMedicationImageApiResponse {
   extracted: {
@@ -34,8 +31,8 @@ export const aiService = {
   explainDiagnosisById: async (
     patientId: number,
     diagnosisId: number,
-  ): Promise<ExplainDiagnosisApiResponse> => {
-    const response = await axiosConfig.get<ExplainDiagnosisApiResponse>(
+  ): Promise<ExplainDiagnosisResponse> => {
+    const response = await axiosConfig.get<ExplainDiagnosisResponse>(
       `/ai/${patientId}/explain-diagnosis/${diagnosisId}`,
     );
 

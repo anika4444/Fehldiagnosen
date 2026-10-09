@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import axiosConfig from "@/api/axiosConfig";
+import { aiService } from "@/api/aiService";
 import { DiagnosisEntryResponse } from "@/types/diagnosis-type";
 
 export const useExplainMedicalHistory = (
@@ -20,17 +20,12 @@ export const useExplainMedicalHistory = (
 
     setIsExplaining(true);
     try {
-      const response = await axiosConfig.get<any>(
-        `ai/${patientId}/explain-diagnosis/${entry.id}`,
+      const { text, disclaimer } = await aiService.explainDiagnosisById(
+        patientId,
+        entry.id,
       );
 
-      const explanationText =
-        response.data.data?.text || response.data.text || response.data;
-
-      const disclaimer =
-        response.data.data?.disclaimer || response.data.disclaimer || null;
-
-      setAiExplanation(explanationText);
+      setAiExplanation(text);
       setAiDisclaimer(disclaimer);
     } catch (error) {
       console.error("Fehler beim Laden der Erklärung:", error);
