@@ -8,7 +8,7 @@ namespace Backend.Infrastructure.Repositories
     {
         public static async Task Initialize(MySqlDbContext context, RoleManager<IdentityRole> roleManager)
         {
-            context.Database.EnsureCreated();
+            await context.Database.MigrateAsync();
 
             string[] roleNames = { "Patient", "Arzt" };
             foreach (var roleName in roleNames)
@@ -27,24 +27,34 @@ namespace Backend.Infrastructure.Repositories
                 await context.SaveChangesAsync();
             }
 
-            var existingLevels = await context.CommunicationLevels.ToListAsync<CommunicationLevel>();
+            var existingLevelNames = await context.CommunicationLevels.Select(l => l.Name).ToListAsync();
+            var missingLevels = GetInitialCommunicationLevels()
+                .Where(l => !existingLevelNames.Contains(l.Name))
+                .ToList();
 
-            if (existingLevels.Count < 3)
+            if (missingLevels.Any())
             {
-                context.CommunicationLevels.AddRange(new List<CommunicationLevel>
-                {
-                    new CommunicationLevel {
-                        Name = "L1",
-                        Description = "Basic",
-                        KiPrompt = "Nutze einfachste Alltagssprache ohne Fachwörter. Erkläre die Krankheit so, dass jeder sie sofort versteht.",
-                        ActionRecommendation = "Use simple language..."
-                    },
-                    new CommunicationLevel { Name = "L2", Description = "Medium", KiPrompt = "Nutze eine Mischung aus Alltagssprache und medizinischen Grundbegriffen", ActionRecommendation = "Use clear language..." },
-                    new CommunicationLevel { Name = "L3", Description = "Advanced", KiPrompt = "Nutze kompakten Klinik-Jargon und medizinische Fakten.", ActionRecommendation = "Use precise language..." }
-                });
-                            await context.SaveChangesAsync();
-                        }
+                context.CommunicationLevels.AddRange(missingLevels);
+                await context.SaveChangesAsync();
+            }
         }
+
+        private static List<CommunicationLevel> GetInitialCommunicationLevels()
+        {
+            return new List<CommunicationLevel>
+            {
+                new CommunicationLevel {
+                    Name = "L1",
+                    Description = "Basic",
+                    KiPrompt = "Nutze einfachste Alltagssprache ohne Fachwörter. Erkläre die Krankheit so, dass jeder sie sofort versteht.",
+                    ActionRecommendation = "Use simple language..."
+                },
+                new CommunicationLevel { Name = "L2", Description = "Medium", KiPrompt = "Nutze eine Mischung aus Alltagssprache und medizinischen Grundbegriffen", ActionRecommendation = "Use clear language..." },
+                new CommunicationLevel { Name = "L3", Description = "Advanced", KiPrompt = "Nutze kompakten Klinik-Jargon und medizinische Fakten.", ActionRecommendation = "Use precise language..." }
+            };
+        }
+
+
         private static List<SymptomDefinition> GetInitialSymptomDefinitions()
         {
             return new List<SymptomDefinition>
