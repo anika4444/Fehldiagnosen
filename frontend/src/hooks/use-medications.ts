@@ -1,6 +1,4 @@
-import * as signalR from "@microsoft/signalr";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Platform } from "react-native";
 
 import { medicationService } from "@/api/medicationService";
 import {
