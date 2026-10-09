@@ -6,6 +6,7 @@ import {
   PatientSymptomResponse,
   SymptomFormData,
 } from "@/types/symptom-type";
+import { toLocalDateString } from "@/utils/date";
 
 export const useSymptoms = (patientId: number | null, date: Date) => {
   const [symptoms, setSymptoms] = useState<PatientSymptomResponse[]>([]);
@@ -19,8 +20,10 @@ export const useSymptoms = (patientId: number | null, date: Date) => {
     setError(null);
 
     try {
-      const isoDate = date.toISOString().split("T")[0];
-      const data = await symptomService.getPatientSymptoms(patientId, isoDate);
+      const data = await symptomService.getPatientSymptoms(
+        patientId,
+        toLocalDateString(date),
+      );
 
       setSymptoms(data);
     } catch (err) {

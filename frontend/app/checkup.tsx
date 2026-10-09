@@ -19,6 +19,7 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useDatePicker } from "@/hooks/use-date-picker";
 import { usePatient } from "@/hooks/use-patient";
+import { toLocalDateString } from "@/utils/date";
 
 interface CheckupDiagnosis {
   id: number;
@@ -52,7 +53,7 @@ interface CheckupSummary {
   aiSummary?: string;
 }
 
-const todayStr = new Date().toISOString().slice(0, 10);
+const todayStr = toLocalDateString(new Date());
 
 const Checkup = () => {
   const colorScheme = useColorScheme() ?? "light";
@@ -85,8 +86,8 @@ const Checkup = () => {
     if (!patientId) return;
     setIsLoading(true);
     setError(null);
-    const fromParam = fromDate.toISOString().split("T")[0];
-    const toParam = toDate.toISOString().split("T")[0];
+    const fromParam = toLocalDateString(fromDate);
+    const toParam = toLocalDateString(toDate);
 
     try {
       const response = await api.get(`/checkup/${patientId}`, {

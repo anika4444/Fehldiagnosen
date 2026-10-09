@@ -19,6 +19,7 @@ import { Card } from "@/components/ui/card";
 import { HeaderView } from "@/components/ui/header-view";
 import { Colors } from "@/constants/theme";
 import { RegisterData } from "@/types/user-type";
+import { toLocalDateString } from "@/utils/date";
 
 const RegisterScreen = () => {
   const router = useRouter();
@@ -77,8 +78,10 @@ const RegisterScreen = () => {
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      const formattedDate = selectedDate.toISOString().split("T")[0]; // YYYY-MM-DD
-      setFormData({ ...formData, dateOfBirth: formattedDate });
+      setFormData({
+        ...formData,
+        dateOfBirth: toLocalDateString(selectedDate),
+      });
     }
   };
 

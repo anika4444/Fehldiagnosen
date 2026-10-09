@@ -7,6 +7,7 @@ import {
   CreateDiagnosisEntryRequest,
   DiagnosisEntryResponse,
 } from "@/types/diagnosis-type";
+import { toLocalDateString } from "@/utils/date";
 
 import { FormInput } from "../ui/form-input";
 import { ModalCard } from "../ui/modal-card";
@@ -38,7 +39,7 @@ export const DiagnosisForm = ({
       note: "",
       diagnosisDate: initialData?.diagnosisDate
         ? initialData.diagnosisDate.split("T")[0]
-        : new Date().toISOString().split("T")[0],
+        : toLocalDateString(new Date()),
     },
     (vals) => {
       const errs: Record<string, string> = {};

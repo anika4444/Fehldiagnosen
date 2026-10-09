@@ -2,6 +2,8 @@ import { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
+import { toLocalDateString } from "@/utils/date";
+
 export const useDatePicker = (
   initialDateString?: string | null,
   onDateChange?: (formattedDate: string) => void,
@@ -23,10 +25,6 @@ export const useDatePicker = (
     }
   }, [initialDateString]);
 
-  const toBackendFormat = (d: Date): string => {
-    return d.toISOString().split("T")[0];
-  };
-
   const formatDisplayDate = (d: Date): string => {
     return d.toLocaleDateString("de-DE", {
       day: "2-digit",
@@ -43,7 +41,7 @@ export const useDatePicker = (
     if (selectedDate) {
       setDate(selectedDate);
       if (onDateChange) {
-        onDateChange(toBackendFormat(selectedDate));
+        onDateChange(toLocalDateString(selectedDate));
       }
     }
   };
