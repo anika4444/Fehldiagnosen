@@ -32,6 +32,4 @@ public class UpdateDiagnosisRequest
     public string? Note { get; set; }
 
     public DateTime? DiagnosisDate { get; set; }
-
-    public string? AiExplanation { get; set; }
 }

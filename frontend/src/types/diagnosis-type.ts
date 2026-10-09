@@ -34,22 +34,6 @@ export interface CreateDiagnosisEntryRequest {
   diagnosisDate: string;
 }
 
-export interface DiagnosisEntryRequest {
-  title: string;
-  description?: string;
-  icdCode?: string;
-  severity?: string;
-  sideLocalization?: string;
-  status?: string;
-  medicationText?: string;
-  symptoms?: string;
-  findings?: string;
-  therapeuticMeasures?: string;
-  note?: string;
-  diagnosisDate: string;
-  aiExplanation?: string | null;
-}
-
 export interface UpdateDiagnosisEntryRequest {
   title: string;
   description?: string;

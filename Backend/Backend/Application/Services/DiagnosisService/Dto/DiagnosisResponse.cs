@@ -14,6 +14,7 @@ public class DiagnosisResponse
     public ConditionStatus ConditionStatus { get; set; }
     public EntryBy EntryBy { get; set; }
     public string? AiExplanation { get; set; }
+    public string? Disclaimer { get; set; }
     public string? MedicationText { get; set; }
     public string? Symptoms { get; set; }
     public string? Findings { get; set; }

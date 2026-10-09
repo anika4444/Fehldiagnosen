@@ -10,4 +10,5 @@ public interface IDiagnosisService
     Task<ServiceResult<DiagnosisResponse>> CreateAsync(int patientId, CreateDiagnosisRequest request, string? userId);
     Task<ServiceResult<DiagnosisResponse>> UpdateAsync(int patientId, int id, UpdateDiagnosisRequest request, string? userId);
     Task<ServiceResult> DeleteAsync(int id, string? userId);
+    Task<ServiceResult<DiagnosisResponse>> UpdateAiExplanation(int diagnosisId, string? aiExplanation);
 }

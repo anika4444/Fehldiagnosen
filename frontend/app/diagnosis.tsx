@@ -158,7 +158,6 @@ const Diagnosis = () => {
               entry={entry}
               onEdit={openForm}
               onDelete={handleDelete}
-              onSave={saveEntry}
             />
           )}
         />

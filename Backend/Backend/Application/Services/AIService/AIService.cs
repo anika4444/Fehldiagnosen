@@ -2,6 +2,7 @@ using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Domain.Entities;
 using Backend.Domain.Enums;
 using System.Text.Json;
 
@@ -74,10 +75,19 @@ namespace Backend.Application.Services.AIService
                 var aiResponse = JsonSerializer.Deserialize<AiExplainResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                if (aiResponse == null)
+                if (aiResponse == null || string.IsNullOrWhiteSpace(aiResponse.Text))
                 {
                     return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
                 }
+
+                var updateResult = await _diagnosisService.UpdateAiExplanation(diagnosis.Id, aiResponse.Text);
+
+                if (!updateResult.IsSuccess)
+                {
+                    return ServiceResult<AiExplainResponse>.InternalServerError("KI-Erklärung konnte nicht gespeichert werden");
+                }
+
+                aiResponse.Disclaimer = Diagnosis.AiExplanationDisclaimer;
 
                 return ServiceResult<AiExplainResponse>.Success(aiResponse);
             }

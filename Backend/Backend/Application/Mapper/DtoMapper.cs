@@ -134,6 +134,7 @@ namespace Backend.Application.Mapper
                 ConditionStatus = diagnosis.ConditionStatus,
                 EntryBy = diagnosis.EntryBy,
                 AiExplanation = diagnosis.AiExplanation,
+                Disclaimer = diagnosis.AiExplanation != null ? Diagnosis.AiExplanationDisclaimer : null,
                 MedicationText = diagnosis.MedicationText,
                 Symptoms = diagnosis.Symptoms,
                 Findings = diagnosis.Findings,

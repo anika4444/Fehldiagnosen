@@ -188,8 +188,6 @@ app.post("/ai/explain", async (req, res) => {
 
     res.json({
       text: responseText,
-      disclaimer:
-        "Dies ist eine KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.",
     });
   } catch (error) {
     console.error("AI Error:", error.message);

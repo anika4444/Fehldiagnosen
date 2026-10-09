@@ -112,10 +112,22 @@ namespace Backend.Application.Services.DiagnosisService
             existingEntry.TherapeuticMeasures = request.TherapeuticMeasures ?? existingEntry.TherapeuticMeasures;
             existingEntry.Note = request.Note ?? existingEntry.Note;
             existingEntry.DiagnosisDate = request.DiagnosisDate ?? existingEntry.DiagnosisDate;
-            existingEntry.AiExplanation = request.AiExplanation ?? existingEntry.AiExplanation;
             existingEntry.UpdatedAt = DateTime.UtcNow;
 
             var updatedEntry = await _diagnosisRepository.UpdateAsync(existingEntry);
+            return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(updatedEntry));
+        }
+
+        public async Task<ServiceResult<DiagnosisResponse>> UpdateAiExplanation(int diagnosisId, string? aiExplanation)
+        {
+            var diagnosis = await _diagnosisRepository.FindByIdAsync(diagnosisId);
+
+            if (diagnosis == null)
+                return ServiceResult<DiagnosisResponse>.NotFound($"Diagnose {diagnosisId} existiert nicht.");
+
+            diagnosis.UpdateAiExplanation(aiExplanation);
+
+            var updatedEntry = await _diagnosisRepository.UpdateAsync(diagnosis);
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(updatedEntry));
         }
 

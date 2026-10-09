@@ -13,7 +13,6 @@ interface DiagnosisCardProps {
   entry: DiagnosisEntryResponse;
   onEdit: (entry: DiagnosisEntryResponse) => void;
   onDelete: (entryId: number) => void;
-  onSave: (payload: any, id?: number) => Promise<void>;
 }
 
 export const DiagnosisCard = ({
@@ -21,7 +20,6 @@ export const DiagnosisCard = ({
   entry,
   onEdit,
   onDelete,
-  onSave,
 }: DiagnosisCardProps) => {
   const {
     aiExplanation,
@@ -29,13 +27,15 @@ export const DiagnosisCard = ({
     isExplaining,
     explain,
     setAiExplanation,
-  } = useExplainMedicalHistory(patientId, entry, onSave);
+    setAiDisclaimer,
+  } = useExplainMedicalHistory(patientId, entry);
 
   const formattedDiagnosisDate = useFormattedDate(entry.diagnosisDate);
 
   useEffect(() => {
     setAiExplanation(entry.aiExplanation || null);
-  }, [entry.aiExplanation, setAiExplanation]);
+    setAiDisclaimer(entry.disclaimer || null);
+  }, [entry.aiExplanation, entry.disclaimer, setAiExplanation, setAiDisclaimer]);
 
   return (
     <ModalCard
@@ -61,9 +61,7 @@ export const DiagnosisCard = ({
       {aiExplanation && (
         <DetailField label="KI-Erklärung" value={aiExplanation} />
       )}
-      {aiExplanation && aiDisclaimer && (
-        <DetailField label="Hinweis" value={aiDisclaimer} />
-      )}
+      {aiExplanation && <DetailField label="Hinweis" value={aiDisclaimer} />}
       <PrimaryButton
         title="Mit KI erklären lassen"
         icon="chat-processing"

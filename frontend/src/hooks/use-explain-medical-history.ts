@@ -1,15 +1,11 @@
 import { useState } from "react";
 
 import axiosConfig from "@/api/axiosConfig";
-import {
-  DiagnosisEntryRequest,
-  DiagnosisEntryResponse,
-} from "@/types/diagnosis-type";
+import { DiagnosisEntryResponse } from "@/types/diagnosis-type";
 
 export const useExplainMedicalHistory = (
   patientId: number | null,
   entry: DiagnosisEntryResponse,
-  onSave: (payload: DiagnosisEntryRequest, id?: number) => Promise<void>,
 ) => {
   const [isExplaining, setIsExplaining] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(
@@ -34,27 +30,10 @@ export const useExplainMedicalHistory = (
       const disclaimer =
         response.data.data?.disclaimer || response.data.disclaimer || null;
 
-      const payload: DiagnosisEntryRequest = {
-        title: entry.title,
-        description: entry.description,
-        icdCode: entry.icdCode,
-        severity: entry.severity,
-        sideLocalization: entry.sideLocalization,
-        status: entry.status,
-        medicationText: entry.medicationText,
-        symptoms: entry.symptoms,
-        findings: entry.findings,
-        therapeuticMeasures: entry.therapeuticMeasures,
-        note: entry.note,
-        diagnosisDate: entry.diagnosisDate,
-        aiExplanation: explanationText,
-      };
-
-      await onSave(payload, entry.id);
       setAiExplanation(explanationText);
       setAiDisclaimer(disclaimer);
     } catch (error) {
-      console.error("Fehler beim Laden oder Speichern der Erklärung:", error);
+      console.error("Fehler beim Laden der Erklärung:", error);
     } finally {
       setIsExplaining(false);
     }

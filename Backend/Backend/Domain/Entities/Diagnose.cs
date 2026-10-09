@@ -7,6 +7,9 @@ namespace Backend.Domain.Entities;
 
 public class Diagnosis : IEntity
 {
+    public const string AiExplanationDisclaimer =
+        "Dies ist eine KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.";
+
     public int Id { get; set; }
 
     [Required]
@@ -36,7 +39,7 @@ public class Diagnosis : IEntity
     [Required]
     public EntryBy EntryBy { get; set; }
 
-    public string? AiExplanation { get; set; }
+    public string? AiExplanation { get; private set; }
 
     [MaxLength(500)]
     public string MedicationText { get; set; } = string.Empty;
@@ -58,4 +61,10 @@ public class Diagnosis : IEntity
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    public void UpdateAiExplanation(string? aiExplanation)
+    {
+        AiExplanation = aiExplanation;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
