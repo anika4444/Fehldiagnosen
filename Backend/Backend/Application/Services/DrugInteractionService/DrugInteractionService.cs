@@ -2,17 +2,22 @@
 using Backend.Application.Repositories;
 using Backend.Application.Services.DrugInteractionService.Dto;
 using GTranslate.Translators;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Backend.Application.Services.DrugInteractionService
 {
     public class DrugInteractionService:IDrugInteractionService
     {
+        private static readonly TimeSpan TranslationCacheDuration = TimeSpan.FromHours(12);
+
         private readonly IDrugInteractionRepository _interactionRepository;
+        private readonly IMemoryCache _cache;
         private readonly AggregateTranslator _translator = new AggregateTranslator();
 
-        public DrugInteractionService(IDrugInteractionRepository interactionRepository)
+        public DrugInteractionService(IDrugInteractionRepository interactionRepository, IMemoryCache cache)
         {
             _interactionRepository = interactionRepository;
+            _cache = cache;
         }
 
         public async Task<ServiceResult<List<string>>> CheckInteractionsAsync(string newAtcCode, List<string> existingAtcCodes)
@@ -51,21 +56,7 @@ namespace Backend.Application.Services.DrugInteractionService
 
                 foreach (var interaction in uniqueInteractions)
                 {
-                    string finalDescription = interaction.Description;
-
-                    if(!string.IsNullOrWhiteSpace(interaction.Description))
-                    {
-                        try
-                        {
-                            var translationResult = await _translator.TranslateAsync(interaction.Description, "de", "en");
-                            finalDescription = translationResult.Translation;
-                        }
-                        catch
-                        {
-                            finalDescription = interaction.Description;
-                        }
-                    }
-
+                    var finalDescription = await TranslateSafeAsync(interaction.Description);
                     warnings.Add($"[WARNUNG] Wechselwirkung mit {interaction.TargetName}: {finalDescription}");
                 }
 
@@ -164,9 +155,20 @@ namespace Backend.Application.Services.DrugInteractionService
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;
 
+            var cacheKey = $"translation:en-de:{text}";
+            if (_cache.TryGetValue(cacheKey, out string? cached) && cached != null)
+            {
+                return cached;
+            }
+
             try
             {
                 var translationResult = await _translator.TranslateAsync(text, "de", "en");
+                // Nur erfolgreiche Übersetzungen cachen, damit nach einem Fehler erneut versucht wird
+                _cache.Set(cacheKey, translationResult.Translation, new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TranslationCacheDuration
+                });
                 return translationResult.Translation;
             }
             catch

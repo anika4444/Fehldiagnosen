@@ -61,6 +61,7 @@ builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
 builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
 builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IDrugInteractionService, DrugInteractionService>();
 builder.Services.AddScoped<ICheckupService, CheckupService>();
 
