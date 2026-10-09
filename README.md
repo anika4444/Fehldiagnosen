@@ -12,7 +12,7 @@ Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
 - _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
 - **Visual Studio**: Mit .NET 10
 - **Python**: Für die Durchführung des Arztbrief-Scans
-- **.env**: Für unsere AI-Services (Unterordner _AI_) werden ein gültiger **API-Key** sowie die dazugehörigen **Umgebungsvariablen** benötigt
+- **.env**: Für unsere AI-Services (Unterordner _AI_) werden ein gültiger **API-Key** sowie die dazugehörigen **Umgebungsvariablen** benötigt. Eine Vorlage mit allen Variablen liegt unter `AI/.env.example`
 - **Drugbank XML**: Aus folgendem Link: https://fhvorarlberg-my.sharepoint.com/:f:/g/personal/asc9769_students_fhv_at/IgAba5IWyJyFTre7A00NZZYNAdOH0OawLz2UUscFsOQMz9w?e=TcmbgT
 
 ## 💻 Installation & Start
@@ -42,8 +42,10 @@ dotnet ef database update
 
 # 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml.
 
-# 5. Installiere die benötigte Python-Abhängigkeit für das Scannen des Arztbriefs. Führe dazu im bestehenden Terminal folgenden Befehl aus:
+# 5. Installiere die benötigten Python-Abhängigkeiten für das Scannen des Arztbriefs. Führe dazu im bestehenden Terminal folgende Befehle aus:
 python -m pip install presidio-analyzer
+# Lädt das deutsche Sprachmodell für die Anonymisierung (ca. 500 MB, nur beim ersten Mal nötig)
+python -m spacy download de_core_news_lg
 
 # 6. Starte nun dein Backend:
 dotnet run
@@ -80,7 +82,10 @@ cd AI
 # 2. Installiere alle Abhängigkeiten des AI-Service (nur beim ersten Mal nötig)
 npm install
 
-# 3. Starte den AI-Service:
+# 3. Lege die Konfiguration an und trage API-Key, Base-URL und Modellnamen ein (nur beim ersten Mal nötig)
+cp .env.example .env
+
+# 4. Starte den AI-Service:
 node aiServices.js
 ```
 
