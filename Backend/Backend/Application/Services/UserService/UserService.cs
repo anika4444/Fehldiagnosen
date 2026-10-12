@@ -1,9 +1,8 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Application.Repositories;
 using Backend.Application.Services.UserService.Dto;
 using Backend.Domain.Entities;
-using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,14 +15,14 @@ namespace Backend.Application.Services.UserService
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
-        private readonly MySqlDbContext _dbContext;
+        private readonly IPatientRepository _patientRepository;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, MySqlDbContext context)
+        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IPatientRepository patientRepository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
-            _dbContext = context;
+            _patientRepository = patientRepository;
         }
 
         public async Task<ServiceResult<Object>> Login(LoginDto loginDto)
@@ -40,7 +39,7 @@ namespace Backend.Application.Services.UserService
 
                 authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-                var patient = await _dbContext.Patients.FirstOrDefaultAsync(p => p.UserId == user.Id);
+                var patient = await _patientRepository.FindByUserIdAsync(user.Id);
                 if (patient != null)
                 {
                     authClaims.Add(new Claim("PatientId", patient.Id.ToString()));
@@ -116,8 +115,7 @@ namespace Backend.Application.Services.UserService
                     DateOfBirth = registerDto.DateOfBirth,
                 };
 
-                _dbContext.Patients.Add(newPatient);
-                await _dbContext.SaveChangesAsync();
+                await _patientRepository.AddAsync(newPatient);
             }
 
             return ServiceResult.Success();

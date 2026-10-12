@@ -1,5 +1,6 @@
 ﻿using Backend.Application.Repositories;
 using Backend.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -15,6 +16,18 @@ namespace Backend.Infrastructure.Repositories
         public async Task<Patient?> FindByIdAsync(int id)
         {
             return await _context.Patients.FindAsync(id);
+        }
+
+        public async Task<Patient?> FindByUserIdAsync(string userId)
+        {
+            return await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+        }
+
+        public async Task<Patient> AddAsync(Patient patient)
+        {
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+            return patient;
         }
 
         public async Task<Patient> UpdateAsync(Patient patient)
