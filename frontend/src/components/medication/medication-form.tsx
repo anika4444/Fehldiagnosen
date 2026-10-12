@@ -128,7 +128,6 @@ interface FormValues {
   durationInDays: string;
   intakeStartDate: string;
   indication: string;
-  doctorName: string;
   notes: string;
   atcCode: string;
 }
@@ -167,7 +166,6 @@ export function MedicationForm({
       durationInDays: initialData.durationInDays?.toString() ?? "",
       intakeStartDate: initialData.intakeStartDate?.split("T")[0] ?? "",
       indication: initialData.indication ?? "",
-      doctorName: initialData.doctorName ?? "",
       notes: initialData.notes ?? "",
       atcCode: initialData.atcCode ?? "",
     };
@@ -191,7 +189,6 @@ export function MedicationForm({
         durationInDays: "",
         intakeStartDate: "",
         indication: "",
-        doctorName: "",
         notes: "",
         atcCode: "",
       },
@@ -273,7 +270,6 @@ export function MedicationForm({
         : undefined,
       intakeStartDate: validatedData.intakeStartDate.trim() || undefined,
       indication: validatedData.indication.trim() || undefined,
-      doctorName: validatedData.doctorName.trim() || undefined,
       notes: validatedData.notes.trim() || undefined,
       atcCode: validatedData.atcCode || undefined,
     });
@@ -454,11 +450,6 @@ export function MedicationForm({
           label="Indikation"
           value={values.indication}
           onChangeText={(v) => handleChange("indication", v)}
-        />
-        <FormInput
-          label="Verschrieben von"
-          value={values.doctorName}
-          onChangeText={(v) => handleChange("doctorName", v)}
         />
         <FormInput
           label="Anmerkungen"

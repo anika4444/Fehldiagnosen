@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import api from "@/api/axiosConfig";
+import type { components } from "@/api/generated/schema";
 import { ThemedText } from "@/components/themed-text";
 import { Card } from "@/components/ui/card";
 import { DatePickerField } from "@/components/ui/date-picker-field";
@@ -20,37 +21,13 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useDatePicker } from "@/hooks/use-date-picker";
 import { usePatient } from "@/hooks/use-patient";
 
-interface CheckupDiagnosis {
-  id: number;
-  iCD10Code?: string;
-  diagnosis?: string;
-  year?: number;
-  status?: string;
-  comment?: string;
-}
-interface CheckupMedication {
-  id: number;
-  name?: string;
-  dosage?: string;
-  intakeFrequency?: string;
-  indication?: string;
-}
-interface CheckupSymptom {
-  id: number;
-  symptomName?: string;
-  occurrenceTime?: string;
-  intensity?: number;
-  duration?: string;
-  notes?: string;
-}
-interface CheckupSummary {
-  from: string;
-  to: string;
-  diagnoses: CheckupDiagnosis[];
-  medications: CheckupMedication[];
-  symptoms: CheckupSymptom[];
-  aiSummary?: string;
-}
+//Typen kommen aus der OpenAPI-Datei (npm run generate:api)
+//Die Listen liefert das Backend immer, deshalb hier als Pflicht markiert
+type CheckupSummaryResponse = components["schemas"]["CheckupSummaryResponse"];
+type CheckupSummary = CheckupSummaryResponse &
+  Required<
+    Pick<CheckupSummaryResponse, "diagnoses" | "medications" | "symptoms">
+  >;
 
 const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -235,7 +212,7 @@ const Checkup = () => {
                 <Card key={d.id} style={styles.card}>
                   <ThemedText type="defaultSemiBold">{d.diagnosis}</ThemedText>
                   <ThemedText type="smallText">
-                    {[d.iCD10Code, d.year ? String(d.year) : null, d.status]
+                    {[d.icd10Code, d.year ? String(d.year) : null, d.status]
                       .filter(Boolean)
                       .join(" · ")}
                   </ThemedText>

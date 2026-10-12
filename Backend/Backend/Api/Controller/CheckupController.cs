@@ -16,7 +16,7 @@ public class CheckupController : BaseApiController
     }
 
     [HttpGet("{patientId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CheckupSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GenerateCheckupSummary(
