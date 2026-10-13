@@ -45,7 +45,10 @@ public sealed class BackendApiFactory : WebApplicationFactory<Program>, IAsyncLi
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:mySqlDb", _connectionString);
-        builder.ConfigureLogging(logging => logging.SetMinimumLevel(LogLevel.Warning));
+        // Spezifische Filter, da "Default: Information" aus appsettings.json sonst Vorrang hat
+        builder.ConfigureLogging(logging => logging
+            .AddFilter("Microsoft", LogLevel.Warning)
+            .AddFilter("System", LogLevel.Warning));
     }
 
     public new async Task DisposeAsync()

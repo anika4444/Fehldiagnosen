@@ -90,7 +90,7 @@ Alle Tests auf einmal (im Projekt-Root):
 
 ```powershell
 .\run-tests.cmd                    # Backend (Unit + Integration), AI-Service, Frontend
-.\run-tests.cmd -SkipIntegration   # ohne Backend-Integrationstests
+.\run-tests.cmd -SkipIntegration   # ohne Integrations- und Stresstests (kein Docker nötig)
 ```
 
 `run-tests.cmd` ruft `run-tests.ps1` auf und umgeht dabei die PowerShell-Ausführungsrichtlinie. Wer Skripte erlaubt hat (`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`), kann auch direkt `.\run-tests.ps1` nutzen.
@@ -118,6 +118,33 @@ Statt Docker kann auch ein vorhandener MySQL-Server genutzt werden. Die Tests le
 $env:TEST_MYSQL_CONNECTION = "Server=localhost;Port=3306;User ID=root;Password=root;"
 dotnet test Backend.slnx
 ```
+
+#### Stresstest
+
+Der Stresstest (`Backend.Tests/Stress/ApiStressTests.cs`) lässt viele Benutzer gleichzeitig auf die API los: alle registrieren sich und loggen sich parallel ein, danach legen sie gleichzeitig Medikamente an, listen, lesen und löschen sie. Er schlägt fehl, wenn ein Request scheitert, ein Benutzer fremde oder falsch viele Daten sieht oder das 95. Perzentil der Antwortzeiten über dem Grenzwert liegt. Am Ende wird ein Bericht mit Anzahl, Fehlern und p50/p95/max pro Endpoint ausgegeben.
+
+```powershell
+cd Backend
+
+# Standardlast (20 Benutzer x 10 Durchläufe), Bericht in der Ausgabe
+dotnet test Backend.slnx --filter "Category=Stress" --logger "console;verbosity=detailed"
+
+# Mehr Last
+$env:STRESS_USERS = "100"; $env:STRESS_ITERATIONS = "20"
+dotnet test Backend.slnx --filter "Category=Stress" --logger "console;verbosity=detailed"
+
+# Gegen ein laufendes Backend statt gegen eine Test-Datenbank
+# Achtung: legt dort echte Test-Benutzer an
+$env:STRESS_BASE_URL = "http://localhost:5238"
+dotnet test Backend.slnx --filter "Category=Stress" --logger "console;verbosity=detailed"
+```
+
+| Variable | Bedeutung | Standard |
+|---|---|---|
+| `STRESS_USERS` | gleichzeitige Benutzer | 20 |
+| `STRESS_ITERATIONS` | Durchläufe pro Benutzer | 10 |
+| `STRESS_MAX_P95_MS` | Grenzwert p95 der Medikamenten-Requests in ms | 2000 |
+| `STRESS_BASE_URL` | URL eines laufenden Backends | – (In-Memory-Backend + MySQL-Testdatenbank) |
 
 In der CI (`.github/workflows/build.yml`) laufen die Jobs `test-backend`, `test-ai` und `test-frontend`. Die Build-Jobs hängen davon ab: Schlägt ein Test fehl, wird die Pipeline rot und es werden keine Artefakte gebaut.
 

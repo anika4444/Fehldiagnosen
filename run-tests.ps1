@@ -2,7 +2,7 @@
 # Bricht mit Exit-Code 1 ab, sobald ein Teil fehlschlägt.
 #
 #   .\run-tests.ps1                 # alles
-#   .\run-tests.ps1 -SkipIntegration  # ohne Backend-Integrationstests (kein Docker nötig)
+#   .\run-tests.ps1 -SkipIntegration  # ohne Integrations- und Stresstests (kein Docker nötig)
 
 param(
     [switch]$SkipIntegration
@@ -26,7 +26,7 @@ function Invoke-Step([string]$name, [string]$dir, [scriptblock]$cmd) {
 
 Invoke-Step "Backend" "$root\Backend" {
     if ($SkipIntegration) {
-        dotnet test Backend.slnx --filter "Category!=Integration"
+        dotnet test Backend.slnx --filter "Category!=Integration&Category!=Stress"
     }
     else {
         # Integrationstests starten MySQL per Testcontainers -> Docker Desktop muss laufen
