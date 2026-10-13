@@ -1,0 +1,6 @@
+projectKey=ADAM2
+serverUrl=http://localhost:9000
+serverVersion=26.9.0.129388
+dashboardUrl=http://localhost:9000/dashboard?id=ADAM2
+ceTaskId=87fe2167-b89d-42e3-a952-fc2007d37f48
+ceTaskUrl=http://localhost:9000/api/ce/task?id=87fe2167-b89d-42e3-a952-fc2007d37f48

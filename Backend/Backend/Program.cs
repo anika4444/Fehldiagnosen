@@ -61,6 +61,7 @@ builder.Services.AddScoped<IDiagnosisRepository, MySqlDiagnosisRepository>();
 builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 builder.Services.AddScoped<IHealthTipService, HealthTipService>();
 builder.Services.AddScoped<ICommunicationLevelService, CommunicationLevelService>();
+builder.Services.AddSingleton<ITextTranslator, GTranslateTextTranslator>();
 builder.Services.AddScoped<IDrugInteractionService, DrugInteractionService>();
 builder.Services.AddScoped<ICheckupService, CheckupService>();
 
@@ -136,3 +137,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Wird von den Integrationstests (WebApplicationFactory<Program>) benötigt
+public partial class Program { }

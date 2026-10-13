@@ -1,18 +1,18 @@
 ﻿using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DrugInteractionService.Dto;
-using GTranslate.Translators;
 
 namespace Backend.Application.Services.DrugInteractionService
 {
     public class DrugInteractionService:IDrugInteractionService
     {
         private readonly IDrugInteractionRepository _interactionRepository;
-        private readonly AggregateTranslator _translator = new AggregateTranslator();
+        private readonly ITextTranslator _translator;
 
-        public DrugInteractionService(IDrugInteractionRepository interactionRepository)
+        public DrugInteractionService(IDrugInteractionRepository interactionRepository, ITextTranslator translator)
         {
             _interactionRepository = interactionRepository;
+            _translator = translator;
         }
 
         public async Task<ServiceResult<List<string>>> CheckInteractionsAsync(string newAtcCode, List<string> existingAtcCodes)
@@ -57,8 +57,7 @@ namespace Backend.Application.Services.DrugInteractionService
                     {
                         try
                         {
-                            var translationResult = await _translator.TranslateAsync(interaction.Description, "de", "en");
-                            finalDescription = translationResult.Translation;
+                            finalDescription = await _translator.TranslateToGermanAsync(interaction.Description);
                         }
                         catch
                         {
@@ -166,8 +165,7 @@ namespace Backend.Application.Services.DrugInteractionService
 
             try
             {
-                var translationResult = await _translator.TranslateAsync(text, "de", "en");
-                return translationResult.Translation;
+                return await _translator.TranslateToGermanAsync(text);
             }
             catch
             {

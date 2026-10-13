@@ -1,0 +1,5300 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "5.9.0.0",
+        "fileVersion": "5.9.0-1.26423.113 (e34a38d2ae1fc26406a317517196e55c68ff83ab)",
+        "semanticVersion": "5.9.0",
+        "language": "de-DE"
+      },
+      "results": [
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.Conflict(string)\" blendet den vererbten Member \"ServiceResult.Conflict(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 40,
+                  "endLine": 57,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.NotFound(string)\" blendet den vererbten Member \"ServiceResult.NotFound(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 62,
+                  "startColumn": 40,
+                  "endLine": 62,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.Invalid(string)\" blendet den vererbten Member \"ServiceResult.Invalid(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 40,
+                  "endLine": 67,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.Unauthorized(string)\" blendet den vererbten Member \"ServiceResult.Unauthorized(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 72,
+                  "startColumn": 40,
+                  "endLine": 72,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.InternalServerError(string)\" blendet den vererbten Member \"ServiceResult.InternalServerError(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 40,
+                  "endLine": 77,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "\"ServiceResult<T>.Forbidden(string)\" blendet den vererbten Member \"ServiceResult.Forbidden(string)\" aus. Verwenden Sie das new-Schlüsselwort, wenn das Ausblenden vorgesehen war.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Common/Results/ServiceResult.cs",
+                "region": {
+                  "startLine": 82,
+                  "startColumn": 40,
+                  "endLine": 82,
+                  "endColumn": 49
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS8767",
+          "level": "warning",
+          "message": "Die NULL-Zulässigkeit von Verweistypen im Typ des Parameters \"name\" von \"Task<ServiceResult<IEnumerable<SymptomDefinitionResponse>>> SymptomService.GetSymptomDefinitionsByNameAsync(string name)\" entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem implizit implementierten Member \"Task<ServiceResult<IEnumerable<SymptomDefinitionResponse>>> ISymptomService.GetSymptomDefinitionsByNameAsync(string? name)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 146,
+                  "startColumn": 82,
+                  "endLine": 146,
+                  "endColumn": 114
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Mögliches Nullverweisargument für den Parameter \"userId\" in \"Task<ServiceResult<CommunicationLevelResponse>> ICommunicationLevelService.CreateAsync(int patientId, CreateCommunicationLevelRequest request, string userId)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/CommunicationLevelController%20.cs",
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 91,
+                  "endLine": 40,
+                  "endColumn": 97
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Mögliches Nullverweisargument für den Parameter \"userId\" in \"Task<ServiceResult<CommunicationLevelResponse>> ICommunicationLevelService.GetByPatientIdAsync(int patientId, string userId)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/CommunicationLevelController%20.cs",
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 90,
+                  "endLine": 54,
+                  "endColumn": 96
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/PatientController.cs",
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 99,
+                  "endLine": 64,
+                  "endColumn": 110
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Mögliches Nullverweisargument für den Parameter \"s\" in \"byte[] Encoding.GetBytes(string s)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/UserService.cs",
+                "region": {
+                  "startLine": 49,
+                  "startColumn": 86,
+                  "endLine": 49,
+                  "endColumn": 136
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8604",
+          "level": "warning",
+          "message": "Mögliches Nullverweisargument für den Parameter \"s\" in \"byte[] Encoding.GetBytes(string s)\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Program.cs",
+                "region": {
+                  "startLine": 103,
+                  "startColumn": 13,
+                  "endLine": 103,
+                  "endColumn": 70
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/PatientController.cs",
+                "region": {
+                  "startLine": 112,
+                  "startColumn": 93,
+                  "endLine": 112,
+                  "endColumn": 104
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Options“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/SymptomField.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 30,
+                  "endLine": 16,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/SymptomField.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 30,
+                  "endLine": 16,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS0168",
+          "level": "warning",
+          "message": "Die Variable \"imageBytes\" ist deklariert, wird aber nie verwendet.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/DiagnoseController.cs",
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 20,
+                  "endLine": 80,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 3
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „UserName“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 23,
+                  "endLine": 9,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 23,
+                  "endLine": 9,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Email“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Password“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 23,
+                  "endLine": 15,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 23,
+                  "endLine": 15,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Username“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/LoginDto.cs",
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 23,
+                  "endLine": 8,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/LoginDto.cs",
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 23,
+                  "endLine": 8,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Password“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/LoginDto.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 23,
+                  "endLine": 11,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/LoginDto.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 23,
+                  "endLine": 11,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Feld „ApplicationUser“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Feld als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/Patient.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 32,
+                  "endLine": 13,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/Patient.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 32,
+                  "endLine": 13,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/PatientController.cs",
+                "region": {
+                  "startLine": 160,
+                  "startColumn": 117,
+                  "endLine": 160,
+                  "endColumn": 128
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „SourceDrugBankId“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „TargetDrugBankId“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 23,
+                  "endLine": 16,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 23,
+                  "endLine": 16,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „TargetName“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 23,
+                  "endLine": 19,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 23,
+                  "endLine": 19,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Description“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 22,
+                  "startColumn": 23,
+                  "endLine": 22,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugInteraction.cs",
+                "region": {
+                  "startLine": 22,
+                  "startColumn": 23,
+                  "endLine": 22,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „DrugBankId“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugDetail.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 23,
+                  "endLine": 13,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/DrugDetail.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 23,
+                  "endLine": 13,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „AtcCode“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 23,
+                  "endLine": 12,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „DrugBankId“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 23,
+                  "endLine": 16,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 23,
+                  "endLine": 16,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „DrugName“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 23,
+                  "endLine": 19,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/AtcDrugMapping.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 23,
+                  "endLine": 19,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/PatientController.cs",
+                "region": {
+                  "startLine": 208,
+                  "startColumn": 115,
+                  "endLine": 208,
+                  "endColumn": 126
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Name“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicationService/Dto/MedicationResponse.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 24,
+                  "endLine": 10,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicationService/Dto/MedicationResponse.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 24,
+                  "endLine": 10,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/PatientController.cs",
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 97,
+                  "endLine": 256,
+                  "endColumn": 108
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Patients“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 31,
+                  "endLine": 13,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Medications“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 34,
+                  "endLine": 15,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „SymptomsDefinition“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 41,
+                  "endLine": 17,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „PatientSymptoms“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 38,
+                  "endLine": 19,
+                  "endColumn": 53
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „MedicalHistoryEntries“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 21,
+                  "startColumn": 43,
+                  "endLine": 21,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „FamilyHistoryEntries“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 42,
+                  "endLine": 23,
+                  "endColumn": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „KnownMedications“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 39,
+                  "endLine": 24,
+                  "endColumn": 55
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „Diagnoses“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 26,
+                  "startColumn": 33,
+                  "endLine": 26,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „MedicalLetters“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 37,
+                  "endLine": 28,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „CommunicationLevels“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 30,
+                  "startColumn": 42,
+                  "endLine": 30,
+                  "endColumn": 61
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „AtcDrugMappings“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 32,
+                  "startColumn": 38,
+                  "endLine": 32,
+                  "endColumn": 53
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „DrugInteractions“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 33,
+                  "startColumn": 39,
+                  "endLine": 33,
+                  "endColumn": 55
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Non-Nullable-Eigenschaft „DrugDetails“ muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Eigenschaft als NULL-Werte zulassend.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 16,
+                  "endLine": 36,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 34,
+                  "endLine": 35,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 98,
+                  "startColumn": 96,
+                  "endLine": 98,
+                  "endColumn": 103
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 72,
+                  "startColumn": 42,
+                  "endLine": 72,
+                  "endColumn": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Dereferenzierung eines möglichen Nullverweises.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 86,
+                  "startColumn": 42,
+                  "endLine": 86,
+                  "endColumn": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1050",
+          "level": "note",
+          "message": "Typen in Namespaces deklarieren",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 261,
+                  "startColumn": 21,
+                  "endLine": 261,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3903",
+          "level": "warning",
+          "message": "Move 'AiExplainResponse' into a named namespace.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 261,
+                  "startColumn": 21,
+                  "endLine": 261,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1050",
+          "level": "note",
+          "message": "Typen in Namespaces deklarieren",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 21,
+                  "endLine": 256,
+                  "endColumn": 44
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3903",
+          "level": "warning",
+          "message": "Move 'ExplainDiagnosisRequest' into a named namespace.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 21,
+                  "endLine": 256,
+                  "endColumn": 44
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1050",
+          "level": "note",
+          "message": "Typen in Namespaces deklarieren",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/IAIService.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 21,
+                  "endLine": 15,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3903",
+          "level": "warning",
+          "message": "Move 'InterpretMedicalLetterResponse' into a named namespace.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/IAIService.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 21,
+                  "endLine": 15,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2094",
+          "level": "warning",
+          "message": "Remove this empty class, write its code or make it an \"interface\".",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/ApplicationUser.cs",
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 18,
+                  "endLine": 5,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S4487",
+          "level": "warning",
+          "message": "Remove this unread private field '_configuration' or refactor the code to use its value.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/AIController.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 37,
+                  "endLine": 12,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S4487",
+          "level": "warning",
+          "message": "Remove this unread private field '_logger' or refactor the code to use its value.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/AIController.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 44,
+                  "endLine": 13,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'select' 23 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 66,
+                  "startColumn": 65,
+                  "endLine": 66,
+                  "endColumn": 73
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 65,
+                  "endLine": 67,
+                  "endColumn": 73
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 68,
+                  "startColumn": 80,
+                  "endLine": 68,
+                  "endColumn": 88
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 69,
+                  "endLine": 77,
+                  "endColumn": 77
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 78,
+                  "startColumn": 76,
+                  "endLine": 78,
+                  "endColumn": 84
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 85,
+                  "startColumn": 65,
+                  "endLine": 85,
+                  "endColumn": 73
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 86,
+                  "startColumn": 80,
+                  "endLine": 86,
+                  "endColumn": 88
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 77,
+                  "endLine": 87,
+                  "endColumn": 85
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 95,
+                  "startColumn": 69,
+                  "endLine": 95,
+                  "endColumn": 77
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 96,
+                  "startColumn": 74,
+                  "endLine": 96,
+                  "endColumn": 82
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 97,
+                  "startColumn": 77,
+                  "endLine": 97,
+                  "endColumn": 85
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 105,
+                  "startColumn": 68,
+                  "endLine": 105,
+                  "endColumn": 76
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 106,
+                  "startColumn": 69,
+                  "endLine": 106,
+                  "endColumn": 77
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 115,
+                  "startColumn": 71,
+                  "endLine": 115,
+                  "endColumn": 79
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 116,
+                  "startColumn": 76,
+                  "endLine": 116,
+                  "endColumn": 84
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 124,
+                  "startColumn": 66,
+                  "endLine": 124,
+                  "endColumn": 74
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 125,
+                  "startColumn": 70,
+                  "endLine": 125,
+                  "endColumn": 78
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 132,
+                  "startColumn": 81,
+                  "endLine": 132,
+                  "endColumn": 89
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 133,
+                  "startColumn": 73,
+                  "endLine": 133,
+                  "endColumn": 81
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 134,
+                  "startColumn": 82,
+                  "endLine": 134,
+                  "endColumn": 90
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 141,
+                  "startColumn": 71,
+                  "endLine": 141,
+                  "endColumn": 79
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 142,
+                  "startColumn": 82,
+                  "endLine": 142,
+                  "endColumn": 90
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 150,
+                  "startColumn": 72,
+                  "endLine": 150,
+                  "endColumn": 80
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "10": null,
+              "11": null,
+              "12": null,
+              "13": null,
+              "14": null,
+              "15": null,
+              "16": null,
+              "17": null,
+              "18": null,
+              "19": null,
+              "2": null,
+              "20": null,
+              "21": null,
+              "3": null,
+              "4": null,
+              "5": null,
+              "6": null,
+              "7": null,
+              "8": null,
+              "9": null
+            }
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_medicalLetterService' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/MedicalLetterController.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 35,
+                  "endLine": 12,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'KI-Service aktuell nicht erreichbar' 5 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 81,
+                  "endLine": 80,
+                  "endColumn": 118
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 96,
+                  "startColumn": 77,
+                  "endLine": 96,
+                  "endColumn": 114
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 94,
+                  "endLine": 130,
+                  "endColumn": 131
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 182,
+                  "startColumn": 90,
+                  "endLine": 182,
+                  "endColumn": 127
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 226,
+                  "startColumn": 82,
+                  "endLine": 226,
+                  "endColumn": 119
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null,
+              "3": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1104",
+          "level": "warning",
+          "message": "Make this field 'private' and encapsulate it in a 'public' property.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Domain/Entities/Patient.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 32,
+                  "endLine": 13,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_familyHistoryEntryRepository' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/FamilyHistoryEntryService/FamilyHistoryEntryService.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 47,
+                  "endLine": 12,
+                  "endColumn": 76
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_patientRepository' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/FamilyHistoryEntryService/FamilyHistoryEntryService.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 36,
+                  "endLine": 13,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_mapper' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/FamilyHistoryEntryService/FamilyHistoryEntryService.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 27,
+                  "endLine": 14,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_medicalHistoryEntryRepository' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/MedicalHistoryEntryService.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 48,
+                  "endLine": 11,
+                  "endColumn": 78
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_patientRepository' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/MedicalHistoryEntryService.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 36,
+                  "endLine": 12,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_mapper' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/MedicalHistoryEntryService.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 27,
+                  "endLine": 13,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2933",
+          "level": "warning",
+          "message": "Make '_context' 'readonly'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlMedicalLetterRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 32,
+                  "endLine": 10,
+                  "endColumn": 40
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'TargetName' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 113,
+                  "startColumn": 68,
+                  "endLine": 113,
+                  "endColumn": 80
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 115,
+                  "startColumn": 71,
+                  "endLine": 115,
+                  "endColumn": 83
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 399,
+                  "startColumn": 68,
+                  "endLine": 399,
+                  "endColumn": 80
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 399,
+                  "startColumn": 125,
+                  "endLine": 399,
+                  "endColumn": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Description' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 117,
+                  "startColumn": 69,
+                  "endLine": 117,
+                  "endColumn": 82
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 119,
+                  "startColumn": 72,
+                  "endLine": 119,
+                  "endColumn": 85
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 400,
+                  "startColumn": 69,
+                  "endLine": 400,
+                  "endColumn": 82
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 400,
+                  "startColumn": 127,
+                  "endLine": 400,
+                  "endColumn": 140
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1192",
+          "level": "warning",
+          "message": "Define a constant instead of using this literal 'Kein Zugriff auf diesen Patienten.' 4 times.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 32,
+                  "startColumn": 85,
+                  "endLine": 32,
+                  "endColumn": 121
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 85,
+                  "endLine": 46,
+                  "endColumn": 121
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 75,
+                  "startColumn": 72,
+                  "endLine": 75,
+                  "endColumn": 108
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 110,
+                  "startColumn": 72,
+                  "endLine": 110,
+                  "endColumn": 108
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null,
+              "1": null,
+              "2": null
+            }
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/UserService/Dto/RegisterDto.cs",
+                "region": {
+                  "startLine": 21,
+                  "startColumn": 25,
+                  "endLine": 21,
+                  "endColumn": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalLetterService/Dto/CreateMedicalLetterRequest.cs",
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 20,
+                  "endLine": 8,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1481",
+          "level": "warning",
+          "message": "Remove the unused local variable 'newMedicalLetter'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/MedicalLetterController.cs",
+                "region": {
+                  "startLine": 21,
+                  "startColumn": 13,
+                  "endLine": 21,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicationService/Dto/CreateMedicationRequest.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 20,
+                  "endLine": 14,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S4036",
+          "level": "warning",
+          "message": "Use an absolute path for this command.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AnonymizerService/AnonymizerService.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 17,
+                  "endLine": 12,
+                  "endColumn": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicationService/Dto/UpdateMedicationRequest.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 20,
+                  "endLine": 12,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S108",
+          "level": "warning",
+          "message": "Either remove or fill this block of code.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AnonymizerService/AnonymizerService.cs",
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 17,
+                  "endLine": 44,
+                  "endColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Erstellen Sie für Serialisierungsvorgänge nicht jeweils eine neue JsonSerializerOptions-Instanz. Speichern Sie stattdessen Instanzen zwischen, und verwenden Sie sie wieder.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/CommunicationLevelService/CommunicationLevelService.cs",
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 17,
+                  "endLine": 29,
+                  "endColumn": 81
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S112",
+          "level": "warning",
+          "message": "'System.Exception' should not be thrown by user code.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AnonymizerService/AnonymizerService.cs",
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 27,
+                  "endLine": 29,
+                  "endColumn": 143
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S112",
+          "level": "warning",
+          "message": "'System.Exception' should not be thrown by user code.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AnonymizerService/AnonymizerService.cs",
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 27,
+                  "endLine": 51,
+                  "endColumn": 109
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2245",
+          "level": "warning",
+          "message": "Use a cryptographically strong random number generator.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/HealthTipService/HealthTipService.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 26,
+                  "endLine": 20,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2971",
+          "level": "warning",
+          "message": "Drop this useless call to 'ToList'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 55,
+                  "startColumn": 58,
+                  "endLine": 55,
+                  "endColumn": 65
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2971",
+          "level": "warning",
+          "message": "Drop this useless call to 'ToList'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 56,
+                  "startColumn": 49,
+                  "endLine": 56,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'diagnosisId' to 'id' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/DiagnosisService.cs",
+                "region": {
+                  "startLine": 39,
+                  "startColumn": 78,
+                  "endLine": 39,
+                  "endColumn": 89
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S2486",
+          "level": "warning",
+          "message": "Handle the exception or explain in a comment why it can be ignored.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 167,
+                  "startColumn": 21,
+                  "endLine": 169,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Erstellen Sie für Serialisierungsvorgänge nicht jeweils eine neue JsonSerializerOptions-Instanz. Speichern Sie stattdessen Instanzen zwischen, und verwenden Sie sie wieder.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 76,
+                  "startColumn": 21,
+                  "endLine": 76,
+                  "endColumn": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S108",
+          "level": "warning",
+          "message": "Either remove or fill this block of code.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 168,
+                  "startColumn": 21,
+                  "endLine": 169,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S1481",
+          "level": "warning",
+          "message": "Remove the unused local variable 'imageBytes'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Api/Controller/DiagnoseController.cs",
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 20,
+                  "endLine": 80,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6966",
+          "level": "warning",
+          "message": "Await RunAsync instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Program.cs",
+                "region": {
+                  "startLine": 139,
+                  "startColumn": 1,
+                  "endLine": 139,
+                  "endColumn": 10
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/Dto/CreateMedicalHistoryEntryRequest.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 20,
+                  "endLine": 12,
+                  "endColumn": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Erstellen Sie für Serialisierungsvorgänge nicht jeweils eine neue JsonSerializerOptions-Instanz. Speichern Sie stattdessen Instanzen zwischen, und verwenden Sie sie wieder.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 21,
+                  "endLine": 126,
+                  "endColumn": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/Dto/CreateMedicalHistoryEntryRequest.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 32,
+                  "endLine": 14,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/Dto/CreateMedicalHistoryEntryRequest.cs",
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 24,
+                  "endLine": 18,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'diagnosisId' to 'id' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/DiagnosisService.cs",
+                "region": {
+                  "startLine": 88,
+                  "startColumn": 92,
+                  "endLine": 88,
+                  "endColumn": 103
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DrugInteractionService/DrugInteractionService.cs",
+                "region": {
+                  "startLine": 34,
+                  "startColumn": 50,
+                  "endLine": 34,
+                  "endColumn": 72
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DrugInteractionService/DrugInteractionService.cs",
+                "region": {
+                  "startLine": 46,
+                  "startColumn": 22,
+                  "endLine": 46,
+                  "endColumn": 47
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/Dto/UpdateMedicalHistoryEntryRequest.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 20,
+                  "endLine": 12,
+                  "endColumn": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicalHistoryEntryService/Dto/UpdateMedicalHistoryEntryRequest.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 32,
+                  "endLine": 14,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3358",
+          "level": "warning",
+          "message": "Extract this nested ternary operation into an independent statement.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/CommunicationLevelService/CommunicationLevelService.cs",
+                "region": {
+                  "startLine": 105,
+                  "startColumn": 40,
+                  "endLine": 105,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'diagnosisId' to 'id' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/DiagnosisService.cs",
+                "region": {
+                  "startLine": 134,
+                  "startColumn": 58,
+                  "endLine": 134,
+                  "endColumn": 69
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Erstellen Sie für Serialisierungsvorgänge nicht jeweils eine neue JsonSerializerOptions-Instanz. Speichern Sie stattdessen Instanzen zwischen, und verwenden Sie sie wieder.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/AIService/AIService.cs",
+                "region": {
+                  "startLine": 211,
+                  "startColumn": 21,
+                  "endLine": 211,
+                  "endColumn": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'patientId' to 'symptomDefinitionId' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlSymptomRepository.cs",
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 91,
+                  "endLine": 40,
+                  "endColumn": 100
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/CommunicationLevelService/CommunicationLevelService.cs",
+                "region": {
+                  "startLine": 102,
+                  "startColumn": 18,
+                  "endLine": 102,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/Dto/CreateDiagnosisRequest.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 16,
+                  "endLine": 9,
+                  "endColumn": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/Dto/CreateDiagnosisRequest.cs",
+                "region": {
+                  "startLine": 25,
+                  "startColumn": 28,
+                  "endLine": 25,
+                  "endColumn": 43
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6964",
+          "level": "warning",
+          "message": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DiagnosisService/Dto/CreateDiagnosisRequest.cs",
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 20,
+                  "endLine": 28,
+                  "endColumn": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'symptomId' to 'patientSymptomId' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/SymptomService/SymptomService.cs",
+                "region": {
+                  "startLine": 102,
+                  "startColumn": 97,
+                  "endLine": 102,
+                  "endColumn": 106
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DrugInteractionService/DrugInteractionService.cs",
+                "region": {
+                  "startLine": 97,
+                  "startColumn": 49,
+                  "endLine": 97,
+                  "endColumn": 70
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/DrugInteractionService/DrugInteractionService.cs",
+                "region": {
+                  "startLine": 105,
+                  "startColumn": 22,
+                  "endLine": 105,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 17,
+                  "endLine": 35,
+                  "endColumn": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S6966",
+          "level": "warning",
+          "message": "Await AnyAsync instead.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/DbInitializer.cs",
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 18,
+                  "endLine": 23,
+                  "endColumn": 50
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 37,
+                  "endLine": 31,
+                  "endColumn": 50
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1834",
+          "level": "note",
+          "message": "Verwenden Sie \"StringBuilder.Append(char)\" anstelle von \"StringBuilder.Append(string)\", wenn es sich bei der Eingabe um eine konstante Einheitenzeichenfolge handelt.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 23,
+                  "endLine": 51,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Application/Services/MedicationService/MedicationService.cs",
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 20,
+                  "endLine": 93,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S3776",
+          "level": "warning",
+          "message": "Refactor this method to reduce its Cognitive Complexity from 45 to the 15 allowed.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 27,
+                  "endLine": 126,
+                  "endColumn": 46
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 162,
+                  "startColumn": 21,
+                  "endLine": 162,
+                  "endColumn": 26
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 164,
+                  "startColumn": 25,
+                  "endLine": 164,
+                  "endColumn": 27
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 164,
+                  "startColumn": 68,
+                  "endLine": 164,
+                  "endColumn": 70
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 176,
+                  "startColumn": 29,
+                  "endLine": 176,
+                  "endColumn": 31
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 182,
+                  "startColumn": 29,
+                  "endLine": 182,
+                  "endColumn": 31
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 182,
+                  "startColumn": 70,
+                  "endLine": 182,
+                  "endColumn": 72
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 196,
+                  "startColumn": 29,
+                  "endLine": 196,
+                  "endColumn": 36
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 199,
+                  "startColumn": 33,
+                  "endLine": 199,
+                  "endColumn": 35
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 210,
+                  "startColumn": 29,
+                  "endLine": 210,
+                  "endColumn": 36
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 213,
+                  "startColumn": 33,
+                  "endLine": 213,
+                  "endColumn": 35
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 216,
+                  "startColumn": 41,
+                  "endLine": 216,
+                  "endColumn": 42
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 219,
+                  "startColumn": 37,
+                  "endLine": 219,
+                  "endColumn": 39
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 232,
+                  "startColumn": 29,
+                  "endLine": 232,
+                  "endColumn": 31
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 235,
+                  "startColumn": 29,
+                  "endLine": 235,
+                  "endColumn": 31
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 238,
+                  "startColumn": 29,
+                  "endLine": 238,
+                  "endColumn": 31
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 251,
+                  "startColumn": 17,
+                  "endLine": 251,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": "+1",
+              "1": "+2 (incl 1 for nesting)",
+              "10": "+5 (incl 4 for nesting)",
+              "11": "+5 (incl 4 for nesting)",
+              "12": "+3 (incl 2 for nesting)",
+              "13": "+3 (incl 2 for nesting)",
+              "14": "+3 (incl 2 for nesting)",
+              "15": "+1",
+              "2": "+1",
+              "3": "+3 (incl 2 for nesting)",
+              "4": "+3 (incl 2 for nesting)",
+              "5": "+1",
+              "6": "+3 (incl 2 for nesting)",
+              "7": "+4 (incl 3 for nesting)",
+              "8": "+3 (incl 2 for nesting)",
+              "9": "+4 (incl 3 for nesting)"
+            }
+          }
+        },
+        {
+          "ruleId": "S3776",
+          "level": "warning",
+          "message": "Refactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 57,
+                  "endLine": 54,
+                  "endColumn": 70
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 60,
+                  "startColumn": 13,
+                  "endLine": 60,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 60,
+                  "startColumn": 55,
+                  "endLine": 60,
+                  "endColumn": 57
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 68,
+                  "startColumn": 13,
+                  "endLine": 68,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 68,
+                  "startColumn": 56,
+                  "endLine": 68,
+                  "endColumn": 58
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 71,
+                  "startColumn": 93,
+                  "endLine": 71,
+                  "endColumn": 95
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 76,
+                  "startColumn": 13,
+                  "endLine": 76,
+                  "endColumn": 17
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 13,
+                  "endLine": 83,
+                  "endColumn": 17
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 13,
+                  "endLine": 93,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 109,
+                  "startColumn": 13,
+                  "endLine": 109,
+                  "endColumn": 20
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 114,
+                  "startColumn": 13,
+                  "endLine": 114,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 121,
+                  "startColumn": 13,
+                  "endLine": 121,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 127,
+                  "startColumn": 13,
+                  "endLine": 127,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 127,
+                  "startColumn": 34,
+                  "endLine": 127,
+                  "endColumn": 36
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 138,
+                  "startColumn": 61,
+                  "endLine": 138,
+                  "endColumn": 63
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 143,
+                  "startColumn": 17,
+                  "endLine": 143,
+                  "endColumn": 19
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 150,
+                  "startColumn": 17,
+                  "endLine": 150,
+                  "endColumn": 19
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 169,
+                  "startColumn": 21,
+                  "endLine": 169,
+                  "endColumn": 23
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 178,
+                  "startColumn": 25,
+                  "endLine": 178,
+                  "endColumn": 27
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 188,
+                  "startColumn": 61,
+                  "endLine": 188,
+                  "endColumn": 63
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 191,
+                  "startColumn": 17,
+                  "endLine": 191,
+                  "endColumn": 19
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": "+1",
+              "1": "+1",
+              "10": "+1",
+              "11": "+1",
+              "12": "+1",
+              "13": "+1",
+              "14": "+2 (incl 1 for nesting)",
+              "15": "+2 (incl 1 for nesting)",
+              "16": "+3 (incl 2 for nesting)",
+              "17": "+4 (incl 3 for nesting)",
+              "18": "+1",
+              "19": "+2 (incl 1 for nesting)",
+              "2": "+1",
+              "3": "+1",
+              "4": "+1",
+              "5": "+1",
+              "6": "+1",
+              "7": "+1",
+              "8": "+1",
+              "9": "+1"
+            }
+          }
+        },
+        {
+          "ruleId": "S3776",
+          "level": "warning",
+          "message": "Refactor this method to reduce its Cognitive Complexity from 48 to the 15 allowed.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 205,
+                  "startColumn": 28,
+                  "endLine": 205,
+                  "endColumn": 52
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 13,
+                  "endLine": 212,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 219,
+                  "startColumn": 17,
+                  "endLine": 219,
+                  "endColumn": 19
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 222,
+                  "startColumn": 17,
+                  "endLine": 222,
+                  "endColumn": 21
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 222,
+                  "startColumn": 57,
+                  "endLine": 222,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 225,
+                  "startColumn": 17,
+                  "endLine": 225,
+                  "endColumn": 21
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 225,
+                  "startColumn": 57,
+                  "endLine": 225,
+                  "endColumn": 59
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 229,
+                  "startColumn": 13,
+                  "endLine": 229,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 232,
+                  "startColumn": 17,
+                  "endLine": 232,
+                  "endColumn": 19
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 236,
+                  "startColumn": 13,
+                  "endLine": 236,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 246,
+                  "startColumn": 17,
+                  "endLine": 246,
+                  "endColumn": 24
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 249,
+                  "startColumn": 21,
+                  "endLine": 249,
+                  "endColumn": 23
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 258,
+                  "startColumn": 48,
+                  "endLine": 258,
+                  "endColumn": 49
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 259,
+                  "startColumn": 21,
+                  "endLine": 259,
+                  "endColumn": 23
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 271,
+                  "startColumn": 21,
+                  "endLine": 271,
+                  "endColumn": 28
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 273,
+                  "startColumn": 25,
+                  "endLine": 273,
+                  "endColumn": 27
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 273,
+                  "startColumn": 46,
+                  "endLine": 273,
+                  "endColumn": 48
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 273,
+                  "startColumn": 77,
+                  "endLine": 273,
+                  "endColumn": 78
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 282,
+                  "startColumn": 13,
+                  "endLine": 282,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 285,
+                  "startColumn": 17,
+                  "endLine": 285,
+                  "endColumn": 19
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 285,
+                  "startColumn": 42,
+                  "endLine": 285,
+                  "endColumn": 44
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 289,
+                  "startColumn": 13,
+                  "endLine": 289,
+                  "endColumn": 15
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 293,
+                  "startColumn": 21,
+                  "endLine": 293,
+                  "endColumn": 22
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 295,
+                  "startColumn": 25,
+                  "endLine": 295,
+                  "endColumn": 26
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 294,
+                  "startColumn": 47,
+                  "endLine": 294,
+                  "endColumn": 49
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 298,
+                  "startColumn": 17,
+                  "endLine": 298,
+                  "endColumn": 19
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": "+1",
+              "1": "+2 (incl 1 for nesting)",
+              "10": "+3 (incl 2 for nesting)",
+              "11": "+3 (incl 2 for nesting)",
+              "12": "+3 (incl 2 for nesting)",
+              "13": "+3 (incl 2 for nesting)",
+              "14": "+4 (incl 3 for nesting)",
+              "15": "+1",
+              "16": "+5 (incl 4 for nesting)",
+              "17": "+1",
+              "18": "+2 (incl 1 for nesting)",
+              "19": "+1",
+              "2": "+1",
+              "20": "+1",
+              "21": "+2 (incl 1 for nesting)",
+              "22": "+3 (incl 2 for nesting)",
+              "23": "+1",
+              "24": "+2 (incl 1 for nesting)",
+              "3": "+1",
+              "4": "+1",
+              "5": "+1",
+              "6": "+1",
+              "7": "+2 (incl 1 for nesting)",
+              "8": "+1",
+              "9": "+2 (incl 1 for nesting)"
+            }
+          }
+        },
+        {
+          "ruleId": "S3358",
+          "level": "warning",
+          "message": "Extract this nested ternary operation into an independent statement.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 294,
+                  "startColumn": 23,
+                  "endLine": 296,
+                  "endColumn": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 49,
+                  "endLine": 67,
+                  "endColumn": 74
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1834",
+          "level": "note",
+          "message": "Verwenden Sie \"StringBuilder.Append(char)\" anstelle von \"StringBuilder.Append(string)\", wenn es sich bei der Eingabe um eine konstante Einheitenzeichenfolge handelt.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 90,
+                  "startColumn": 36,
+                  "endLine": 90,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 298,
+                  "startColumn": 18,
+                  "endLine": 298,
+                  "endColumn": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 331,
+                  "startColumn": 18,
+                  "endLine": 331,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 264,
+                  "startColumn": 18,
+                  "endLine": 264,
+                  "endColumn": 32
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "S3267",
+          "level": "warning",
+          "message": "Loops should be simplified using the \"Where\" LINQ method",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 271,
+                  "startColumn": 40,
+                  "endLine": 271,
+                  "endColumn": 54
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 273,
+                  "startColumn": 29,
+                  "endLine": 273,
+                  "endColumn": 105
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "0": null
+            }
+          }
+        },
+        {
+          "ruleId": "S1481",
+          "level": "warning",
+          "message": "Remove the unused local variable 'values'.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 273,
+                  "startColumn": 21,
+                  "endLine": 273,
+                  "endColumn": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1834",
+          "level": "note",
+          "message": "Verwenden Sie \"StringBuilder.Append(char)\" anstelle von \"StringBuilder.Append(string)\", wenn es sich bei der Eingabe um eine konstante Einheitenzeichenfolge handelt.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 380,
+                  "startColumn": 36,
+                  "endLine": 380,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'modelBuilder' to 'builder' to match the base class declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDbContext.cs",
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 62,
+                  "endLine": 42,
+                  "endColumn": 74
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 409,
+                  "startColumn": 41,
+                  "endLine": 409,
+                  "endColumn": 58
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1834",
+          "level": "note",
+          "message": "Verwenden Sie \"StringBuilder.Append(char)\" anstelle von \"StringBuilder.Append(string)\", wenn es sich bei der Eingabe um eine konstante Einheitenzeichenfolge handelt.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 424,
+                  "startColumn": 36,
+                  "endLine": 424,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "\"static readonly\"-Felder gegenüber konstanten Arrayargumenten bevorzugen, wenn die aufgerufene Methode wiederholt aufgerufen wird und das übergebene Array nicht mutiert",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 241,
+                  "startColumn": 28,
+                  "endLine": 241,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "separator"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "\"static readonly\"-Felder gegenüber konstanten Arrayargumenten bevorzugen, wenn die aufgerufene Methode wiederholt aufgerufen wird und das übergebene Array nicht mutiert",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 268,
+                  "startColumn": 32,
+                  "endLine": 268,
+                  "endColumn": 60
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "separator"
+            }
+          }
+        },
+        {
+          "ruleId": "S927",
+          "level": "warning",
+          "message": "Rename parameter 'xmlPath' to 'csvPath' to match the interface declaration.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlDrugInteractionRepository.cs",
+                "region": {
+                  "startLine": 126,
+                  "startColumn": 54,
+                  "endLine": 126,
+                  "endColumn": 61
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S6608",
+          "level": "warning",
+          "message": "Indexing at 0 should be used instead of the \"Enumerable\" extension method \"First\"",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 119,
+                  "startColumn": 31,
+                  "endLine": 119,
+                  "endColumn": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 18,
+                  "endLine": 93,
+                  "endColumn": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1860",
+          "level": "note",
+          "message": "Sowohl aus Gründen der Klarheit als auch der Leistung ist der Vergleich von „Count“ mit 0 der Verwendung von „Any()“ vorzuziehen",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 114,
+                  "startColumn": 18,
+                  "endLine": 114,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "DiagnosticPropertyKey": "Count"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 71,
+                  "startColumn": 42,
+                  "endLine": 71,
+                  "endColumn": 92
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 72,
+                  "startColumn": 42,
+                  "endLine": 72,
+                  "endColumn": 104
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 79,
+                  "startColumn": 42,
+                  "endLine": 79,
+                  "endColumn": 92
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 86,
+                  "startColumn": 42,
+                  "endLine": 86,
+                  "endColumn": 104
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 139,
+                  "startColumn": 21,
+                  "endLine": 139,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLowerInvariant",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 141,
+                  "startColumn": 21,
+                  "endLine": 141,
+                  "endColumn": 81
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLowerInvariant",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 163,
+                  "startColumn": 33,
+                  "endLine": 163,
+                  "endColumn": 88
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLowerInvariant",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 174,
+                  "startColumn": 33,
+                  "endLine": 174,
+                  "endColumn": 88
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLowerInvariant",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Beachten Sie jedoch, dass dies zu geringfügigen Änderungen im Verhalten führen kann. Stellen Sie daher sicher, dass Sie nach der Anwendung des Vorschlags gründlich testen, oder wenn kein kulturabhängiger Vergleich erforderlich ist, erwägen Sie die Verwendung von \"StringComparison.OrdinalIgnoreCase\". Überladung der Zeichenfolgenvergleichsmethode von \"string.Contains(string)\" bevorzugen, die einen Enumerationswert \"StringComparison\" akzeptiert, um einen Vergleich ohne Berücksichtigung der Groß-/Kleinschreibung durchzuführen.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Infrastructure/Repositories/MySqlKnownMedicationRepository.cs",
+                "region": {
+                  "startLine": 189,
+                  "startColumn": 21,
+                  "endLine": 189,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLowerInvariant",
+              "RightOffendingMethod": null
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "\"static readonly\"-Felder gegenüber konstanten Arrayargumenten bevorzugen, wenn die aufgerufene Methode wiederholt aufgerufen wird und das übergebene Array nicht mutiert",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/sources/Fehldiagnosen/Backend/Backend/Migrations/20260608122700_initialCreate.cs",
+                "region": {
+                  "startLine": 528,
+                  "startColumn": 26,
+                  "endLine": 528,
+                  "endColumn": 74
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        }
+      ],
+      "rules": {
+        "CA1050": {
+          "id": "CA1050",
+          "shortDescription": "Typen in Namespaces deklarieren",
+          "fullDescription": "Typen werden in Namespaces deklariert, um Namenskonflikte zu vermeiden und verwandte Typen in einer Objekthierarchie zu strukturieren.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1050",
+          "properties": {
+            "category": "Design",
+            "isEnabledByDefault": true,
+            "tags": [
+              "PortedFromFxCop",
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1834": {
+          "id": "CA1834",
+          "shortDescription": "Verwendung von \"StringBuilder.Append(char)\" erwägen",
+          "fullDescription": "\"StringBuilder.Append(char)\" ist effizienter als \"StringBuilder.Append(string)\", wenn die Zeichenfolge ein einzelnes Zeichen enthält. Wenn \"Append\" mit einer Konstante aufgerufen wird, verwenden Sie eher ein konstantes Zeichen anstelle einer konstanten Zeichenfolge, die nur ein Zeichen enthält.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1834",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1860": {
+          "id": "CA1860",
+          "shortDescription": "Verwendung der Erweiterungsmethode „Enumerable.Any()“ vermeiden",
+          "fullDescription": "Verwenden Sie lieber die Eigenschaften „IsEmpty“, „Count“ oder „Length“, sofern verfügbar, statt „Enumerable.Any()“ aufzurufen. Die Absicht ist klarer und das Ausführungsverhalten besser als bei Verwendung der Erweiterungsmethode „Enumerable.Any()“.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1860",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1861": {
+          "id": "CA1861",
+          "shortDescription": "Konstantenmatrizen als Argumente vermeiden",
+          "fullDescription": "Konstantenarrays, die als Argumente übergeben werden, werden beim wiederholten Aufruf nicht wiederverwendet, was bedeutet, dass jedes Mal ein neues Array erstellt wird. Ziehen Sie in Betracht, sie in \"static readonly\"-Felder zu extrahieren, um die Leistung zu verbessern, wenn das übergebene Array nicht innerhalb der aufgerufenen Methode mutiert wird.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1861",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1862": {
+          "id": "CA1862",
+          "shortDescription": "\"StringComparison\"-Methodenüberladungen verwenden, um Zeichenfolgenvergleiche ohne Beachtung der Groß-/Kleinschreibung durchzuführen",
+          "fullDescription": "Vermeiden Sie den Aufruf von \"ToLower\", \"ToUpper\", \"ToLowerInvariant\" und \"ToUpperInvariant\", um Zeichenfolgenvergleiche ohne Beachtung der Groß-/Kleinschreibung durchzuführen, da sie zu einer Zuordnung führen. Rufen Sie stattdessen lieber die Methodenüberladungen von \"Contains\", \"IndexOf\" und \"StartsWith\" auf, die einen StringComparison-Enumerationswert verwenden, um Vergleiche ohne Beachtung der Groß-/Kleinschreibung durchzuführen. Der Wechsel zu einer Überladung, die einen \"StringComparison\" akzeptiert, kann geringfügige Verhaltensänderungen verursachen. Daher ist es wichtig, nach dem Anwenden des Vorschlags gründlich zu testen. Wenn kein kulturabhängiger Vergleich erforderlich ist, sollten Sie außerdem die Verwendung von \"StringComparison.OrdinalIgnoreCase\" in Betracht ziehen.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1862",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1869": {
+          "id": "CA1869",
+          "shortDescription": "JsonSerializerOptions-Instanzen zwischenspeichern und wiederverwenden",
+          "fullDescription": "Erstellen Sie für Serialisierungsvorgänge nicht jeweils eine neue JsonSerializerOptions-Instanz. Speichern Sie stattdessen Instanzen zwischen, und verwenden Sie sie wieder. Die einmalige Verwendung von JsonSerializerOptions-Instanzen kann die Leistung Ihrer Anwendung erheblich beeinträchtigen.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CS0108": {
+          "id": "CS0108",
+          "shortDescription": "Element blendet vererbte Element aus; fehlendes 'new'-Schlüsselwort",
+          "fullDescription": "Eine Variable wurde mit demselben Namen deklariert wie eine Variable in einem Basistyp. Das new-Schlüsselwort wurde jedoch nicht verwendet. Diese Warnung informiert Sie darüber, dass Sie \"new\" verwenden müssen; die Variable wird so deklariert, als wäre \"new\" in der Deklaration verwendet worden.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0108)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS0168": {
+          "id": "CS0168",
+          "shortDescription": "Variable ist deklariert, wird jedoch niemals verwendet",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0168)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8602": {
+          "id": "CS8602",
+          "shortDescription": "Dereferenzierung eines möglichen Nullverweises.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8602)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8604": {
+          "id": "CS8604",
+          "shortDescription": "Mögliches Nullverweisargument.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8604)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8618": {
+          "id": "CS8618",
+          "shortDescription": "Ein Non-Nullable-Feld muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Fügen Sie ggf. den „erforderlichen“ Modifizierer hinzu, oder deklarieren Sie den Modifizierer als NULL-Werte zulassend.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8618)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8767": {
+          "id": "CS8767",
+          "shortDescription": "Die NULL-Zulässigkeit von Verweistypen im Typ des Parameters entspricht (möglicherweise aufgrund von Attributen für die NULL-Zulässigkeit) nicht dem implizit implementierten Member.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8767)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "S108": {
+          "id": "S108",
+          "shortDescription": "Nested blocks of code should not be left empty",
+          "fullDescription": "An empty code block is confusing. It will require some effort from maintainers to determine if it is intentional or indicates the implementation is incomplete.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S1104": {
+          "id": "S1104",
+          "shortDescription": "Fields should not have public accessibility",
+          "fullDescription": "Public fields in public classes do not respect the encapsulation principle and have three main disadvantages:",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S112": {
+          "id": "S112",
+          "shortDescription": "General or reserved exceptions should never be thrown",
+          "fullDescription": "This rule raises an issue when a general or reserved exception is thrown.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S1192": {
+          "id": "S1192",
+          "shortDescription": "String literals should not be duplicated",
+          "fullDescription": "Duplicated string literals make the process of refactoring complex and error-prone, as any change would need to be propagated on all occurrences.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": false,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S1481": {
+          "id": "S1481",
+          "shortDescription": "Unused local variables should be removed",
+          "fullDescription": "An unused local variable is a variable that has been declared but is not used anywhere in the block of code where it is defined. It is dead code, contributing to unnecessary complexity and leading to confusion when reading the code. Therefore, it should be removed from your code to maintain clarity and efficiency.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2094": {
+          "id": "S2094",
+          "shortDescription": "Classes should not be empty",
+          "fullDescription": "There is no good excuse for an empty class. If it’s being used simply as a common extension point, it should be replaced with an interface. If it was stubbed in as a placeholder for future development it should be fleshed-out. In any other case, it should be eliminated.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2245": {
+          "id": "S2245",
+          "shortDescription": "Pseudorandom number generators (PRNGs) should not be used in security contexts",
+          "fullDescription": "Pseudorandom number generators (PRNGs) produce sequences that only approximate true randomness and are not suitable for security-sensitive contexts.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Vulnerability",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2486": {
+          "id": "S2486",
+          "shortDescription": "Generic exceptions should not be ignored",
+          "fullDescription": "When exceptions occur, it is usually a bad idea to simply ignore them. Instead, it is better to handle them properly, or at least to log them.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2933": {
+          "id": "S2933",
+          "shortDescription": "Fields that are only assigned in the constructor should be \"readonly\"",
+          "fullDescription": "readonly fields can only be assigned in a class constructor. If a class has a field that’s not marked readonly but is only set in the constructor, it could cause confusion about the field’s intended use. To avoid confusion, such fields should be marked readonly to make their intended use explicit, and to prevent future maintainers from inadvertently changing their use.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S2971": {
+          "id": "S2971",
+          "shortDescription": "LINQ expressions should be simplified",
+          "fullDescription": "In the interests of readability, code that can be simplified should be simplified. To that end, there are several ways IEnumerable language integrated queries (LINQ) can be simplified. This not only improves readabilty but can also lead to improved performance.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S3267": {
+          "id": "S3267",
+          "shortDescription": "Loops should be simplified with \"LINQ\" expressions",
+          "fullDescription": "Using explicit loops for filtering, selecting, or aggregating elements can make code more verbose and harder to read. LINQ expressions provide a more concise and expressive way to perform these operations, improving code clarity and maintainability.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S3358": {
+          "id": "S3358",
+          "shortDescription": "Ternary operators should not be nested",
+          "fullDescription": "Nested ternary operators are hard to read because the mapping between each condition and its result is not immediately obvious, and the order in which the conditions are evaluated is easy to misjudge. Each extra level of nesting increases the effort required to understand which branch produces which value.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S3776": {
+          "id": "S3776",
+          "shortDescription": "Cognitive Complexity of methods should not be too high",
+          "fullDescription": "This rule raises an issue when the code cognitive complexity of a function is above a certain threshold.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Critical Code Smell",
+            "isEnabledByDefault": false,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S3903": {
+          "id": "S3903",
+          "shortDescription": "Types should be defined in named namespaces",
+          "fullDescription": "Types are declared in namespaces in order to prevent name collisions and as a way to organize them into the object hierarchy. Types that are defined outside any named namespace are in a global namespace that cannot be referenced in code.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Bug",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S4036": {
+          "id": "S4036",
+          "shortDescription": "OS commands should not rely on PATH resolution",
+          "fullDescription": "Executing an OS command without specifying an absolute or relative path exposes the application to PATH-hijacking attacks.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Vulnerability",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S4487": {
+          "id": "S4487",
+          "shortDescription": "Unread \"private\" fields should be removed",
+          "fullDescription": "Private fields which are written but never read are a case of \"dead store\". Changing the value of such a field is useless and most probably indicates an error in the code.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Critical Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S6608": {
+          "id": "S6608",
+          "shortDescription": "Prefer indexing instead of \"Enumerable\" methods on types implementing \"IList\"",
+          "fullDescription": "Indexes in C# provide direct access to an element at a specific position within an array or collection. When compared to Enumerable methods, indexing can be more efficient for certain scenarios, such as iterating over a large collection, due to avoiding the overhead of checking the underlying collection type before accessing it.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S6964": {
+          "id": "S6964",
+          "shortDescription": "Value type property used as input in a controller action should be nullable, required or annotated with the JsonRequiredAttribute to avoid under-posting.",
+          "fullDescription": "\"Under-posting\" refers to a situation where a client sends less data than expected to the server during an HTTP request, for example when the client omits some properties from the request body that the server expects to receive.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S6966": {
+          "id": "S6966",
+          "shortDescription": "Awaitable method should be used",
+          "fullDescription": "In an async method, any blocking operations should be avoided.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Major Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "S927": {
+          "id": "S927",
+          "shortDescription": "Parameter names should match base declaration and other partial definitions",
+          "fullDescription": "Parameters are part of the method signature and its identity.",
+          "defaultLevel": "warning",
+          "properties": {
+            "category": "Critical Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

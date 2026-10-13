@@ -23,6 +23,7 @@ export function createModel(overrides = {}) {
     ...BASE_CONFIG,
     model: process.env.AI_MODEL_NAME,
     temperature: 0.1,
+    maxTokens: 800,
     ...overrides,
   });
 }
@@ -37,6 +38,7 @@ export function createValidatorModel(overrides = {}) {
     ...BASE_CONFIG,
     model: process.env.VALIDATOR_MODEL_NAME,
     temperature: 0.0,
+    maxTokens: 400,
     ...overrides,
   });
 }

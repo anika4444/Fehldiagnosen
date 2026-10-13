@@ -69,6 +69,7 @@ namespace Backend.Application.Mapper
                 IntakeFrequency = medication.IntakeFrequency,
                 IntakeStartDate = medication.IntakeStartDate,
                 DurationInDays = medication.DurationInDays,
+                EndDate = medication.EndDate,
                 Indication = medication.Indication,
                 AtcCode = medication.AtcCode,
                 EntryBy = medication.EntryBy,

@@ -7,6 +7,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { MistralProviderFactory } from "./providers/MistralProviderFactory.js";
 import { getIcdContext } from "./icd10Lookup.js";
 import { ChainBuilder } from "./chainBuilder.js";
+import { parseValidatorResponse } from "./validatorResponse.js";
 import checkupSummaryRouter from "./checkupSummary.js";
 
 dotenv.config();
@@ -53,30 +54,7 @@ const LANG_LEVEL_MAP = {
 
 async function validateExplanation(text, inputData) {
   const raw = await validatorChain.invoke({ text, ...inputData });
-  const match = raw.match(/\{[\s\S]*\}/);
-
-  if (!match) {
-    console.warn("⚠️ Validator hat kein valides JSON geliefert:", raw);
-    return {
-      score: 0,
-      feedback:
-        "Interner Fehler: Validator-Antwort konnte nicht ausgewertet werden.",
-    };
-  }
-
-  try {
-    const result = JSON.parse(match[0]);
-    return {
-      score: result.score === 1 ? 1 : 0,
-      feedback: result.feedback || "",
-    };
-  } catch (e) {
-    console.warn("⚠️ JSON-Parse-Fehler vom Validator:", e.message);
-    return {
-      score: 0,
-      feedback: "Interner Fehler: Validator-Antwort ist ungültig.",
-    };
-  }
+  return parseValidatorResponse(raw);
 }
 
 const explainModel = new ChatOpenAI({

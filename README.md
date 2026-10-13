@@ -84,6 +84,43 @@ npm install
 node aiServices.js
 ```
 
+### 5. Tests ausführen
+
+Alle Tests auf einmal (im Projekt-Root):
+
+```powershell
+.\run-tests.cmd                    # Backend (Unit + Integration), AI-Service, Frontend
+.\run-tests.cmd -SkipIntegration   # ohne Backend-Integrationstests
+```
+
+`run-tests.cmd` ruft `run-tests.ps1` auf und umgeht dabei die PowerShell-Ausführungsrichtlinie. Wer Skripte erlaubt hat (`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`), kann auch direkt `.\run-tests.ps1` nutzen.
+
+Oder einzeln:
+
+```bash
+# Backend (xUnit). Die Integrationstests starten per Testcontainers eine MySQL-Datenbank -> Docker Desktop muss laufen
+cd Backend
+dotnet test Backend.slnx                                  # alle Tests
+dotnet test Backend.slnx --filter "Category!=Integration" # nur Unit-Tests
+
+# AI-Service (node:test)
+cd AI
+npm test
+
+# Frontend (Jest)
+cd frontend
+npm test
+```
+
+Statt Docker kann auch ein vorhandener MySQL-Server genutzt werden. Die Tests legen dort eine eigene Datenbank an und löschen sie danach wieder:
+
+```powershell
+$env:TEST_MYSQL_CONNECTION = "Server=localhost;Port=3306;User ID=root;Password=root;"
+dotnet test Backend.slnx
+```
+
+In der CI (`.github/workflows/build.yml`) laufen die Jobs `test-backend`, `test-ai` und `test-frontend`. Die Build-Jobs hängen davon ab: Schlägt ein Test fehl, wird die Pipeline rot und es werden keine Artefakte gebaut.
+
 ### 🚀 Verwendung der App
 
 **Am Handy**
