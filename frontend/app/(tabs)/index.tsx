@@ -1,98 +1,262 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import {
+  AntDesign,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useMemo, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ThemedText } from "@/components/themed-text";
+import { Card } from "@/components/ui/card";
+import { HeaderView } from "@/components/ui/header-view";
+import { Colors } from "@/constants/theme";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useDiagnosis } from "@/hooks/use-diagnosis";
+import { useHealthTip } from "@/hooks/use-health-tip";
+import { useMedications } from "@/hooks/use-medications";
+import { usePatient } from "@/hooks/use-patient";
+import { useSymptoms } from "@/hooks/use-symptoms";
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+type ThemeColors = (typeof Colors)["light"];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+interface StatCardProps {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  theme: ThemeColors;
+  onPress: () => void;
 }
 
+const StatCard = ({ icon, value, label, onPress }: StatCardProps) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Pressable
+      style={styles.statCardWrapper}
+      onPress={onPress}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
+    >
+      <Card
+        variant="filled"
+        style={[styles.statCard, hovered && styles.statCardHover]}
+      >
+        <View style={styles.statIconContainer}>{icon}</View>
+        <ThemedText type="title" style={styles.statValue}>
+          {value ?? 0}
+        </ThemedText>
+        <ThemedText
+          type="smallText"
+          style={styles.statLabel}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          {label}
+        </ThemedText>
+      </Card>
+    </Pressable>
+  );
+};
+
+const Dashboard = () => {
+  const colorScheme = useColorScheme() ?? "light";
+  const theme = Colors[colorScheme];
+  const router = useRouter();
+
+  const { patientId } = usePatient();
+  const { firstName } = useCurrentUser();
+  const { tip, isLoading, error } = useHealthTip();
+
+  // Datum stabil halten, damit useSymptoms nicht in einer Endlosschleife lädt
+  const today = useMemo(() => new Date(), []);
+
+  const { symptoms } = useSymptoms(patientId, today);
+  const { medications } = useMedications(patientId);
+  const { entries: diagnoses } = useDiagnosis(patientId);
+
+  const greeting = firstName
+    ? `Willkommen, ${firstName}!`
+    : "Willkommen zurück!";
+  const initials = firstName ? firstName.trim().charAt(0).toUpperCase() : "?";
+
+  return (
+    <ScrollView style={{ backgroundColor: theme.background }}>
+      <HeaderView
+        title={greeting}
+        subtitle="Ihr Gesundheits-Dashboard"
+        rightElement={
+          <Pressable
+            onPress={() => router.push("/(tabs)/data" as any)}
+            style={({ pressed }) => [
+              styles.avatar,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <ThemedText
+              colorName="textwithbackground"
+              style={styles.avatarText}
+            >
+              {initials}
+            </ThemedText>
+          </Pressable>
+        }
+      />
+
+      <View style={styles.content}>
+        <Card variant="filled">
+          <View style={styles.row}>
+            <View style={styles.iconContainer}>
+              <AntDesign name="info-circle" size={24} color={theme.primary} />
+            </View>
+            <View style={styles.textContainer}>
+              <ThemedText type="defaultSemiBold">
+                Gesundheitstipp des Tages
+              </ThemedText>
+              <ThemedText type="smallText" style={styles.subtitleText}>
+                {tip ||
+                  (isLoading
+                    ? "Lädt Gesundheitstipp..."
+                    : error
+                      ? "Fehler beim Laden des Tipps."
+                      : "Kein Tipp verfügbar.")}
+              </ThemedText>
+            </View>
+          </View>
+        </Card>
+
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Übersicht
+        </ThemedText>
+
+        <View style={styles.statsGrid}>
+          <StatCard
+            theme={theme}
+            value={symptoms.length}
+            label="Symptome heute"
+            icon={<Ionicons name="pulse" size={24} color={theme.primary} />}
+            onPress={() => router.push("/(tabs)/symptom" as any)}
+          />
+          <StatCard
+            theme={theme}
+            value={medications.length}
+            label="Medikamente"
+            icon={
+              <MaterialCommunityIcons
+                name="pill"
+                size={24}
+                color={theme.primary}
+              />
+            }
+            onPress={() => router.push("/medications" as any)}
+          />
+          <StatCard
+            theme={theme}
+            value={diagnoses.length}
+            label="Diagnosen"
+            icon={
+              <MaterialCommunityIcons
+                name="stethoscope"
+                size={24}
+                color={theme.primary}
+              />
+            }
+            onPress={() => router.push("/diagnosis" as any)}
+          />
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+
+export default Dashboard;
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  content: {
+    padding: 20,
   },
-  stepContainer: {
-    gap: 8,
+  sectionTitle: {
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  iconContainer: {
+    marginRight: 16,
+    backgroundColor: "rgba(0, 150, 136, 0.15)",
+    padding: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  subtitleText: {
+    marginTop: 4,
+    opacity: 0.8,
+  },
+  avatar: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  statsGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    width: "100%",
+    alignItems: "flex-start",
+  },
+  statCardWrapper: {
+    flex: 1,
+  },
+  statCard: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    marginBottom: 0,
+  },
+  statCardHover: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
+    transform: [{ translateY: -2 }],
+  },
+  statIconContainer: {
+    backgroundColor: "rgba(0, 150, 136, 0.15)",
+    padding: 10,
+    borderRadius: 12,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statValue: {
+    lineHeight: 34,
+  },
+  statLabel: {
+    opacity: 0.8,
+    marginTop: 2,
+    textAlign: "center",
+    fontSize: 12,
   },
 });
