@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
 using Backend.Application.Services.CheckupService;
@@ -133,6 +134,14 @@ app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Liefert die laufende Version (beim Release aus dem Git-Tag gesetzt).
+app.MapGet("/api/version", () => new
+{
+    version = typeof(Program).Assembly
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+        .InformationalVersion
+});
 
 app.MapControllers();
 

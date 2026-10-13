@@ -1,4 +1,5 @@
 import express from "express";
+import { readFileSync } from "node:fs";
 import dotenv from "dotenv";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { HumanMessage } from "@langchain/core/messages";
@@ -20,6 +21,12 @@ app.use(
   }),
 );
 app.use(checkupSummaryRouter);
+
+// Liefert die laufende Version (beim Release aus dem Git-Tag gesetzt).
+const { version: APP_VERSION } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+);
+app.get("/ai/version", (req, res) => res.json({ version: APP_VERSION }));
 
 const MAX_ATTEMPTS = parseInt(process.env.MAX_VALIDATION_ATTEMPTS || "3");
 const factory = new MistralProviderFactory();

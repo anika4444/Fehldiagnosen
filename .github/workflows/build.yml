@@ -2,8 +2,12 @@ name: Build Project
 
 on:
   push:
+    # Tags lösen stattdessen release.yml aus (das diesen Workflow selbst aufruft).
+    branches: ["**"]
   pull_request:
   workflow_dispatch:
+  # Wird von release.yml als Qualitätsprüfung vor dem Release aufgerufen.
+  workflow_call:
 
 permissions:
   contents: read
