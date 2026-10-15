@@ -129,6 +129,7 @@ namespace Backend.Application.Services.MedicationService
             existingMedication.Indication = request.Indication;
             existingMedication.EntryBy = request.EntryBy;
             existingMedication.Notes = request.Notes;
+            existingMedication.UpdatedAt = DateTime.UtcNow;
 
             var updatedMedication = await _medicationRepository.UpdateAsync(existingMedication);
             return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(updatedMedication));

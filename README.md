@@ -39,6 +39,7 @@ docker compose up -d
 
 # 3. Als nächstes muss die Datenbankstruktur erstellt werden. Navigiere im Terminal zu adam\Backend\Backend und führe folgenden Befehl aus:
 dotnet ef database update
+# Nach jedem Pull mit neuen Migrationen (z. B. AddEmergencyAccess für den Notfallzugang) diesen Befehl erneut ausführen.
 
 # 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml.
 
@@ -147,6 +148,30 @@ dotnet test Backend.slnx --filter "Category=Stress" --logger "console;verbosity=
 | `STRESS_BASE_URL` | URL eines laufenden Backends | – (In-Memory-Backend + MySQL-Testdatenbank) |
 
 In der CI (`.github/workflows/build.yml`) laufen die Jobs `test-backend`, `test-ai` und `test-frontend`. Die Build-Jobs hängen davon ab: Schlägt ein Test fehl, wird die Pipeline rot und es werden keine Artefakte gebaut.
+
+### 6. Notfallportal starten
+
+Das Notfallportal ist eine eigene Website für Rettungskräfte und Ärzt:innen. Sie zeigt die freigegebenen Daten über QR-Code oder Notfall-ID plus PIN, ohne Login und nur lesend. Öffne dafür ein weiteres Terminal
+
+```bash
+# 1. Navigiere zum Ordner emergency-portal
+cd emergency-portal
+
+# 2. Installiere alle Abhängigkeiten des Portals (nur beim ersten Mal nötig)
+npm install
+
+# 3. Starte das Portal:
+npm run dev
+```
+
+Das Portal läuft auf http://localhost:5173. Die Codes erstellst du in der App unter Daten > Notfallzugang.
+
+**Portal am Handy testen**
+Ein QR-Code zeigt standardmäßig auf `localhost` und funktioniert deshalb nur am PC. Für einen Test mit einem zweiten Handy im selben WLAN:
+
+- In `Backend/Backend/appsettings.json` unter `Emergency` bei `PortalBaseUrl` und `AllowedOrigins` die LAN-IP eintragen, z. B. `http://192.168.0.198:5173`
+- Im Ordner `emergency-portal` eine Datei `.env` anlegen mit `VITE_API_BASE_URL=http://192.168.0.198:5238/api`
+- Danach Backend und Portal neu starten. Die App baut die QR-Adresse beim nächsten Öffnen mit der neuen Adresse, ein bereits gespeichertes Sperrbild muss neu erstellt werden
 
 ### 🚀 Verwendung der App
 

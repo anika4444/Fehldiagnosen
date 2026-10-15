@@ -7,9 +7,15 @@ import React from "react";
 import { HapticTab } from "@/components/ui/haptic-tab";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useEmergencyWatch } from "@/hooks/use-emergency-watch";
+import { usePatient } from "@/hooks/use-patient";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { patientId } = usePatient();
+
+  // Announces portal accesses and asks for approvals while the app is open
+  useEmergencyWatch(patientId);
 
   return (
     <Tabs

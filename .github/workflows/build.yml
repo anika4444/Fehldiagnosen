@@ -176,6 +176,37 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  build-emergency-portal:
+    name: Build Emergency Portal (Vite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: emergency-portal/package-lock.json
+
+      - name: Install portal dependencies
+        working-directory: emergency-portal
+        run: npm ci
+
+      - name: Build portal (typecheck and Vite build)
+        working-directory: emergency-portal
+        run: npm run build
+
+      - name: Upload portal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emergency-portal
+          path: emergency-portal/dist
+          if-no-files-found: error
+          retention-days: 14
+
   build-ai:
     name: Build AI Service (Node.js)
     runs-on: ubuntu-latest
@@ -304,7 +335,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [frontend, AI]
+        project: [frontend, AI, emergency-portal]
 
     steps:
       - name: Checkout repository
@@ -356,7 +387,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [frontend, AI]
+        project: [frontend, AI, emergency-portal]
 
     steps:
       - name: Checkout repository
@@ -429,4 +460,5 @@ jobs:
 
       # Erlaubte Lizenzen stehen in .github/allowed-licenses.json
       - name: Check licenses
-        run: nuget-license -i Backend/Backend/Backend.csproj -a .github/allowed-licenses.json
+        # BCrypt.Net-Next only ships a license URL, the mapping file translates it to MIT
+        run: nuget-license -i Backend/Backend/Backend.csproj -a .github/allowed-licenses.json --licenseurl-to-license-mappings .github/licenseurl-mappings.json

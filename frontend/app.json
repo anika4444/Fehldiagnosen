@@ -53,6 +53,15 @@
         {
           "cameraPermission": "Diese App benötigt Zugriff auf die Kamera"
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "ADAM speichert Ihr Notfall-Sperrbild in Ihren Fotos.",
+          "savePhotosPermission": "ADAM speichert Ihr Notfall-Sperrbild in Ihren Fotos.",
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": []
+        }
       ]
     ],
     "experiments": {

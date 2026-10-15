@@ -13,6 +13,13 @@ export interface MenuItem {
 
 export const MENU_ITEMS: MenuItem[] = [
   {
+    id: "emergency",
+    title: "Notfallzugang",
+    subtitle: "QR-Code und PIN für Helfer",
+    icon: "medical-bag",
+    route: "/emergency" as Href,
+  },
+  {
     id: "meds",
     title: "Aktuelle Medikamente",
     subtitle: "Meine Medikamente",

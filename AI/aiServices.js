@@ -10,6 +10,7 @@ import { getIcdContext } from "./icd10Lookup.js";
 import { ChainBuilder } from "./chainBuilder.js";
 import { parseValidatorResponse } from "./validatorResponse.js";
 import checkupSummaryRouter from "./checkupSummary.js";
+import emergencySummaryRouter from "./emergencySummary.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(
   }),
 );
 app.use(checkupSummaryRouter);
+app.use(emergencySummaryRouter);
 
 // Liefert die laufende Version (beim Release aus dem Git-Tag gesetzt).
 const { version: APP_VERSION } = JSON.parse(
@@ -419,4 +421,5 @@ app.listen(PORT, () => {
   console.log(`   → POST /ai/explain`);
   console.log(`   → POST /ai/interpret-medical-letter`);
   console.log(`   → POST /ai/interpret-medication-image`);
+  console.log(`   → POST /ai/emergency-summary`);
 });
