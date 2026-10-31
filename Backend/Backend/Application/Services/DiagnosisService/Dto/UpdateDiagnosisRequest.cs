@@ -19,8 +19,6 @@ public class UpdateDiagnosisRequest
 
     public ConditionStatus? ConditionStatus { get; set; }
 
-    public EntryBy? EntryBy { get; set; }
-
     public string? MedicationText { get; set; }
 
     public string? Symptoms { get; set; }

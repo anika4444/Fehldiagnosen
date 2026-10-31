@@ -2,7 +2,10 @@ import { useEffect } from "react";
 
 import { useExplainMedicalHistory } from "@/hooks/use-explain-medical-history";
 import { useFormattedDate } from "@/hooks/use-formatted-date";
-import { DiagnosisEntryResponse } from "@/types/diagnosis-type";
+import {
+  CONDITION_STATUS_LABELS,
+  DiagnosisEntryResponse,
+} from "@/types/diagnosis-type";
 
 import { DetailField } from "../ui/detail-field";
 import { ModalCard } from "../ui/modal-card";
@@ -48,7 +51,14 @@ export const DiagnosisCard = ({
       <DetailField label="ICD-Code" value={entry.icdCode} />
       <DetailField label="Schweregrad" value={entry.severity} />
       <DetailField label="Seite" value={entry.sideLocalization} />
-      <DetailField label="Status" value={entry.status} />
+      <DetailField
+        label="Status"
+        value={
+          entry.conditionStatus != null
+            ? CONDITION_STATUS_LABELS[entry.conditionStatus]
+            : undefined
+        }
+      />
       <DetailField label="Symptome" value={entry.symptoms} />
       <DetailField label="Befunde" value={entry.findings} />
       <DetailField

@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Common.Results;
+using Backend.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -14,6 +15,12 @@ namespace Backend.Api.Controller
         protected bool IsArzt()
         {
             return User.IsInRole("Arzt");
+        }
+
+        //Leitet aus der Rolle ab, wer einen Eintrag erfasst hat
+        protected EntryBy GetEntryBy()
+        {
+            return IsArzt() ? EntryBy.Doctor : EntryBy.Patient;
         }
 
         //Wandelt ein ServiceResult mit Daten in die passende HTTP-Antwort um (Erfolg = 200 mit Daten)

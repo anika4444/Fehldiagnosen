@@ -250,7 +250,7 @@ public class PatientController : BaseApiController
     public async Task<ActionResult<DiagnosisResponse>> CreateDiagnosisForPatientId(int patientId, [FromBody] CreateDiagnosisRequest request)
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _diagnosisService.CreateAsync(patientId, request, userId);
+        var result = await _diagnosisService.CreateAsync(patientId, request, GetEntryBy(), userId);
 
         if (result.IsSuccess)
             return CreatedAtAction(nameof(DiagnosisController.GetById), "Diagnosis", new { id = result.Data.Id }, result.Data);

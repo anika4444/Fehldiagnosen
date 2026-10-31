@@ -1,4 +1,5 @@
 using Backend.Application.Common.Results;
+using Backend.Domain.Enums;
 
 namespace Backend.Application.Services.AIService
 {
@@ -8,7 +9,7 @@ namespace Backend.Application.Services.AIService
         
         Task<ServiceResult<MedicationScanResponse>> InterpretMedicationImage(string base64,string mimeType);
         
-        Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int? patientId, string? userId, string letterText);
+        Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int? patientId, string? userId, EntryBy entryBy, string letterText);
     }
 }
 

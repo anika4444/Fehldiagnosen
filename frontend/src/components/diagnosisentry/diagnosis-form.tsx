@@ -4,13 +4,26 @@ import { Platform, Pressable, StyleSheet } from "react-native";
 import { useDatePicker } from "@/hooks/use-date-picker";
 import { useFormValidation } from "@/hooks/use-form-validation";
 import {
+  CONDITION_STATUS_LABELS,
+  ConditionStatus,
   CreateDiagnosisEntryRequest,
   DiagnosisEntryResponse,
 } from "@/types/diagnosis-type";
 import { toLocalDateString } from "@/utils/date";
 
 import { FormInput } from "../ui/form-input";
+import { FormPicker } from "../ui/form-picker";
 import { ModalCard } from "../ui/modal-card";
+
+const CONDITION_STATUS_OPTIONS = Object.values(CONDITION_STATUS_LABELS);
+
+// FormPicker arbeitet mit Labels, das Backend erwartet den Enum-Wert.
+const toConditionStatus = (label: string): ConditionStatus | null => {
+  const entry = Object.entries(CONDITION_STATUS_LABELS).find(
+    ([, value]) => value === label,
+  );
+  return entry ? (Number(entry[0]) as ConditionStatus) : null;
+};
 
 interface DiagnosisFormProps {
   initialData: DiagnosisEntryResponse | null;
@@ -31,7 +44,7 @@ export const DiagnosisForm = ({
       icdCode: "",
       severity: "",
       sideLocalization: "",
-      status: "",
+      conditionStatus: null as ConditionStatus | null,
       medicationText: "",
       symptoms: "",
       findings: "",
@@ -44,6 +57,8 @@ export const DiagnosisForm = ({
     (vals) => {
       const errs: Record<string, string> = {};
       if (!vals.title.trim()) errs.title = "Bitte geben Sie einen Titel an.";
+      if (vals.conditionStatus == null)
+        errs.conditionStatus = "Bitte wählen Sie einen Status.";
       if (!vals.diagnosisDate.trim())
         errs.diagnosisDate = "Bitte geben Sie das Diagnosedatum an.";
       return errs;
@@ -59,7 +74,12 @@ export const DiagnosisForm = ({
     <ModalCard
       title={initialData ? "Diagnose bearbeiten" : "Neue Diagnose"}
       onClose={onCancel}
-      onSave={() => handleSubmit(onSave)}
+      onSave={() =>
+        handleSubmit((vals) =>
+          // conditionStatus ist durch die Validierung gesetzt
+          onSave({ ...vals, conditionStatus: vals.conditionStatus! }),
+        )
+      }
       saveButtonText={initialData ? "Aktualisieren" : "Speichern"}
     >
       <FormInput
@@ -97,11 +117,19 @@ export const DiagnosisForm = ({
         value={values.sideLocalization}
         onChangeText={(value) => handleChange("sideLocalization", value)}
       />
-      <FormInput
+      <FormPicker
         label="Status"
-        placeholder="z.B. aktiv, abgeschlossen"
-        value={values.status}
-        onChangeText={(value) => handleChange("status", value)}
+        isRequired
+        selectedValue={
+          values.conditionStatus != null
+            ? CONDITION_STATUS_LABELS[values.conditionStatus]
+            : ""
+        }
+        options={CONDITION_STATUS_OPTIONS}
+        onValueChange={(label) =>
+          handleChange("conditionStatus", toConditionStatus(label))
+        }
+        errorText={errors.conditionStatus}
       />
       <FormInput
         label="Symptome"

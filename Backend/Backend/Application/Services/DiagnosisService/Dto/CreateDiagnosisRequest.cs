@@ -22,10 +22,7 @@ public class CreateDiagnosisRequest
     public string? SideLocalization { get; set; }
 
     [Required]
-    public ConditionStatus ConditionStatus { get; set; }
-
-    [Required]
-    public EntryBy EntryBy { get; set; }
+    public ConditionStatus? ConditionStatus { get; set; }
 
     public string? MedicationText { get; set; }
 

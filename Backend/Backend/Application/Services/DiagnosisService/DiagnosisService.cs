@@ -4,6 +4,7 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService.Dto;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
 using Backend.Domain.Entities;
+using Backend.Domain.Enums;
 
 namespace Backend.Application.Services.DiagnosisService
 {
@@ -51,7 +52,7 @@ namespace Backend.Application.Services.DiagnosisService
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(diagnosis));
         }
 
-        public async Task<ServiceResult<DiagnosisResponse>> CreateAsync(int patientId, CreateDiagnosisRequest request, string? userId)
+        public async Task<ServiceResult<DiagnosisResponse>> CreateAsync(int patientId, CreateDiagnosisRequest request, EntryBy entryBy, string? userId)
         {
             var patient = await _patientRepository.FindByIdAsync(patientId);
 
@@ -61,6 +62,9 @@ namespace Backend.Application.Services.DiagnosisService
             if (userId != null && patient.UserId != userId)
                 return ServiceResult<DiagnosisResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
 
+            if (request.ConditionStatus is not { } conditionStatus)
+                return ServiceResult<DiagnosisResponse>.Invalid("Status der Diagnose fehlt.");
+
             var diagnosis = new Diagnosis
             {
                 PatientId = patientId,
@@ -69,8 +73,8 @@ namespace Backend.Application.Services.DiagnosisService
                 IcdCode = request.IcdCode ?? string.Empty,
                 Severity = request.Severity ?? string.Empty,
                 SideLocalization = request.SideLocalization ?? string.Empty,
-                ConditionStatus = request.ConditionStatus,
-                EntryBy = request.EntryBy,
+                ConditionStatus = conditionStatus,
+                EntryBy = entryBy,
                 MedicationText = request.MedicationText ?? string.Empty,
                 Symptoms = request.Symptoms ?? string.Empty,
                 Findings = request.Findings ?? string.Empty,

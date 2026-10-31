@@ -52,7 +52,7 @@ public class AIController : BaseApiController
             return BadRequest(new { error = "patientId is required" });
 
         var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _aiService.InterpretMedicalLetter(request.PatientId, userId, request.LetterText);
+        var result = await _aiService.InterpretMedicalLetter(request.PatientId, userId, GetEntryBy(), request.LetterText);
 
         if (result.IsSuccess)
             return Ok(result.Data);

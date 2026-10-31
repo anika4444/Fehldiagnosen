@@ -1,3 +1,16 @@
+// Entspricht dem Backend-Enum ConditionStatus (wird numerisch serialisiert)
+export enum ConditionStatus {
+  Chronical = 0,
+  Active = 1,
+  InRemission = 2,
+}
+
+export const CONDITION_STATUS_LABELS: Record<ConditionStatus, string> = {
+  [ConditionStatus.Chronical]: "Chronisch",
+  [ConditionStatus.Active]: "Aktiv",
+  [ConditionStatus.InRemission]: "In Remission",
+};
+
 export interface DiagnosisEntryResponse {
   id: number;
   patientId: number;
@@ -6,7 +19,7 @@ export interface DiagnosisEntryResponse {
   icdCode?: string;
   severity?: string;
   sideLocalization?: string;
-  status?: string;
+  conditionStatus?: ConditionStatus;
   medicationText?: string;
   symptoms?: string;
   findings?: string;
@@ -25,7 +38,7 @@ export interface CreateDiagnosisEntryRequest {
   icdCode?: string;
   severity?: string;
   sideLocalization?: string;
-  status?: string;
+  conditionStatus: ConditionStatus;
   medicationText?: string;
   symptoms?: string;
   findings?: string;
@@ -40,7 +53,7 @@ export interface UpdateDiagnosisEntryRequest {
   icdCode?: string;
   severity?: string;
   sideLocalization?: string;
-  status?: string;
+  conditionStatus?: ConditionStatus;
   medicationText?: string;
   symptoms?: string;
   findings?: string;

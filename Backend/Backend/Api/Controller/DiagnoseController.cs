@@ -124,7 +124,7 @@ public class DiagnosisController : BaseApiController
 
             var pythonData = JsonSerializer.Deserialize<Dictionary<string, object>>(pythonJsonResult);
 
-            var result = await _aiService.InterpretMedicalLetter(patientId, userId, pythonData?["anonymized_text"]?.ToString() ?? "");
+            var result = await _aiService.InterpretMedicalLetter(patientId, userId, GetEntryBy(), pythonData?["anonymized_text"]?.ToString() ?? "");
 
             if (result.IsSuccess)
                 return Ok(result.Data);

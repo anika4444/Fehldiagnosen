@@ -107,7 +107,7 @@ namespace Backend.Application.Services.AIService
             }
         }
 
-        public async Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int? patientId, string? userId, string letterText)
+        public async Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int? patientId, string? userId, EntryBy entryBy, string letterText)
         {
             if (string.IsNullOrWhiteSpace(_interpretEndpoint))
             {
@@ -163,12 +163,9 @@ namespace Backend.Application.Services.AIService
                             createReq.DiagnosisDate = DateTime.UtcNow;
                         }
 
-                        if (createReq.ConditionStatus == default)
-                        {
-                            createReq.ConditionStatus = ConditionStatus.Active;
-                        }
+                        createReq.ConditionStatus ??= ConditionStatus.Active;
 
-                        var createdResult = await _diagnosisService.CreateAsync(patientId.Value, createReq, userId);
+                        var createdResult = await _diagnosisService.CreateAsync(patientId.Value, createReq, entryBy, userId);
                         if (createdResult.IsSuccess)
                         {
                             savedDiagnosis = createdResult.Data;
