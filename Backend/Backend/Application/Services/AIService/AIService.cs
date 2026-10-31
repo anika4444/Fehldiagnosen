@@ -70,6 +70,16 @@ namespace Backend.Application.Services.AIService
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, payload);
+                if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
+                {
+                    return ServiceResult<AiExplainResponse>.UnprocessableEntity("KI-Erklärung konnte nicht validiert werden");
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
+                }
+
                 var responseBody = await response.Content.ReadAsStringAsync();
 
                 var aiResponse = JsonSerializer.Deserialize<AiExplainResponse>(responseBody,

@@ -25,6 +25,7 @@ public class AIController : BaseApiController
     [HttpGet("{id}/explain-diagnosis/{diagnosisId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ExplainDiagnosis(
         [FromRoute] int id,

@@ -9,5 +9,6 @@
         Unauthorized, // Unauthorized access (401)
         InternalServerError, // Internal server error (500)
         Forbidden, // Forbidden access (403)
+        UnprocessableEntity, // Request understood but result not usable (422)
     }
 }

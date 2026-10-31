@@ -43,6 +43,7 @@ namespace Backend.Api.Controller
                 ServiceErrorType.Conflict => Conflict(errorMessage),
                 ServiceErrorType.ValidationError => BadRequest(errorMessage),
                 ServiceErrorType.InternalServerError => StatusCode(StatusCodes.Status500InternalServerError, errorMessage),
+                ServiceErrorType.UnprocessableEntity => UnprocessableEntity(errorMessage),
                 _ => BadRequest(errorMessage)
             };
         }

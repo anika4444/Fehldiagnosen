@@ -186,8 +186,20 @@ app.post("/ai/explain", async (req, res) => {
       console.log(`❌ Validator: FAIL (Versuch ${attempts}) → ${lastFeedback}`);
     }
 
+    if (!validated) {
+      console.warn(
+        `⛔ Validator lehnt nach ${attempts} Versuch(en) weiterhin ab:\n${validatorLogs.join("\n")}`,
+      );
+      return res.status(422).json({
+        error: "KI-Erklärung konnte nicht validiert werden",
+        validated: false,
+        attempts,
+      });
+    }
+
     res.json({
       text: responseText,
+      validated: true,
     });
   } catch (error) {
     console.error("AI Error:", error.message);

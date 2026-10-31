@@ -42,6 +42,11 @@
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };
         }
 
+        public static ServiceResult UnprocessableEntity(string errorMessage)
+        {
+            return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.UnprocessableEntity };
+        }
+
     }
     public class ServiceResult<T> : ServiceResult
     {
@@ -82,6 +87,11 @@
         public static ServiceResult<T> Forbidden(string errorMessage)
         {
             return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.Forbidden };
+        }
+
+        public static ServiceResult<T> UnprocessableEntity(string errorMessage)
+        {
+            return new ServiceResult<T> { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.UnprocessableEntity };
         }
     }
 }
