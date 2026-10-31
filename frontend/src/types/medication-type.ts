@@ -8,7 +8,6 @@ export interface MedicationResponse {
   intakeStartDate?: string;
   endDate?: string;
   indication?: string;
-  doctorName?: string;
   notes?: string;
   atcCode?: string;
   interactionWarnings?: string[];
@@ -21,7 +20,6 @@ export interface CreateMedicationRequest {
   durationInDays?: number;
   intakeStartDate?: string;
   indication?: string;
-  doctorName?: string;
   notes?: string;
   atcCode?: string;
 }

@@ -48,7 +48,6 @@ export const MedicationCard = ({
         value={medication.endDate?.split("T")[0]}
       />
       <DetailField label="Indikation" value={medication.indication} />
-      <DetailField label="Verschrieben von" value={medication.doctorName} />
       <DetailField label="Anmerkungen" value={medication.notes} />
     </ModalCard>
   );

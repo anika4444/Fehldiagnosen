@@ -29,6 +29,7 @@ import {
   showErrorAlert,
   showSuccessAlert,
 } from "@/utils/alerts";
+import { getErrorMessage } from "@/utils/errors";
 
 export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";
@@ -89,7 +90,9 @@ export default function Medications() {
         }, 150);
       }
     } catch (err) {
-      showErrorAlert("Medikament konnte nicht gespeichert werden.");
+      showErrorAlert(
+        getErrorMessage(err, "Medikament konnte nicht gespeichert werden."),
+      );
     }
   };
 

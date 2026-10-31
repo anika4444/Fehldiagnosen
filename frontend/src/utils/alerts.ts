@@ -20,5 +20,10 @@ export const showSuccessAlert = (message: string) => {
 };
 
 export const showErrorAlert = (message: string) => {
-  Alert.alert("Fehler", message);
+  //Alert.alert zeigt im Web nichts an, deshalb dort window.alert
+  if (Platform.OS === "web") {
+    window.alert(`Fehler\n\n${message}`);
+  } else {
+    Alert.alert("Fehler", message);
+  }
 };

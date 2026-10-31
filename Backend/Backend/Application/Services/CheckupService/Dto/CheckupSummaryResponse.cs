@@ -1,4 +1,6 @@
-﻿namespace Backend.Application.Services.CheckupService.Dto
+﻿using System.Text.Json.Serialization;
+
+namespace Backend.Application.Services.CheckupService.Dto
 {
     public sealed class CheckupSummaryResponse
     {
@@ -13,6 +15,7 @@
     public sealed class CheckupDiagnosis
     {
         public int Id { get; set; }
+        [JsonPropertyName("icd10Code")]
         public string? ICD10Code { get; set; }
         public string? Diagnosis { get; set; }
         public int Year { get; set; }

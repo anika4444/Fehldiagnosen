@@ -2,22 +2,20 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const LAN_IP = "192.168.0.198";
+//Die API-URL kommt aus der Datei frontend/.env.local
+//Die Datei gibt es nicht im Repo, jeder legt sie selber an und trägt seine IP ein:
+//EXPO_PUBLIC_API_URL=http://eigeneIP:5238/api
+//Danach Expo neu starten mit: npx expo start -c
+//Ohne .env.local wird der Emulator bzw. localhost verwendet
+const ENV_API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const getBaseURL = () => {
-  if (__DEV__) {
-    // je nach dem ob Android oder iOS, muss hier das jeweilige auskommentiert werden, damit Android Emulator funktioniert
-    //if (Platform.OS === "android") {
-    //return `http://${LAN_IP}:5238/api`;
-    //}
-
-    if (Platform.OS === "ios") {
-      return `http://${LAN_IP}:5238/api`;
-    }
+  if (ENV_API_URL) {
+    return ENV_API_URL;
   }
 
   return Platform.OS === "android"
-    ? "http://10.0.2.2:5238/api" // android emulator
+    ? "http://10.0.2.2:5238/api" //android emulator
     : "http://127.0.0.1:5238/api";
 };
 
@@ -28,7 +26,7 @@ const api = axios.create({
   },
 });
 
-// REQUEST INTERCEPTOR: Wird vor JEDEM API-Aufruf ausgeführt
+//REQUEST INTERCEPTOR: Wird vor JEDEM API-Aufruf ausgeführt
 api.interceptors.request.use(
   async (config) => {
     let token: string | null = null;

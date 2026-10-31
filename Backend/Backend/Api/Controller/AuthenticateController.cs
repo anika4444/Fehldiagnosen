@@ -1,5 +1,4 @@
-﻿using Backend.Application.Common.Results;
-using Backend.Application.Services.UserService;
+﻿using Backend.Application.Services.UserService;
 using Backend.Application.Services.UserService.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,7 @@ namespace Backend.Api.Controller
 {
     [ApiController]
     [Route("api/authenticate")]
-    public class AuthenticateController : ControllerBase
+    public class AuthenticateController : BaseApiController
     {
 
         private readonly IUserService _userService;
@@ -28,14 +27,7 @@ namespace Backend.Api.Controller
                 return Ok(result);
             }
 
-            return result.ErrorType switch
-            {
-                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
-                ServiceErrorType.Conflict => Conflict(result.ErrorMessage),
-                ServiceErrorType.Unauthorized => Unauthorized(result.ErrorMessage),
-                ServiceErrorType.ValidationError => BadRequest(result.ErrorMessage),
-                _ => BadRequest(result.ErrorMessage)
-            };
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
 
         [HttpPost("login")]
@@ -48,11 +40,7 @@ namespace Backend.Api.Controller
                 return Ok(result);
             }
 
-            return result.ErrorType switch
-            {
-                ServiceErrorType.Unauthorized => Unauthorized(result.ErrorMessage),
-                _ => BadRequest(result.ErrorMessage)
-            };
+            return HandleServiceError(result.ErrorType, result.ErrorMessage);
         }
     }
 }
