@@ -45,6 +45,8 @@ public sealed class BackendApiFactory : WebApplicationFactory<Program>, IAsyncLi
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:mySqlDb", _connectionString);
+        // appsettings.json enthält kein Secret mehr, daher hier ein festes Test-Secret
+        builder.UseSetting("JwtSettings:Secret", "integration-test-secret-0123456789abcdef");
         // Spezifische Filter, da "Default: Information" aus appsettings.json sonst Vorrang hat
         builder.ConfigureLogging(logging => logging
             .AddFilter("Microsoft", LogLevel.Warning)

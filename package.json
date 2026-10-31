@@ -1,0 +1,53 @@
+{
+  "name": "fehldiagnosen",
+  "private": true,
+  "description": "Einheitliche Befehle für Backend, AI-Service und Frontend. Siehe README, Abschnitt 'Umgebungen & Befehle'.",
+  "scripts": {
+    "setup": "npm ci --prefix AI && npm ci --prefix frontend && dotnet restore Backend/Backend.slnx",
+
+    "db:up": "docker compose --env-file config/dev.env up -d --wait db",
+    "db:down": "docker compose --env-file config/dev.env stop db",
+
+    "docker:build": "docker compose --env-file config/dev.env build",
+    "docker:up": "docker compose --env-file config/dev.env up -d --build --wait",
+    "docker:up:test": "docker compose --env-file config/test.env up -d --build --wait",
+    "docker:up:prod": "docker compose --env-file config/prod.env up -d --build --wait",
+    "docker:check": "node scripts/docker-check.mjs dev",
+    "docker:check:test": "node scripts/docker-check.mjs test",
+    "docker:check:prod": "node scripts/docker-check.mjs prod",
+    "docker:logs": "docker compose --env-file config/dev.env logs -f",
+    "docker:down": "docker compose --env-file config/dev.env down",
+
+    "dev": "node scripts/env-run.mjs dev npm run _all:dev",
+    "start:test": "node scripts/env-run.mjs test npm run _all:release",
+    "start:prod": "node scripts/env-run.mjs prod npm run _all:release",
+
+    "dev:backend": "node scripts/env-run.mjs dev npm run _backend:dev",
+    "dev:ai": "node scripts/env-run.mjs dev npm run _ai",
+    "dev:frontend": "node scripts/env-run.mjs dev npm run _frontend:dev",
+
+    "test": "npm run test:backend && npm run test:ai && npm run test:frontend",
+    "test:unit": "dotnet test Backend/Backend.slnx --filter \"Category!=Integration&Category!=Stress\" && npm run test:ai && npm run test:frontend",
+    "test:backend": "dotnet test Backend/Backend.slnx --filter \"Category!=Stress\"",
+    "test:ai": "npm test --prefix AI",
+    "test:frontend": "npm test --prefix frontend -- --ci",
+    "test:stress": "dotnet test Backend/Backend.slnx --filter \"Category=Stress\" --logger \"console;verbosity=detailed\"",
+
+    "lint": "npm run lint --prefix frontend && cd frontend && npx tsc --noEmit",
+
+    "build:test": "node scripts/env-run.mjs --no-secrets test npm run _build",
+    "build:prod": "node scripts/env-run.mjs --no-secrets prod npm run _build",
+
+    "_all:dev": "concurrently -n backend,ai,frontend -c blue,magenta,green --handle-input --default-input-target frontend \"npm:_backend:dev\" \"npm:_ai\" \"npm:_frontend:dev\"",
+    "_all:release": "concurrently -n backend,ai,frontend -c blue,magenta,green --handle-input --default-input-target frontend \"npm:_backend:release\" \"npm:_ai\" \"npm:_frontend:release\"",
+    "_backend:dev": "dotnet run --project Backend/Backend --no-launch-profile",
+    "_backend:release": "dotnet run --project Backend/Backend --no-launch-profile --configuration Release",
+    "_ai": "npm start --prefix AI",
+    "_frontend:dev": "npm start --prefix frontend",
+    "_frontend:release": "npm start --prefix frontend -- --no-dev --minify",
+    "_build": "dotnet publish Backend/Backend/Backend.csproj --configuration Release --output publish/backend && cd frontend && npx expo export --platform web --output-dir ../publish/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.5"
+  }
+}
