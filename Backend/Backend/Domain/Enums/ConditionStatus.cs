@@ -4,6 +4,7 @@
     {
         Chronical,
         Active,
-        InRemission
+        InRemission,
+        Unknown
     }
 }

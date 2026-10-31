@@ -208,7 +208,12 @@ app.post("/ai/explain", async (req, res) => {
 });
 
 // ─── SERVICE 2: ARZTBRIEF INTERPRETATION (/ai/interpret-medical-letter) ─────
-const VALID_STATUSES = ["Active", "InRemission", "Chronic"];
+// Begriffe aus dem Prompt → Namen des Backend-Enums ConditionStatus
+const CONDITION_STATUS_MAP = {
+  Active: "Active",
+  InRemission: "InRemission",
+  Chronic: "Chronical",
+};
 
 function parseDate(raw) {
   if (!raw) return new Date().toISOString();
@@ -242,13 +247,10 @@ const DiagnosisFields = z.object({
     .string()
     .default("")
     .transform((val) => val.slice(0, 50)),
-  status: z
+  conditionStatus: z
     .string()
     .default("")
-    .transform((val) => {
-      const trimmed = val.trim().slice(0, 50);
-      return VALID_STATUSES.includes(trimmed) ? trimmed : "";
-    }),
+    .transform((val) => CONDITION_STATUS_MAP[val.trim()] ?? "Unknown"),
   medicationText: z
     .string()
     .default("")
@@ -291,7 +293,7 @@ Felder und ihre Bedeutung:
 - icdCode: ICD-10-Code der Diagnose (z.B. "I10", "E11.9"). Nur den Code, keine Beschreibung. Max. 20 Zeichen.
 - severity: Schweregrad der Erkrankung auf deutsch (z.B. mild, moderat, chronisch, schwerwiegend). Max. 50 Zeichen.
 - sideLocalization: Körperseite falls relevant (z.B. "links", "rechts", "bilateral"). Leer lassen wenn nicht zutreffend. Max. 50 Zeichen.
-- status: Aktueller Status der Erkrankung. Verwende exakt einen dieser Werte: "Active", "InRemission" oder "Chronic".
+- conditionStatus: Aktueller Status der Erkrankung. Verwende exakt einen dieser Werte: "Active", "InRemission" oder "Chronic". Leer lassen, wenn der Status nicht aus dem Brief hervorgeht.
 - medicationText: Alle genannten Medikamente mit Dosierung (z.B. "Ramipril 5mg täglich"). Max. 500 Zeichen.
 - symptoms: Genannte Symptome und Beschwerden des Patienten. Max. 1000 Zeichen.
 - findings: Medizinische Befunde, Messwerte und Untersuchungsergebnisse (z.B. "HbA1c 8%, RR 160/90 mmHg"). Max. 1000 Zeichen.

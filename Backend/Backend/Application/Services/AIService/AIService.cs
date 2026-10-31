@@ -5,6 +5,7 @@ using Backend.Application.Services.DiagnosisService.Dto;
 using Backend.Domain.Entities;
 using Backend.Domain.Enums;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Backend.Application.Services.AIService
 {
@@ -132,8 +133,9 @@ namespace Backend.Application.Services.AIService
 
                 var responseBody = await response.Content.ReadAsStringAsync();
 
+                // Node liefert conditionStatus als Enum-Namen (z.B. "Active")
                 var aiResponse = JsonSerializer.Deserialize<NodeResponseWrapper>(responseBody,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() } });
 
                 if (aiResponse?.Extracted == null)
                 {
@@ -163,7 +165,7 @@ namespace Backend.Application.Services.AIService
                             createReq.DiagnosisDate = DateTime.UtcNow;
                         }
 
-                        createReq.ConditionStatus ??= ConditionStatus.Active;
+                        createReq.ConditionStatus ??= ConditionStatus.Unknown;
 
                         var createdResult = await _diagnosisService.CreateAsync(patientId.Value, createReq, entryBy, userId);
                         if (createdResult.IsSuccess)

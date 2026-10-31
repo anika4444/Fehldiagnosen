@@ -3,12 +3,14 @@ export enum ConditionStatus {
   Chronical = 0,
   Active = 1,
   InRemission = 2,
+  Unknown = 3,
 }
 
 export const CONDITION_STATUS_LABELS: Record<ConditionStatus, string> = {
   [ConditionStatus.Chronical]: "Chronisch",
   [ConditionStatus.Active]: "Aktiv",
   [ConditionStatus.InRemission]: "In Remission",
+  [ConditionStatus.Unknown]: "Unbekannt",
 };
 
 export interface DiagnosisEntryResponse {

@@ -1,4 +1,5 @@
 import { ExplainDiagnosisResponse } from "@/types/ai-type";
+import { ConditionStatus } from "@/types/diagnosis-type";
 
 import axiosConfig from "./axiosConfig";
 
@@ -16,7 +17,7 @@ interface InterpretMedicalLetterApiResponse {
     icdCode: string;
     severity: string;
     sideLocalization: string;
-    status: string;
+    conditionStatus: ConditionStatus;
     medicationText: string;
     symptoms: string;
     findings: string;
