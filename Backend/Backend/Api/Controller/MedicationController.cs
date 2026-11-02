@@ -88,6 +88,7 @@ public class MedicationController : BaseApiController
         {
             name = medication?.Name,
             dosage = medication?.Dosage,
+            atcCode = medication?.AtcCode,
         });
     }
 }

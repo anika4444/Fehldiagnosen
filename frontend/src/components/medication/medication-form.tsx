@@ -300,6 +300,7 @@ export function MedicationForm({
     setIsMedicationValid(true);
     handleChange("dosageAmount", "");
     handleChange("dosageUnit", "");
+    handleChange("atcCode", "");
     setIsScanning(true);
 
     try {
@@ -307,6 +308,7 @@ export function MedicationForm({
 
       if (data.name) {
         handleChange("name", data.name);
+        handleChange("atcCode", data.atcCode ?? "");
         setIsMedicationValid(true);
 
         if (data.dosage || data.name) {

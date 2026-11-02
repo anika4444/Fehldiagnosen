@@ -22,6 +22,7 @@ import { useMedications } from "@/hooks/use-medications";
 import { usePatient } from "@/hooks/use-patient";
 import {
   CreateMedicationRequest,
+  InteractionCheckStatus,
   MedicationResponse,
 } from "@/types/medication-type";
 import {
@@ -30,6 +31,44 @@ import {
   showSuccessAlert,
 } from "@/utils/alerts";
 import { getErrorMessage } from "@/utils/errors";
+
+// Meldung nach dem Anlegen: gefundene Wechselwirkungen und/oder der Hinweis,
+// dass die Prüfung nicht (vollständig) laufen konnte. null = nichts zu melden.
+const getInteractionAlert = (
+  medication: MedicationResponse,
+): { title: string; message: string } | null => {
+  const warnings = medication.interactionWarnings ?? [];
+  const status = medication.interactionCheckStatus;
+  const checkMessage = medication.interactionCheckMessage
+    ? `\n\n${medication.interactionCheckMessage}`
+    : "";
+
+  if (status === InteractionCheckStatus.NotCheckable) {
+    return {
+      title: "⚠️ Wechselwirkungen nicht geprüft",
+      message: `Das Medikament wurde gespeichert, aber die Wechselwirkungsprüfung konnte nicht durchgeführt werden.${checkMessage}\n\nBitte klären Sie mögliche Wechselwirkungen mit Ihrer Ärztin, Ihrem Arzt oder in der Apotheke.`,
+    };
+  }
+
+  const partialHint =
+    status === InteractionCheckStatus.PartiallyChecked ? checkMessage : "";
+
+  if (warnings.length > 0) {
+    return {
+      title: "⚠️ Achtung: Wechselwirkung erkannt!",
+      message: `Das Medikament wurde gespeichert, aber es gibt potenzielle Wechselwirkungen mit Ihrer bestehenden Medikation:\n\n${warnings.join("\n\n")}${partialHint}`,
+    };
+  }
+
+  if (status === InteractionCheckStatus.PartiallyChecked) {
+    return {
+      title: "⚠️ Wechselwirkungen nur teilweise geprüft",
+      message: `Das Medikament wurde gespeichert. Mit den geprüften Medikamenten wurden keine Wechselwirkungen gefunden.${partialHint}`,
+    };
+  }
+
+  return null;
+};
 
 export default function Medications() {
   const colorScheme = useColorScheme() ?? "light";
@@ -50,15 +89,13 @@ export default function Medications() {
         editingItem?.id,
       );
 
-      // Falls Wechselwirkungen vorhanden sind (passiert laut deinem Backend nur beim Erstellen)
-      if (
-        !isEditing && // WICHTIG: Nur beim Erstellen prüfen, wie von dir gewünscht
-        savedMedication.interactionWarnings &&
-        savedMedication.interactionWarnings.length > 0
-      ) {
-        const warnings = savedMedication.interactionWarnings.join("\n\n");
-        const alertTitle = "⚠️ Achtung: Wechselwirkung erkannt!";
-        const alertMessage = `Das Medikament wurde gespeichert, aber es gibt potenzielle Wechselwirkungen mit Ihrer bestehenden Medikation:\n\n${warnings}`;
+      // Die Prüfung läuft im Backend nur beim Erstellen
+      const interactionAlert = isEditing
+        ? null
+        : getInteractionAlert(savedMedication);
+
+      if (interactionAlert) {
+        const { title: alertTitle, message: alertMessage } = interactionAlert;
 
         if (Platform.OS === "web") {
           alert(`${alertTitle}\n\n${alertMessage}`);
@@ -82,7 +119,7 @@ export default function Medications() {
           );
         }
       } else {
-        // Keine Wechselwirkungen oder es war ein Editier-Vorgang
+        // Vollständig geprüft ohne Befund, nichts zu vergleichen oder Editier-Vorgang
         closeForm();
         // Kurzer Puffer für die normale Erfolgsmeldung
         setTimeout(() => {

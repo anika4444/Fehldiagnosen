@@ -33,5 +33,10 @@ namespace Backend.Application.Services.MedicationService.Dto
 
         public bool? PrescriptionRequired { get; set; }
         public List<string> InteractionWarnings { get; set; } = new List<string>();
+
+        // Nur beim Anlegen gesetzt
+        public InteractionCheckStatus? InteractionCheckStatus { get; set; }
+
+        public string? InteractionCheckMessage { get; set; }
     }
 }

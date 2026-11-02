@@ -81,27 +81,72 @@ namespace Backend.Application.Services.MedicationService
 
             var responseDto = _mapper.ToMedicationResponse(newMedication);
 
-            if(!string.IsNullOrWhiteSpace(request.AtcCode))
-            {
-                var activeMedications = await _medicationRepository.FindAllByPatientIdAsync(patientId);
-
-                var existingAtcCodes = activeMedications
-                    .Where(m => m.Id != newMedication.Id && !string.IsNullOrWhiteSpace(m.AtcCode))
-                    .Select(m => m.AtcCode!)
-                    .ToList();
-
-                if(existingAtcCodes.Any())
-                {
-                    var interactionResult = await _drugInteractionService.CheckInteractionsAsync(request.AtcCode, existingAtcCodes);
-
-                    if(interactionResult.IsSuccess && interactionResult.Data != null)
-                    {
-                        responseDto.InteractionWarnings = interactionResult.Data;
-                    }
-                }
-            }
+            await ApplyInteractionCheckAsync(newMedication, responseDto);
 
             return ServiceResult<MedicationResponse>.Success(responseDto);
+        }
+
+        // Prüft das neue Medikament gegen die übrigen aktiven Medikamente und hält fest,
+        // ob die Prüfung vollständig, teilweise oder gar nicht laufen konnte
+        private async Task ApplyInteractionCheckAsync(Medication newMedication, MedicationResponse responseDto)
+        {
+            var otherActiveMedications = (await _medicationRepository.FindAllByPatientIdAsync(newMedication.PatientId))
+                .Where(m => m.Id != newMedication.Id && m.IsActiveOn(DateTime.UtcNow))
+                .ToList();
+
+            if (!otherActiveMedications.Any())
+            {
+                responseDto.InteractionCheckStatus = InteractionCheckStatus.NothingToCompare;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newMedication.AtcCode))
+            {
+                responseDto.InteractionCheckStatus = InteractionCheckStatus.NotCheckable;
+                responseDto.InteractionCheckMessage = $"Für {newMedication.Name} ist kein ATC-Code hinterlegt.";
+                return;
+            }
+
+            var uncheckedNames = otherActiveMedications
+                .Where(m => string.IsNullOrWhiteSpace(m.AtcCode))
+                .Select(m => m.Name)
+                .ToList();
+
+            var existingAtcCodes = otherActiveMedications
+                .Where(m => !string.IsNullOrWhiteSpace(m.AtcCode))
+                .Select(m => m.AtcCode!)
+                .Distinct()
+                .ToList();
+
+            if (!existingAtcCodes.Any())
+            {
+                responseDto.InteractionCheckStatus = InteractionCheckStatus.NotCheckable;
+                responseDto.InteractionCheckMessage = $"Für die übrigen Medikamente ist kein ATC-Code hinterlegt: {string.Join(", ", uncheckedNames)}.";
+                return;
+            }
+
+            var interactionResult = await _drugInteractionService.CheckInteractionsAsync(newMedication.AtcCode, existingAtcCodes);
+
+            if (!interactionResult.IsSuccess)
+            {
+                responseDto.InteractionCheckStatus = InteractionCheckStatus.NotCheckable;
+                // Meldungen bei InternalServerError enthalten Exception-Details, die nicht an den Nutzer gehen
+                responseDto.InteractionCheckMessage = interactionResult.ErrorType == ServiceErrorType.InternalServerError
+                    ? "Die Wechselwirkungsprüfung ist fehlgeschlagen."
+                    : interactionResult.ErrorMessage;
+                return;
+            }
+
+            responseDto.InteractionWarnings = interactionResult.Data ?? new List<string>();
+
+            if (uncheckedNames.Any())
+            {
+                responseDto.InteractionCheckStatus = InteractionCheckStatus.PartiallyChecked;
+                responseDto.InteractionCheckMessage = $"Nicht geprüft, da kein ATC-Code hinterlegt ist: {string.Join(", ", uncheckedNames)}.";
+                return;
+            }
+
+            responseDto.InteractionCheckStatus = InteractionCheckStatus.Checked;
         }
 
         public async Task<ServiceResult<MedicationResponse>> UpdateAsync(int patientId, int medicationId, UpdateMedicationRequest request, string? userId)
