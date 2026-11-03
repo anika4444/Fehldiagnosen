@@ -111,6 +111,46 @@ $env:IMAGE_PREFIX = "ghcr.io/anika4444/fehldiagnosen"; $env:IMAGE_TAG = "1.2.3"
 docker compose --env-file config/test.env up -d --no-build --wait
 ```
 
+## 🔭 Observability (Logs, Health, Metriken)
+
+| | Backend (:5238) | AI-Service (:3000) |
+|---|---|---|
+| Health (mit Abhängigkeiten) | `GET /api/health` | `GET /ai/health` |
+| Liveness (nur „Prozess läuft“) | `GET /api/health/live` | `GET /ai/health/live` |
+| Metriken (Prometheus) | `GET /metrics` | `GET /metrics` |
+
+**Health:** Das Backend prüft die Datenbank und den AI-Service. HTTP 200 kommt nur, wenn beides erreichbar ist, sonst HTTP 503. Am Status im Body sieht man, was fehlt: `Degraded` heißt, der AI-Service ist weg (nur die KI-Funktionen fallen aus). `Unhealthy` heißt, die Datenbank ist weg. Der AI-Service prüft seine Konfiguration (API-Key, Modellnamen). Das Sprachmodell selbst ruft er dabei bewusst nicht auf, weil jeder Aufruf Geld kostet. Der Docker-`HEALTHCHECK` nutzt `/ai/health/live`.
+
+**Logs:** Beide Services schreiben strukturierte Logs: lokal als lesbare Zeile, in Docker bzw. außerhalb von `Development` als JSON (eine Zeile pro Ereignis). Jeder Request bekommt eine **Request-ID** (Header `X-Request-ID`). Das Backend reicht sie an den AI-Service weiter, so lassen sich die Logs beider Services zu einem Aufruf zusammenführen. Log-Level im AI-Service über `LOG_LEVEL` (`debug`, `info`, ...), im Backend über `Logging:LogLevel` in den `appsettings*.json`.
+
+> **Keine Patientendaten in Logs.** Geloggt werden nur Metadaten wie IDs, ICD-Code, Dauer, Anzahl der Versuche und Ergebnis, nie Arztbrief-Text, KI-Antworten, Header oder Request-Bodies. Erkannte Medikamente erscheinen nur auf Debug-Level.
+
+**Wichtige Metriken:**
+
+| Metrik | Bedeutung |
+|---|---|
+| `http_request_duration_seconds` | Anzahl, Dauer und Statuscode pro Endpoint (beide Services) |
+| `httpclient_request_duration_seconds` | Aufrufe des Backends an den AI-Service |
+| `aspnetcore_healthcheck_status` | Ergebnis der Health-Checks (1 = Healthy, 0.5 = Degraded, 0 = Unhealthy) |
+| `llm_request_duration_seconds`, `llm_requests_total` | Dauer und Erfolg der Sprachmodell-Aufrufe je Operation und Modell |
+| `ai_explain_validator_attempts`, `ai_explain_validator_results_total` | Wie oft der Validator eine Erklärung ablehnt (Qualität der KI-Antworten) |
+| `ai_icd_context_lookups_total`, `ai_invalid_responses_total` | ICD-Wissenskontext gefunden, unbrauchbare KI-Antworten |
+| `ai_service_errors_total` | Fehlgeschlagene KI-Aufrufe aus Sicht des Backends |
+| `medical_letter_ocr_duration_seconds`, `medical_letter_scans_total` | Dauer der Texterkennung, Ergebnisse der Arztbrief-Scans |
+| `medication_scans_total`, `auth_login_attempts_total`, `auth_registrations_total` | Medikamenten-Scans, Anmeldungen, Registrierungen |
+| `process_*`, `nodejs_*`, `dotnet_*` | CPU, Speicher, GC, Event-Loop |
+
+**Dashboard (optional):** Prometheus und Grafana starten mit einem vorkonfigurierten Dashboard ([monitoring/](monitoring/)):
+
+```bash
+npm run docker:up         # AI-Service (und DB, Frontend)
+npm run dev:backend       # Backend auf dem Host
+npm run monitoring:up     # Prometheus http://localhost:9090, Grafana http://localhost:3001
+npm run monitoring:down
+```
+
+In Grafana öffnet sich direkt das Dashboard „ADAM – Übersicht“. Lesen geht ohne Login, zum Bearbeiten mit `admin` / `admin` anmelden (Passwort über `GRAFANA_ADMIN_PASSWORD` änderbar). Unter http://localhost:9090/targets sieht man, ob Prometheus beide Services erreicht.
+
 ## 💻 Installation & Start
 
 Kurzfassung mit den einheitlichen Befehlen: `npm install`, `npm run setup`, `npm run db:up`, `npm run dev`. Die einzelnen Schritte und Einmal-Aufgaben (Drugbank-XML, Python, Wissensdatenbanken) stehen hier:

@@ -8,9 +8,11 @@ namespace Backend.Application.Services.DrugInteractionService
     {
         private readonly IDrugInteractionRepository _interactionRepository;
         private readonly ITextTranslator _translator;
+        private readonly ILogger<DrugInteractionService> _logger;
 
-        public DrugInteractionService(IDrugInteractionRepository interactionRepository, ITextTranslator translator)
+        public DrugInteractionService(IDrugInteractionRepository interactionRepository, ITextTranslator translator, ILogger<DrugInteractionService> logger)
         {
+            _logger = logger;
             _interactionRepository = interactionRepository;
             _translator = translator;
         }
@@ -59,8 +61,9 @@ namespace Backend.Application.Services.DrugInteractionService
                         {
                             finalDescription = await _translator.TranslateToGermanAsync(interaction.Description);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            _logger.LogWarning(ex, "Übersetzung der Wechselwirkung fehlgeschlagen, englischer Text wird verwendet");
                             finalDescription = interaction.Description;
                         }
                     }
@@ -72,6 +75,7 @@ namespace Backend.Application.Services.DrugInteractionService
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Wechselwirkungsprüfung für ATC-Code {AtcCode} fehlgeschlagen", newAtcCode);
                 return ServiceResult<List<string>>.InternalServerError($"Fehler bei der Wechselwirkungsprüfung: {ex.Message}");
             }
         }
@@ -90,10 +94,12 @@ namespace Backend.Application.Services.DrugInteractionService
                     await _interactionRepository.RebuildFromXmlAsync(xmlFilePath);
                 });
 
+                _logger.LogInformation("Medikamentendaten aus {XmlFile} importiert", Path.GetFileName(xmlFilePath));
                 return ServiceResult<bool>.Success(true);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Import der Medikamentendaten aus {XmlFile} fehlgeschlagen", Path.GetFileName(xmlFilePath));
                 return ServiceResult<bool>.InternalServerError($"Fehler beim Importieren der Medikamentendaten: {ex.Message}");
             }
         }
@@ -155,6 +161,7 @@ namespace Backend.Application.Services.DrugInteractionService
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Abruf der Medikamentenrisiken fehlgeschlagen");
                 return ServiceResult<MedicationRiskDto>.InternalServerError($"Fehler beim Abrufen der Risiken: {ex.Message}");
             }
         }
@@ -167,8 +174,9 @@ namespace Backend.Application.Services.DrugInteractionService
             {
                 return await _translator.TranslateToGermanAsync(text);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Übersetzung fehlgeschlagen, englischer Text wird verwendet");
                 return text;
             }
         }

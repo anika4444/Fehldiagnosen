@@ -5,10 +5,12 @@
 //
 // Geprüft wird:
 //   1. AI-Service antwortet auf GET /ai/version (optional: mit der erwarteten Version)
+//      und meldet sich über GET /ai/health als einsatzbereit
 //   2. Frontend liefert die Startseite aus
 //   3. Im ausgelieferten JavaScript steht die API-URL dieser Umgebung
 //      (und nicht mehr der Platzhalter aus dem Image-Build)
-//   4. Backend (läuft außerhalb von Docker): nur Hinweis, falls nicht erreichbar
+//   4. Backend (läuft außerhalb von Docker): nur Hinweis, falls nicht erreichbar,
+//      sonst inkl. Health-Status (GET /api/health)
 
 import { ENVIRONMENTS, loadConfig } from "./load-config.mjs";
 
@@ -57,6 +59,15 @@ try {
   } else {
     ok(`AI-Service erreichbar (${aiUrl}), Version ${version}`);
   }
+
+  const health = await fetch(`${aiUrl}/ai/health`);
+  const { status, checks } = await health.json();
+  if (health.ok) {
+    ok(`AI-Service meldet ${status}`);
+  } else {
+    const reasons = Object.values(checks ?? {}).map((c) => c.description).filter(Boolean);
+    fail(`AI-Service meldet ${status}: ${reasons.join("; ")}`);
+  }
 } catch (error) {
   fail(`AI-Service nicht erreichbar (${aiUrl}): ${error.message}`);
 }
@@ -88,6 +99,10 @@ try {
   const res = await fetch(`${apiUrl}/version`, { signal: AbortSignal.timeout(2000) });
   const { version } = await res.json();
   ok(`Backend erreichbar, Version ${version}`);
+
+  const health = await (await fetch(`${apiUrl}/health`, { signal: AbortSignal.timeout(5000) })).json();
+  const details = Object.entries(health.checks ?? {}).map(([name, c]) => `${name}: ${c.status}`).join(", ");
+  console.log(`  INFO  Backend-Health: ${health.status} (${details})`);
 } catch {
   console.log(`  INFO  Backend unter ${apiUrl} nicht erreichbar (läuft außerhalb von Docker, ggf. "npm run dev:backend")`);
 }

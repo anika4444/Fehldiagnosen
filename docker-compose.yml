@@ -69,3 +69,36 @@ services:
       EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-}
     ports:
       - "${FRONTEND_PORT:-8080}:80"
+
+  # ─── Monitoring (optional) ───
+  # Startet nur mit dem Profil "monitoring": npm run monitoring:up
+  #   Prometheus: http://localhost:9090   Grafana: http://localhost:3001 (Dashboard "ADAM – Übersicht")
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    # Backend läuft auf dem Host, unter Linux ist host.docker.internal sonst nicht bekannt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      # Lesen ohne Login, zum Bearbeiten mit admin / ${GRAFANA_ADMIN_PASSWORD} anmelden
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/adam.json
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"

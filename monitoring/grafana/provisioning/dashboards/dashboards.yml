@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: fehldiagnosen
+    folder: ADAM
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

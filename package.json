@@ -16,7 +16,10 @@
     "docker:check:test": "node scripts/docker-check.mjs test",
     "docker:check:prod": "node scripts/docker-check.mjs prod",
     "docker:logs": "docker compose --env-file config/dev.env logs -f",
-    "docker:down": "docker compose --env-file config/dev.env down",
+    "docker:down": "docker compose --env-file config/dev.env --profile monitoring down",
+
+    "monitoring:up": "docker compose --env-file config/dev.env --profile monitoring up -d prometheus grafana",
+    "monitoring:down": "docker compose --env-file config/dev.env --profile monitoring stop prometheus grafana",
 
     "dev": "node scripts/env-run.mjs dev npm run _all:dev",
     "start:test": "node scripts/env-run.mjs test npm run _all:release",

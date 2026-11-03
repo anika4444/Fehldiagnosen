@@ -22,6 +22,7 @@ using System.Reflection;
 using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
 using Backend.Application.Services.CheckupService;
+using Backend.Infrastructure.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
+
+// Strukturierte Logs, Health-Checks (/api/health) und Prometheus-Metriken (/metrics)
+builder.AddObservability();
 
 builder.Services.AddScoped<IPatientSymptomRepository, MySqlSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
@@ -139,6 +143,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseObservability();
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
@@ -154,6 +160,7 @@ app.MapGet("/api/version", () => new
         .InformationalVersion
 });
 
+app.MapObservabilityEndpoints();
 app.MapControllers();
 
 app.Run();

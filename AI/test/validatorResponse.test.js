@@ -1,13 +1,9 @@
-import { describe, it, beforeEach, mock } from "node:test";
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { parseValidatorResponse } from "../validatorResponse.js";
 
+// Erwartete Warnungen landen nicht in der Testausgabe: Der Logger ist in Tests stumm (observability/logger.js)
 describe("parseValidatorResponse", () => {
-  beforeEach(() => {
-    // Erwartete Warnungen nicht in die Testausgabe schreiben
-    mock.method(console, "warn", () => {});
-  });
-
   it("wertet reines JSON mit score 1 aus", () => {
     assert.deepEqual(parseValidatorResponse('{"score": 1, "feedback": ""}'), {
       score: 1,

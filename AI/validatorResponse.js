@@ -1,3 +1,6 @@
+import { logger } from "./observability/logger.js";
+import { invalidAiResponses } from "./observability/metrics.js";
+
 /**
  * Wertet die Rohantwort des Validator-Modells aus.
  * Das Modell soll JSON wie {"score": 1, "feedback": "..."} liefern,
@@ -10,7 +13,8 @@ export function parseValidatorResponse(raw) {
   const match = raw.match(/\{[\s\S]*\}/);
 
   if (!match) {
-    console.warn("⚠️ Validator hat kein valides JSON geliefert:", raw);
+    invalidAiResponses.inc({ operation: "validate" });
+    logger.warn({ responseLength: raw.length }, "Validator hat kein JSON geliefert");
     return {
       score: 0,
       feedback:
@@ -25,7 +29,8 @@ export function parseValidatorResponse(raw) {
       feedback: result.feedback || "",
     };
   } catch (e) {
-    console.warn("⚠️ JSON-Parse-Fehler vom Validator:", e.message);
+    invalidAiResponses.inc({ operation: "validate" });
+    logger.warn({ err: e }, "Validator-Antwort ist kein gültiges JSON");
     return {
       score: 0,
       feedback: "Interner Fehler: Validator-Antwort ist ungültig.",
