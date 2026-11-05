@@ -20,7 +20,12 @@ export const showSuccessAlert = (message: string) => {
 };
 
 export const showErrorAlert = (message: string) => {
-  Alert.alert("Fehler", message);
+  // Alert.alert macht in react-native-web nichts, Fehler würden im Browser sonst verschluckt
+  if (Platform.OS === "web") {
+    window.alert(`Fehler\n\n${message}`);
+  } else {
+    Alert.alert("Fehler", message);
+  }
 };
 
 export const confirmActionDialog = (

@@ -8,7 +8,7 @@ Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
 
 - **Node.js**: Wird benötigt, um die Pakete über `npm` zu installieren
 - **Docker**
-- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend müssen im Frontend in der axiosConfig die LAN_IP sowie die zu verwendende Plattform angepasst werden
+- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend die IP deines PCs als `LAN_IP` in der `.env` im Projekt-Root eintragen (Vorlage: `.env.example`). Backend, Notfallportal und App lesen sie von dort
 - _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
 - **Visual Studio**: Mit .NET 10
 - **Python**: Für die Durchführung des Arztbrief-Scans
@@ -67,7 +67,7 @@ cd frontend
 npm install
 
 # 3. Starte den Entwicklungsserver
-npx expo start
+npm start   # nutzt LAN_IP aus der .env im Projekt-Root für den QR-Code
 ```
 
 ### 4. AI Service starten
@@ -176,7 +176,7 @@ Ein QR-Code zeigt standardmäßig auf `localhost` und funktioniert deshalb nur a
 ### 🚀 Verwendung der App
 
 **Am Handy**
-Hierfür benötigst du die Expo App. Zusätzlich musst du in der axiosConfig im Frontend die LAN_IP sowie die darunterliegende Schleife (abhängig vom Betriebssystem) anpassen. Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
+Hierfür benötigst du die Expo App. Zusätzlich musst du die IP deines PCs als `LAN_IP` in der `.env` im Projekt-Root eintragen. Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
 
 **Im Webbrowser**
 Möchtest du die App direkt auf dem PC im Browser öffnen?

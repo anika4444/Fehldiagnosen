@@ -11,7 +11,7 @@ npm run dev
 ```
 
 Das Portal läuft auf http://localhost:5173. Das Backend muss auf http://localhost:5238 laufen.
-Eine andere Backend-Adresse wird in einer `.env` Datei gesetzt (Vorlage: `.env.example`).
+Für den Zugriff vom Handy wird `LAN_IP` aus der `.env` im Projekt-Root verwendet (Backend dann unter `http://{LAN_IP}:5238`). Eine ganz andere Backend-Adresse kann per `VITE_API_BASE_URL` in `emergency-portal/.env` gesetzt werden (Vorlage: `.env.example`).
 
 Der Port 5173 ist in `Backend/Backend/appsettings.json` unter `Emergency:PortalBaseUrl` und `Emergency:AllowedOrigins` eingetragen. Wer ihn ändert, muss beide Stellen anpassen.
 

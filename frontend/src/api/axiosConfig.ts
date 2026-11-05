@@ -1,19 +1,14 @@
 import axios from "axios";
+import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-const LAN_IP = "192.168.0.198";
+// Kommt aus LAN_IP in der .env im Projekt-Root (eingelesen in app.config.js). Leer = Emulator/localhost.
+const LAN_IP = (Constants.expoConfig?.extra?.lanIp as string | undefined) ?? "";
 
 const getBaseURL = () => {
-  if (__DEV__) {
-    // je nach dem ob Android oder iOS, muss hier das jeweilige auskommentiert werden, damit Android Emulator funktioniert
-    //if (Platform.OS === "android") {
-    //return `http://${LAN_IP}:5238/api`;
-    //}
-
-    if (Platform.OS === "ios") {
-      return `http://${LAN_IP}:5238/api`;
-    }
+  if (__DEV__ && LAN_IP && (Platform.OS === "android" || Platform.OS === "ios")) {
+    return `http://${LAN_IP}:5238/api`;
   }
 
   return Platform.OS === "android"

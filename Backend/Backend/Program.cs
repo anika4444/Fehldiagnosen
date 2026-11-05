@@ -23,6 +23,7 @@ using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
 using Backend.Application.Services.CheckupService;
 using Backend.Api.Controller;
+using Backend.Api;
 using Backend.Api.Middleware;
 using Backend.Application.Services.EmergencyAccessService;
 using Backend.Application.Services.EmergencyAccessService.Dto;
@@ -33,6 +34,22 @@ using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// LAN_IP from the .env in the repository root (or an environment variable), so the IP lives in one place.
+// It makes the emergency portal on http://{LAN_IP}:5173 the QR code target and an allowed CORS origin.
+var lanIp = LanConfig.ReadLanIp(builder.Environment.ContentRootPath);
+if (!string.IsNullOrWhiteSpace(lanIp))
+{
+    var lanPortalUrl = $"http://{lanIp}:5173";
+    var origins = builder.Configuration.GetSection("Emergency:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    var lanSettings = new Dictionary<string, string?> { ["Emergency:PortalBaseUrl"] = lanPortalUrl };
+    var allOrigins = origins.Contains(lanPortalUrl) ? origins : origins.Append(lanPortalUrl).ToArray();
+    for (var i = 0; i < allOrigins.Length; i++)
+    {
+        lanSettings[$"Emergency:AllowedOrigins:{i}"] = allOrigins[i];
+    }
+    builder.Configuration.AddInMemoryCollection(lanSettings);
+}
 
 builder.Services.AddCors(options =>
 {
