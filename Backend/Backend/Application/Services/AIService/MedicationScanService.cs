@@ -1,5 +1,6 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Services.AIService.Dto;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Application.Services.AIService
 {
@@ -8,19 +9,14 @@ namespace Backend.Application.Services.AIService
         private readonly IAiClient _aiClient;
         private readonly string _medicationScanEndpoint;
 
-        public MedicationScanService(IAiClient aiClient, IConfiguration configuration)
+        public MedicationScanService(IAiClient aiClient, IOptions<AiServiceOptions> options)
         {
             _aiClient = aiClient;
-            _medicationScanEndpoint = configuration["AiServiceOptions:MedicationScanEndpoint"] ?? string.Empty;
+            _medicationScanEndpoint = options.Value.MedicationScanEndpoint;
         }
 
         public async Task<ServiceResult<MedicationScanResponse>> InterpretMedicationImage(string base64, string mimeType)
         {
-            if (string.IsNullOrWhiteSpace(_medicationScanEndpoint))
-            {
-                return ServiceResult<MedicationScanResponse>.InternalServerError("KI-MedicationScan-Endpunkt nicht konfiguriert");
-            }
-
             var aiResult = await _aiClient.PostAsync<MedicationScanResponse>(_medicationScanEndpoint, new { imageBase64 = base64, mimeType });
 
             if (aiResult.Outcome is AiClientOutcome.ErrorResponse or AiClientOutcome.UnprocessableEntity)

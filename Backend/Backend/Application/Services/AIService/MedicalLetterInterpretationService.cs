@@ -3,6 +3,7 @@ using Backend.Application.Services.AIService.Dto;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
 using Backend.Domain.Enums;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Application.Services.AIService
 {
@@ -16,22 +17,17 @@ namespace Backend.Application.Services.AIService
         public MedicalLetterInterpretationService(
             IAiClient aiClient,
             IDiagnosisService diagnosisService,
-            IConfiguration configuration,
+            IOptions<AiServiceOptions> options,
             ILogger<MedicalLetterInterpretationService> logger)
         {
             _aiClient = aiClient;
             _diagnosisService = diagnosisService;
             _logger = logger;
-            _interpretEndpoint = configuration["AiServiceOptions:InterpretEndpoint"] ?? string.Empty;
+            _interpretEndpoint = options.Value.InterpretEndpoint;
         }
 
         public async Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int patientId, string? userId, EntryBy entryBy, string letterText)
         {
-            if (string.IsNullOrWhiteSpace(_interpretEndpoint))
-            {
-                return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Interpret-Endpunkt nicht konfiguriert");
-            }
-
             var aiResult = await _aiClient.PostAsync<ExtractedDiagnosisWrapper>(_interpretEndpoint, new { letterText });
 
             if (aiResult.Outcome is AiClientOutcome.ErrorResponse or AiClientOutcome.UnprocessableEntity)

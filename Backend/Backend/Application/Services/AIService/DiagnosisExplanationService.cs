@@ -3,6 +3,7 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.AIService.Dto;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Domain.Entities;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Application.Services.AIService
 {
@@ -22,7 +23,7 @@ namespace Backend.Application.Services.AIService
             ICommunicationLevelRepository communicationLevelRepository,
             IDiagnosisService diagnosisService,
             IAiClient aiClient,
-            IConfiguration configuration,
+            IOptions<AiServiceOptions> options,
             ILogger<DiagnosisExplanationService> logger)
         {
             _patientRepository = patientRepository;
@@ -31,7 +32,7 @@ namespace Backend.Application.Services.AIService
             _diagnosisService = diagnosisService;
             _aiClient = aiClient;
             _logger = logger;
-            _explanationEndpoint = configuration["AiServiceOptions:ExplanationEndpoint"] ?? string.Empty;
+            _explanationEndpoint = options.Value.ExplanationEndpoint;
         }
 
         public async Task<ServiceResult<AiExplainResponse>> ExplainDiagnosis(int id, string? userId, int diagnosisId)

@@ -3,7 +3,7 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.CheckupService.Dto;
 using Backend.Domain.Entities;
 using Backend.Application.Services.AIService;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Application.Services.CheckupService
 {
@@ -26,7 +26,7 @@ namespace Backend.Application.Services.CheckupService
             IPatientSymptomRepository patientSymptomRepository,
             ICommunicationLevelRepository communicationLevelRepository,
             IAiClient aiClient,
-            IConfiguration configuration)
+            IOptions<AiServiceOptions> options)
         {
             _patientRepository = patientRepository;
             _diagnosisRepository = diagnosisRepository;
@@ -34,8 +34,7 @@ namespace Backend.Application.Services.CheckupService
             _patientSymptomRepository = patientSymptomRepository;
             _communicationLevelRepository = communicationLevelRepository;
             _aiClient = aiClient;
-            _checkupSummaryEndpoint = configuration["AiServiceOptions:CheckupSummaryEndpoint"]
-                ?? "http://localhost:3000/ai/checkup-summary";
+            _checkupSummaryEndpoint = options.Value.CheckupSummaryEndpoint;
         }
 
         public async Task<ServiceResult<CheckupSummaryResponse>> GenerateCheckupSummary(int patientId, string? userId, CheckupSummaryRequest request)

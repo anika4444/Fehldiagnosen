@@ -17,6 +17,7 @@ using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
@@ -38,6 +39,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
+
+builder.Services.AddOptions<AiServiceOptions>()
+    .Bind(builder.Configuration.GetSection(AiServiceOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.Services.AddScoped<IPatientSymptomRepository, MySqlSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
@@ -113,6 +119,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+// ValidateOnStart greift sonst erst in app.Run(), also nach der DB-Initialisierung
+app.Services.GetRequiredService<IStartupValidator>().Validate();
 
 using (var scope = app.Services.CreateScope())
 {
