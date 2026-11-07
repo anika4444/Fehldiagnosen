@@ -58,23 +58,9 @@ namespace Backend.Application.Services.CheckupService
             var from = request.From;
             var to = request.To;
 
-            var diagnoses = await _diagnosisRepository.FindAllByPatientIdAsync(patientId);
-            var medications = await _medicationRepository.FindAllByPatientIdAsync(patientId);
-            var symptoms = await _patientSymptomRepository.FindAllByPatientIdAsync(patientId);
-
-            var diagnosesInRange = diagnoses.Where(d =>
-                d.DiagnosisDate >= from && d.DiagnosisDate <= to
-            ).ToList();
-
-            var medicationsInRange = medications.Where(m =>
-                m.IntakeStartDate.HasValue &&
-                m.IntakeStartDate.Value <= to &&
-                (m.EndDate == null || m.EndDate >= from)
-            ).ToList();
-
-            var symptomsInRange = symptoms.Where(s =>
-                s.OccurrenceTime >= from && s.OccurrenceTime <= to
-            ).ToList();
+            var diagnosesInRange = await _diagnosisRepository.FindAllByPatientIdAndDateRangeAsync(patientId, from, to);
+            var medicationsInRange = await _medicationRepository.FindAllByPatientIdAndDateRangeAsync(patientId, from, to);
+            var symptomsInRange = await _patientSymptomRepository.FindAllByPatientIdAndDateRangeAsync(patientId, from, to);
 
             var response = new CheckupSummaryResponse
             {

@@ -44,6 +44,13 @@ namespace Backend.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Diagnosis>> FindAllByPatientIdAndDateRangeAsync(int patientId, DateTime from, DateTime to)
+        {
+            return await _context.Diagnoses
+                .Where(d => d.PatientId == patientId && d.DiagnosisDate >= from && d.DiagnosisDate <= to)
+                .ToListAsync();
+        }
+
         public async Task<Diagnosis> UpdateAsync(Diagnosis entity)
         {
             _context.Diagnoses.Update(entity);

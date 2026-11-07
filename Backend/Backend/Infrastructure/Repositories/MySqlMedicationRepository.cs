@@ -44,6 +44,17 @@ namespace Backend.Infrastructure.Repositories
             return patientMedication;
         }
 
+        public async Task<IEnumerable<Medication>> FindAllByPatientIdAndDateRangeAsync(int patientId, DateTime from, DateTime to)
+        {
+            // EndDate ist berechnet und nicht gemappt, daher hier IntakeStartDate + DurationInDays
+            return await _context.Medications
+                .Where(m => m.PatientId == patientId &&
+                            m.IntakeStartDate != null &&
+                            m.IntakeStartDate <= to &&
+                            m.IntakeStartDate.Value.AddDays(m.DurationInDays) >= from)
+                .ToListAsync();
+        }
+
         public async Task<Medication> UpdateAsync(Medication entity)
         {
             _context.Medications.Update(entity);

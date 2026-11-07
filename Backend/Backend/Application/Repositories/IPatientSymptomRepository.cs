@@ -8,5 +8,7 @@ namespace Backend.Application.Repositories
         Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAsync(int patientId);
         
         Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAndDateAsync(int symptomDefinitionId, DateTime date);
+
+        Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAndDateRangeAsync(int patientId, DateTime from, DateTime to);
     }
 }

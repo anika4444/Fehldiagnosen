@@ -52,6 +52,14 @@ namespace Backend.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<PatientSymptom>> FindAllByPatientIdAndDateRangeAsync(int patientId, DateTime from, DateTime to)
+        {
+            return await _context.PatientSymptoms
+                .Include(ps => ps.SymptomDefinition)
+                .Where(ps => ps.PatientId == patientId && ps.OccurrenceTime >= from && ps.OccurrenceTime <= to)
+                .ToListAsync();
+        }
+
         public async Task<PatientSymptom> UpdateAsync(PatientSymptom entity)
         {
             _context.PatientSymptoms.Update(entity);
