@@ -24,6 +24,13 @@ import {
   showErrorAlert,
   showSuccessAlert,
 } from "@/utils/alerts";
+import {
+  convertToJpeg,
+  isHeic,
+  type PickedFile,
+} from "@/utils/image-conversion";
+
+const MAX_SCAN_FILE_BYTES = 10 * 1024 * 1024;
 
 const Diagnosis = () => {
   const colorScheme = useColorScheme() ?? "light";
@@ -63,21 +70,47 @@ const Diagnosis = () => {
   const handleFileUploadAndScan = async () => {
     try {
       const docResult = await DocumentPicker.getDocumentAsync({
-        type: ["image/*", "application/pdf"],
+        // Backend akzeptiert PDF, PNG, JPEG bis 10 MB; HEIC wird vorher in JPEG umgewandelt
+        type: [
+          "application/pdf",
+          "image/png",
+          "image/jpeg",
+          "image/heic",
+          "image/heif",
+        ],
         copyToCacheDirectory: true,
       });
 
       if (docResult.canceled || !docResult.assets?.[0]) return;
 
-      const file = docResult.assets[0];
+      const picked = docResult.assets[0];
+
+      if (picked.size != null && picked.size > MAX_SCAN_FILE_BYTES) {
+        showErrorAlert("Die Datei ist zu groß (maximal 10 MB).");
+        return;
+      }
 
       setIsScanning(true);
 
-      await diagnosisService.scanAndCreateDocument(patientId!, {
-        uri: file.uri,
-        name: file.name,
-        type: file.mimeType ?? "image/jpeg",
-      });
+      let file: PickedFile = {
+        uri: picked.uri,
+        name: picked.name,
+        type: picked.mimeType ?? "image/jpeg",
+      };
+
+      if (isHeic(picked)) {
+        try {
+          file = await convertToJpeg(picked);
+        } catch (conversionError) {
+          console.error(conversionError);
+          showErrorAlert(
+            "Das HEIC-Foto konnte nicht umgewandelt werden. Bitte als JPEG oder PDF hochladen.",
+          );
+          return;
+        }
+      }
+
+      await diagnosisService.scanAndCreateDocument(patientId!, file);
 
       await fetchEntries();
 
@@ -86,7 +119,13 @@ const Diagnosis = () => {
       );
     } catch (err: any) {
       console.error(err);
-      showErrorAlert("Der Arztbrief konnte nicht verarbeitet werden.");
+      // Das Backend liefert bei 400/404/413/415/500 einen lesbaren Grund als Text
+      const serverMessage = err?.response?.data;
+      showErrorAlert(
+        typeof serverMessage === "string" && serverMessage.trim()
+          ? serverMessage
+          : "Der Arztbrief konnte nicht verarbeitet werden.",
+      );
     } finally {
       setIsScanning(false);
     }

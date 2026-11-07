@@ -1,12 +1,14 @@
 using Backend.Application.Common.Results;
 using Backend.Application.Services.AIService.Dto;
+using Backend.Application.Services.TextExtractionService;
 using Backend.Domain.Enums;
 
 namespace Backend.Application.Services.AIService
 {
     public interface IMedicalLetterInterpretationService
     {
-        // letterText muss bereits anonymisiert sein
-        Task<ServiceResult<InterpretMedicalLetterResponse>> InterpretMedicalLetter(int patientId, string? userId, EntryBy entryBy, string letterText);
+        // Ablauf: Zugriff prüfen → Text erkennen → anonymisieren → KI-Auswertung → Diagnose speichern.
+        // Rohtext geht nie direkt an die KI, deshalb gibt es keinen öffentlichen Einstieg mit Text.
+        Task<ServiceResult<InterpretMedicalLetterResponse>> ScanMedicalLetter(int patientId, string? userId, EntryBy entryBy, byte[] content, DocumentFormat format);
     }
 }

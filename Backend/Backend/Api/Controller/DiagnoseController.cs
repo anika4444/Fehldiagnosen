@@ -1,19 +1,8 @@
-﻿using Backend.Application.Common.Results;
-using Backend.Application.Services.AIService;
-using Backend.Application.Services.AnonymizerService;
+﻿using Backend.Application.Services.AIService;
 using Backend.Application.Services.DiagnosisService;
-using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Application.Services.TextExtractionService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
-using PDFtoImage;
-using SkiaSharp;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.Json;
-using Windows.Graphics.Imaging;
-using Windows.Media.Ocr;
-using Windows.Storage.Streams;
-using Windows.System;
 
 namespace Backend.Api.Controller;
 
@@ -22,15 +11,17 @@ namespace Backend.Api.Controller;
 [Route("api/diagnoses")]
 public class DiagnosisController : BaseApiController
 {
+    private const long MaxScanFileBytes = 10 * 1024 * 1024;
+    // Puffer für Multipart-Header und Formularfelder neben der Datei
+    private const long MaxScanRequestBytes = MaxScanFileBytes + 1024 * 1024;
+
     private readonly IDiagnosisService _diagnosisService;
-    private readonly IAnonymizerService _anonymizerService;
     private readonly IMedicalLetterInterpretationService _medicalLetterInterpretationService;
 
 
-    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IMedicalLetterInterpretationService medicalLetterInterpretationService)
+    public DiagnosisController(IDiagnosisService diagnosisService, IMedicalLetterInterpretationService medicalLetterInterpretationService)
     {
         _diagnosisService = diagnosisService;
-        _anonymizerService = anonymizer;
         _medicalLetterInterpretationService = medicalLetterInterpretationService;
     }
 
@@ -63,8 +54,14 @@ public class DiagnosisController : BaseApiController
     }
 
     [HttpPost("{patientId}/scan")]
+    [RequestSizeLimit(MaxScanRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxScanRequestBytes)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
     public async Task<IActionResult> Scan(int patientId, [FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -72,68 +69,27 @@ public class DiagnosisController : BaseApiController
             return BadRequest("Keine Datei hochgeladen.");
         }
 
+        if (file.Length > MaxScanFileBytes)
+        {
+            return StatusCode(StatusCodes.Status413PayloadTooLarge, "Die Datei ist zu groß (maximal 10 MB).");
+        }
+
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        var content = memoryStream.ToArray();
+
+        var format = DocumentFormatDetector.Detect(content);
+        if (format == null)
+        {
+            return StatusCode(StatusCodes.Status415UnsupportedMediaType, "Nur PDF, PNG oder JPEG werden unterstützt.");
+        }
+
         var userId = IsArzt() ? null : GetCurrentUserId();
+        var result = await _medicalLetterInterpretationService.ScanMedicalLetter(patientId, userId, GetEntryBy(), content, format.Value);
 
-        try
-        {
-            InMemoryRandomAccessStream randomAccessStream = new InMemoryRandomAccessStream();
-            byte[] imageBytes;
-            string extension = Path.GetExtension(file.FileName).ToLower();
+        if (result.IsSuccess)
+            return Ok(result.Data);
 
-            if (extension == ".pdf")
-            {
-                using var pdfStream = file.OpenReadStream();
-                using var memStream = new MemoryStream();
-                await pdfStream.CopyToAsync(memStream);
-
-                string pdfAsBase64 = Convert.ToBase64String(memStream.ToArray());
-
-                var options = new RenderOptions { Dpi = 300 };
-                using SKBitmap bitmap = Conversion.ToImage(pdfAsBase64, options: options);
-
-                using var imageStream = new MemoryStream();
-                bitmap.Encode(imageStream, SKEncodedImageFormat.Png, 100);
-
-                await randomAccessStream.WriteAsync(imageStream.ToArray().AsBuffer());
-            }
-            else
-            {
-                using var stream = file.OpenReadStream();
-                using var memStream = new MemoryStream();
-                await stream.CopyToAsync(memStream);
-
-                await randomAccessStream.WriteAsync(memStream.ToArray().AsBuffer());
-            }
-
-            randomAccessStream.Seek(0);
-
-            var decoder = await BitmapDecoder.CreateAsync(randomAccessStream);
-            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-
-            var engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language("de-DE"));
-            if (engine == null)
-                return StatusCode(500, "Deutsches OCR-Sprachpaket nicht installiert.");
-
-            var ocrResult = await engine.RecognizeAsync(softwareBitmap);
-            var extractedText = ocrResult.Text;
-
-            if (string.IsNullOrWhiteSpace(extractedText))
-                return BadRequest("Es konnte kein Text extrahiert werden.");
-
-            string pythonJsonResult = await _anonymizerService.AnonymizeTextAsync(extractedText);
-
-            var pythonData = JsonSerializer.Deserialize<Dictionary<string, object>>(pythonJsonResult);
-
-            var result = await _medicalLetterInterpretationService.InterpretMedicalLetter(patientId, userId, GetEntryBy(), pythonData?["anonymized_text"]?.ToString() ?? "");
-
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Fehler bei der Verarbeitung: {ex.Message}");
-        }
+        return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
 }

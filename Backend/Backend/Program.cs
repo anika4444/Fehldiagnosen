@@ -14,6 +14,8 @@ using Backend.Application.Services.SymptomService;
 using Backend.Application.Services.UserService;
 using Backend.Domain.Entities;
 using Backend.Infrastructure.Repositories;
+using Backend.Infrastructure.TextExtraction;
+using Backend.Application.Services.TextExtractionService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +78,7 @@ builder.Services.AddScoped<ICheckupService, CheckupService>();
 
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 builder.Services.AddScoped<IAnonymizerService, AnonymizerService>();
+builder.Services.AddScoped<ITextExtractionService, WindowsOcrTextExtractionService>();
 
 builder.Services.AddTransient<DtoMapper>();
 
