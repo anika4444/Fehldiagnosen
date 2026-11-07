@@ -24,10 +24,7 @@ namespace Backend.Api.Controller
         {
             var result = await _communicationLevelService.GetQuestionsAsync();
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+            return ToActionResult(result);
         }
 
         [HttpPost("patients/{patientId}/communication-level")]
@@ -53,10 +50,7 @@ namespace Backend.Api.Controller
             var userId = IsArzt() ? null : GetCurrentUserId();
             var result = await _communicationLevelService.GetByPatientIdAsync(patientId, userId);
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+            return ToActionResult(result);
         }
     }
 }

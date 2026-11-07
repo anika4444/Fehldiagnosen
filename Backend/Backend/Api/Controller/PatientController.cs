@@ -45,10 +45,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicationService.GetAllAsync(patientId, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/medications")]
@@ -75,10 +72,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicationService.UpdateAsync(patientId, medicationId, request, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     #endregion
@@ -93,10 +87,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await (date != null ? _symptomService.GetAllByDateAsync(patientId, date.Value, userId) : _symptomService.GetAllAsync(patientId, userId));
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/symptoms")]
@@ -123,10 +114,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _symptomService.UpdateAsync(patientId, symptomId, request, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     #endregion
@@ -141,10 +129,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicalHistoryEntryService.GetAllAsync(patientId, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/medical-history-entries")]
@@ -171,10 +156,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicalHistoryEntryService.UpdateAsync(patientId, medicalHistoryEntryId, request, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     #endregion
@@ -189,10 +171,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _familyHistoryEntryService.GetAllAsync(patientId, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/family-history-entries")]
@@ -219,10 +198,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _familyHistoryEntryService.UpdateAsync(patientId, familyHistoryEntryId, request, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     #endregion
@@ -237,10 +213,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _diagnosisService.GetAllAsync(patientId, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/diagnoses")]
@@ -267,10 +240,7 @@ public class PatientController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _diagnosisService.UpdateAsync(patientId, diagnosisId, request, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     #endregion

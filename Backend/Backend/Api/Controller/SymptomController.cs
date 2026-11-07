@@ -23,10 +23,7 @@ namespace Backend.Api.Controller
         {
             var result = await _symptomService.GetSymptomDefinitionsByNameAsync(name);
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+            return ToActionResult(result);
         }
 
         [HttpGet("{id}")]
@@ -37,10 +34,7 @@ namespace Backend.Api.Controller
             var userId = IsArzt() ? null : GetCurrentUserId();
             var result = await _symptomService.GetByIdAsync(id, userId);
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+            return ToActionResult(result);
         }
 
         [HttpDelete("{id}")]
@@ -51,10 +45,7 @@ namespace Backend.Api.Controller
             var userId = IsArzt() ? null : GetCurrentUserId();
             var result = await _symptomService.DeleteAsync(id, userId);
 
-            if (result.IsSuccess)
-                return NoContent();
-
-            return HandleServiceError(result.ErrorType, result.ErrorMessage);
+            return ToActionResult(result);
         }
     }
 }

@@ -31,10 +31,7 @@ public class MedicationController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicationService.GetByIdAsync(id, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpDelete("{id}")]
@@ -45,10 +42,7 @@ public class MedicationController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicationService.DeleteAsync(id, userId);
 
-        if (result.IsSuccess)
-            return NoContent();
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [AllowAnonymous]

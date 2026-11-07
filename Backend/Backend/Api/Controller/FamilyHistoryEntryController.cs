@@ -1,5 +1,4 @@
-﻿using Backend.Application.Common.Results;
-using Backend.Application.Services.FamilyHistoryService;
+﻿using Backend.Application.Services.FamilyHistoryService;
 using Backend.Application.Services.FamilyHistoryService.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,40 +19,26 @@ namespace Backend.Api.Controller
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<FamilyHistoryEntryResponse>> GetById(int id)
         {
-            var result = await _familyHistoryEntryService.GetByIdAsync(id, GetCurrentUserId());
+            var userId = IsArzt() ? null : GetCurrentUserId();
+            var result = await _familyHistoryEntryService.GetByIdAsync(id, userId);
 
-            if (result.IsSuccess)
-            {
-                return Ok(result.Data);
-            }
-
-            return result.ErrorType switch
-            {
-                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
-                _ => BadRequest(result.ErrorMessage)
-            };
+            return ToActionResult(result);
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var result = await _familyHistoryEntryService.DeleteAsync(id, GetCurrentUserId());
+            var userId = IsArzt() ? null : GetCurrentUserId();
+            var result = await _familyHistoryEntryService.DeleteAsync(id, userId);
 
-            if (result.IsSuccess)
-            {
-                return NoContent();
-            }
-
-            return result.ErrorType switch
-            {
-                ServiceErrorType.NotFound => NotFound(result.ErrorMessage),
-                _ => BadRequest(result.ErrorMessage)
-            };
+            return ToActionResult(result);
         }
     }
 }

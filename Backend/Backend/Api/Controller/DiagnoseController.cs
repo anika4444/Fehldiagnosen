@@ -33,10 +33,7 @@ public class DiagnosisController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _diagnosisService.GetByIdAsync(id, userId);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpDelete("{id}")]
@@ -47,10 +44,7 @@ public class DiagnosisController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _diagnosisService.DeleteAsync(id, userId);
 
-        if (result.IsSuccess)
-            return NoContent();
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 
     [HttpPost("{patientId}/scan")]
@@ -87,9 +81,6 @@ public class DiagnosisController : BaseApiController
         var userId = IsArzt() ? null : GetCurrentUserId();
         var result = await _medicalLetterInterpretationService.ScanMedicalLetter(patientId, userId, GetEntryBy(), content, format.Value);
 
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
+        return ToActionResult(result);
     }
 }
