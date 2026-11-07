@@ -24,14 +24,14 @@ public class DiagnosisController : BaseApiController
 {
     private readonly IDiagnosisService _diagnosisService;
     private readonly IAnonymizerService _anonymizerService;
-    private readonly IAIService _aiService;
+    private readonly IMedicalLetterInterpretationService _medicalLetterInterpretationService;
 
 
-    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IAIService aiService)
+    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IMedicalLetterInterpretationService medicalLetterInterpretationService)
     {
         _diagnosisService = diagnosisService;
         _anonymizerService = anonymizer;
-        _aiService = aiService;
+        _medicalLetterInterpretationService = medicalLetterInterpretationService;
     }
 
     [HttpGet("{id}")]
@@ -124,7 +124,7 @@ public class DiagnosisController : BaseApiController
 
             var pythonData = JsonSerializer.Deserialize<Dictionary<string, object>>(pythonJsonResult);
 
-            var result = await _aiService.InterpretMedicalLetter(patientId, userId, GetEntryBy(), pythonData?["anonymized_text"]?.ToString() ?? "");
+            var result = await _medicalLetterInterpretationService.InterpretMedicalLetter(patientId, userId, GetEntryBy(), pythonData?["anonymized_text"]?.ToString() ?? "");
 
             if (result.IsSuccess)
                 return Ok(result.Data);

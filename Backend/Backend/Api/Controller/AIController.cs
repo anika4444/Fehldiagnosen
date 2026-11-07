@@ -8,16 +8,16 @@ namespace Backend.Api.Controller;
 [Route("api/ai")]
 public class AIController : BaseApiController
 {
-    private readonly IAIService _aiService;
+    private readonly IDiagnosisExplanationService _diagnosisExplanationService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AIController> _logger;
 
     public AIController(
-        IAIService aiService,
+        IDiagnosisExplanationService diagnosisExplanationService,
         IConfiguration configuration,
         ILogger<AIController> logger)
     {
-        _aiService = aiService;
+        _diagnosisExplanationService = diagnosisExplanationService;
         _configuration = configuration;
         _logger = logger;
     }
@@ -33,7 +33,7 @@ public class AIController : BaseApiController
     {
         var userId = IsArzt() ? null : GetCurrentUserId();
 
-        var result = await _aiService.ExplainDiagnosis(id, userId, diagnosisId);
+        var result = await _diagnosisExplanationService.ExplainDiagnosis(id, userId, diagnosisId);
 
         if (result.IsSuccess)
         {

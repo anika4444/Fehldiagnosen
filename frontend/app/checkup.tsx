@@ -193,13 +193,38 @@ const Checkup = () => {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               KI-Zusammenfassung
             </ThemedText>
-            <Card style={styles.card}>
-              {summary.aiSummary ? (
-                renderSummary(summary.aiSummary)
-              ) : (
-                <ThemedText>Keine Zusammenfassung verfügbar.</ThemedText>
-              )}
-            </Card>
+            {summary.aiSummaryError ? (
+              <Card
+                style={[
+                  styles.card,
+                  styles.errorCard,
+                  {
+                    backgroundColor: theme.closeBgColor,
+                    borderColor: theme.closeIconColor,
+                  },
+                ]}
+              >
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={{ color: theme.closeIconColor }}
+                >
+                  Zusammenfassung fehlgeschlagen
+                </ThemedText>
+                <ThemedText>{summary.aiSummaryError}</ThemedText>
+                <ThemedText type="smallText" style={styles.errorHint}>
+                  Die Daten unten sind vollständig, nur die KI-Zusammenfassung
+                  fehlt.
+                </ThemedText>
+              </Card>
+            ) : (
+              <Card style={styles.card}>
+                {summary.aiSummary ? (
+                  renderSummary(summary.aiSummary)
+                ) : (
+                  <ThemedText>Keine Zusammenfassung verfügbar.</ThemedText>
+                )}
+              </Card>
+            )}
 
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               Diagnosen ({summary.diagnoses.length})
@@ -292,6 +317,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { marginTop: 20, marginBottom: 10 },
   card: { marginBottom: 10, padding: 12 },
+  errorCard: { borderWidth: 1, gap: 4 },
+  errorHint: { marginTop: 4 },
   summaryHeading: { marginTop: 10, marginBottom: 2, fontSize: 16 },
   summaryLine: { marginBottom: 4, lineHeight: 22 },
 });

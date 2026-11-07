@@ -2,9 +2,8 @@
 using Backend.Application.Repositories;
 using Backend.Application.Services.CheckupService.Dto;
 using Backend.Domain.Entities;
+using Backend.Application.Services.AIService;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Backend.Application.Services.CheckupService
 {
@@ -15,8 +14,10 @@ namespace Backend.Application.Services.CheckupService
         private readonly IMedicationRepository _medicationRepository;
         private readonly IPatientSymptomRepository _patientSymptomRepository;
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IAiClient _aiClient;
         private readonly string _checkupSummaryEndpoint;
+
+        private static readonly TimeSpan CheckupSummaryTimeout = TimeSpan.FromMinutes(2);
 
         public CheckupService(
             IPatientRepository patientRepository,
@@ -24,7 +25,7 @@ namespace Backend.Application.Services.CheckupService
             IMedicationRepository medicationRepository,
             IPatientSymptomRepository patientSymptomRepository,
             ICommunicationLevelRepository communicationLevelRepository,
-            IHttpClientFactory httpClientFactory,
+            IAiClient aiClient,
             IConfiguration configuration)
         {
             _patientRepository = patientRepository;
@@ -32,7 +33,7 @@ namespace Backend.Application.Services.CheckupService
             _medicationRepository = medicationRepository;
             _patientSymptomRepository = patientSymptomRepository;
             _communicationLevelRepository = communicationLevelRepository;
-            _httpClientFactory = httpClientFactory;
+            _aiClient = aiClient;
             _checkupSummaryEndpoint = configuration["AiServiceOptions:CheckupSummaryEndpoint"]
                 ?? "http://localhost:3000/ai/checkup-summary";
         }
@@ -98,7 +99,9 @@ namespace Backend.Application.Services.CheckupService
                 }).ToList()
             };
 
-            response.AiSummary = await CallAiServiceForCheckupSummary(
+            // Ein KI-Fehler bricht den Checkup nicht ab: Die Daten werden trotzdem geliefert,
+            // der Fehler steht in AiSummaryError, damit das Frontend ihn anzeigen kann
+            (response.AiSummary, response.AiSummaryError) = await CallAiServiceForCheckupSummary(
                 response,
                 communicationLevel?.Name ?? "L1",
                 communicationLevel?.KiPrompt ?? string.Empty);
@@ -106,7 +109,7 @@ namespace Backend.Application.Services.CheckupService
             return ServiceResult<CheckupSummaryResponse>.Success(response);
         }
 
-        private async Task<string?> CallAiServiceForCheckupSummary(CheckupSummaryResponse data, string langLevel, string kiPrompt)
+        private async Task<(string? Summary, string? Error)> CallAiServiceForCheckupSummary(CheckupSummaryResponse data, string langLevel, string kiPrompt)
         {
             var payload = new
             {
@@ -143,32 +146,20 @@ namespace Backend.Application.Services.CheckupService
                 })
             };
 
-            try
+            var aiResult = await _aiClient.PostAsync<CheckupSummaryAiResponse>(_checkupSummaryEndpoint, payload, CheckupSummaryTimeout);
+
+            return aiResult.Outcome switch
             {
-                var httpClient = _httpClientFactory.CreateClient();
-                httpClient.Timeout = TimeSpan.FromMinutes(2);
+                AiClientOutcome.Unavailable => (null, "KI-Service aktuell nicht erreichbar. Bitte später erneut versuchen."),
+                AiClientOutcome.Success when !string.IsNullOrWhiteSpace(aiResult.Data?.Summary) => (aiResult.Data!.Summary, null),
+                AiClientOutcome.Success => (null, "KI-Zusammenfassung konnte nicht erstellt werden."),
+                _ => (null, "KI-Zusammenfassung aktuell nicht verfügbar.")
+            };
+        }
 
-                using var response = await httpClient.PostAsJsonAsync(_checkupSummaryEndpoint, payload);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return "AI-Summary aktuell nicht verfügbar.";
-                }
-
-                var body = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(body);
-
-                if (doc.RootElement.TryGetProperty("summary", out var summary))
-                {
-                    return summary.GetString();
-                }
-
-                return "AI-Summary konnte nicht erstellt werden.";
-            }
-            catch (Exception)
-            {
-                return "AI-Summary aktuell nicht erreichbar.";
-            }
+        private sealed class CheckupSummaryAiResponse
+        {
+            public string? Summary { get; set; }
         }
     }
 }

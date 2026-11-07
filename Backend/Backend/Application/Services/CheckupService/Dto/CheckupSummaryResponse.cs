@@ -10,6 +10,8 @@ namespace Backend.Application.Services.CheckupService.Dto
         public List<CheckupMedication> Medications { get; set; } = [];
         public List<CheckupSymptom> Symptoms { get; set; } = [];
         public string? AiSummary { get; set; }
+        // Gesetzt, wenn die KI-Zusammenfassung fehlgeschlagen ist; AiSummary ist dann null
+        public string? AiSummaryError { get; set; }
     }
 
     public sealed class CheckupDiagnosis

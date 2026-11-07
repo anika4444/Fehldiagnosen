@@ -14,13 +14,13 @@ public class MedicationController : BaseApiController
 {
     private readonly IMedicationService _medicationService;
     private readonly IKnownMedicationService _knownMedicationService;
-    private readonly IAIService _aiService;
+    private readonly IMedicationScanService _medicationScanService;
 
-    public MedicationController(IMedicationService medicationService, IKnownMedicationService knownMedicationService, IAIService aiService)
+    public MedicationController(IMedicationService medicationService, IKnownMedicationService knownMedicationService, IMedicationScanService medicationScanService)
     {
         _medicationService = medicationService;
         _knownMedicationService = knownMedicationService;
-        _aiService = aiService;
+        _medicationScanService = medicationScanService;
     }
 
     [HttpGet("{id}")]
@@ -65,7 +65,7 @@ public class MedicationController : BaseApiController
         await image.CopyToAsync(ms);
         var base64 = Convert.ToBase64String(ms.ToArray());
 
-        var result = await _aiService.InterpretMedicationImage(base64, image.ContentType);
+        var result = await _medicationScanService.InterpretMedicationImage(base64, image.ContentType);
 
         if (!result.IsSuccess)
             return HandleServiceError(result.ErrorType, result.ErrorMessage);

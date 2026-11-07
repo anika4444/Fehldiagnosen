@@ -2080,6 +2080,7 @@ export interface components {
             medications?: components["schemas"]["CheckupMedication"][];
             symptoms?: components["schemas"]["CheckupSymptom"][];
             aiSummary?: null | string;
+            aiSummaryError?: null | string;
         };
         CheckupSymptom: {
             /** Format: int32 */
