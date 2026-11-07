@@ -30,7 +30,7 @@ namespace Backend.Domain.Entities
         [Range(0, 3650)]
         public int DurationInDays { get; set; }
 
-        public DateTime? EndDate => IntakeStartDate?.AddDays(DurationInDays);
+        public DateTime? EndDate => DurationInDays > 0 ? IntakeStartDate?.AddDays(DurationInDays) : null;
 
         // Ohne Dauer oder Startdatum gilt die Medikation als laufend
         public bool IsActiveOn(DateTime date) => DurationInDays == 0 || EndDate == null || EndDate.Value.Date >= date.Date;

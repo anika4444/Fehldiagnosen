@@ -46,12 +46,13 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<IEnumerable<Medication>> FindAllByPatientIdAndDateRangeAsync(int patientId, DateTime from, DateTime to)
         {
-            // EndDate ist berechnet und nicht gemappt, daher hier IntakeStartDate + DurationInDays
+            // EndDate ist berechnet und nicht gemappt, daher hier IntakeStartDate + DurationInDays.
+            // Ohne Dauer oder Startdatum gilt die Medikation als laufend (siehe Medication.IsActiveOn).
             return await _context.Medications
                 .Where(m => m.PatientId == patientId &&
-                            m.IntakeStartDate != null &&
-                            m.IntakeStartDate <= to &&
-                            m.IntakeStartDate.Value.AddDays(m.DurationInDays) >= from)
+                            (m.IntakeStartDate == null ||
+                             (m.IntakeStartDate <= to &&
+                              (m.DurationInDays == 0 || m.IntakeStartDate.Value.AddDays(m.DurationInDays) >= from))))
                 .ToListAsync();
         }
 
