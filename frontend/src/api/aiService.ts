@@ -1,5 +1,4 @@
 import { ExplainDiagnosisResponse } from "@/types/ai-type";
-import { ConditionStatus } from "@/types/diagnosis-type";
 
 import axiosConfig from "./axiosConfig";
 
@@ -10,24 +9,6 @@ interface InterpretMedicationImageApiResponse {
   };
 }
 
-interface InterpretMedicalLetterApiResponse {
-  extracted: {
-    title: string;
-    description: string;
-    icdCode: string;
-    severity: string;
-    sideLocalization: string;
-    conditionStatus: ConditionStatus;
-    medicationText: string;
-    symptoms: string;
-    findings: string;
-    therapeuticMeasures: string;
-    note?: string;
-    diagnosisDate: string;
-  };
-  saved?: any;
-}
-
 export const aiService = {
   explainDiagnosisById: async (
     patientId: number,
@@ -35,20 +16,6 @@ export const aiService = {
   ): Promise<ExplainDiagnosisResponse> => {
     const response = await axiosConfig.get<ExplainDiagnosisResponse>(
       `/ai/${patientId}/explain-diagnosis/${diagnosisId}`,
-    );
-
-    return response.data;
-  },
-  interpretMedicalLetter: async (
-    patientId: number | null,
-    letterText: string,
-  ): Promise<InterpretMedicalLetterApiResponse> => {
-    const body: any = { letterText };
-    if (patientId != null) body.patientId = patientId;
-
-    const response = await axiosConfig.post<InterpretMedicalLetterApiResponse>(
-      `/ai/interpret-medical-letter`,
-      body,
     );
 
     return response.data;

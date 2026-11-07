@@ -41,28 +41,4 @@ public class AIController : BaseApiController
         }
         return HandleServiceError(result.ErrorType, result.ErrorMessage);
     }
-
-    [HttpPost("interpret-medical-letter")]
-    public async Task<IActionResult> InterpretMedicalLetter([FromBody] InterpretMedicalLetterRequest request)
-    {
-        if (request == null || string.IsNullOrWhiteSpace(request.LetterText))
-            return BadRequest(new { error = "letterText is required" });
-
-        if (request.PatientId == null)
-            return BadRequest(new { error = "patientId is required" });
-
-        var userId = IsArzt() ? null : GetCurrentUserId();
-        var result = await _aiService.InterpretMedicalLetter(request.PatientId, userId, GetEntryBy(), request.LetterText);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return HandleServiceError(result.ErrorType, result.ErrorMessage);
-    }
-}
-
-public sealed class InterpretMedicalLetterRequest
-{
-    public int? PatientId { get; set; }
-    public string? LetterText { get; set; }
 }

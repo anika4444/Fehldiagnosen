@@ -72,8 +72,6 @@ public class MedicationController : BaseApiController
 
         var data = result.Data;
 
-        Console.WriteLine($"[Scan] KI → brand={data?.Brand}, productName={data?.ProductName}, activeIngredient={data?.ActiveIngredient}, dosage={data?.Dosage}, form={data?.Form}");
-
         var medication = await _knownMedicationService.IdentifyAsync(
             brand: data?.Brand,
             productName: data?.ProductName,
@@ -81,8 +79,6 @@ public class MedicationController : BaseApiController
             dosage: data?.Dosage,
             form: data?.Form
         );
-
-        Console.WriteLine($"[Scan] DB-Treffer → name={medication?.Name}, dosage={medication?.Dosage}");
 
         return Ok(new
         {

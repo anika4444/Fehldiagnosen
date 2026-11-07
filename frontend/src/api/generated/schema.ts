@@ -58,45 +58,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ai/interpret-medical-letter": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["InterpretMedicalLetterRequest"];
-                    "text/json": components["schemas"]["InterpretMedicalLetterRequest"];
-                    "application/*+json": components["schemas"]["InterpretMedicalLetterRequest"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/authenticate/register": {
         parameters: {
             query?: never;
@@ -2269,11 +2230,6 @@ export interface components {
             activeIngredient: null | string;
             dosage: null | string;
             form: null | string;
-        };
-        InterpretMedicalLetterRequest: {
-            /** Format: int32 */
-            patientId?: null | number | string;
-            letterText?: null | string;
         };
         LoginDto: {
             username: string;

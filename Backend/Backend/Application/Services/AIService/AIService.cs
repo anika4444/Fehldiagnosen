@@ -18,13 +18,15 @@ namespace Backend.Application.Services.AIService
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IDiagnosisService _diagnosisService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<AIService> _logger;
 
         private readonly string _explanationEndpoint;
         private readonly string _interpretEndpoint;
         private readonly string _medicationScanEndpoint;
 
-        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration, IDiagnosisService diagnosisService)
+        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration, IDiagnosisService diagnosisService, ILogger<AIService> logger)
         {
+            _logger = logger;
             _patientRepository = patientRepository;
             _diagnosisRepository = diagnosisRepository;
             _communicationLevelRepository = communicationLevelRepository;
@@ -213,9 +215,6 @@ namespace Backend.Application.Services.AIService
 
                 var responseBody = await response.Content.ReadAsStringAsync();
 
-                Console.WriteLine("=== NODE RESPONSE ===");
-                Console.WriteLine(responseBody);
-
                 var result = JsonSerializer.Deserialize<MedicationScanResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -225,13 +224,14 @@ namespace Backend.Application.Services.AIService
                     return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Extraktion fehlgeschlagen");
                 }
 
-                Console.WriteLine($"[AIService] brand={result.Brand}, productName={result.ProductName}, activeIngredient={result.ActiveIngredient}, dosage={result.Dosage}, form={result.Form}");
+                _logger.LogDebug("Medikamenten-Extraktion durch KI-Service erfolgreich");
 
                 return ServiceResult<MedicationScanResponse>.Success(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                // Nur der Typ: Ausnahmetexte können Inhalte aus der KI-Antwort enthalten
+                _logger.LogError("Medikamenten-Extraktion fehlgeschlagen: {ExceptionType}", ex.GetType().Name);
                 return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
