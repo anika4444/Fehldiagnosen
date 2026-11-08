@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "text": "Wie sicher fühlen Sie sich mit medizinischen Fachbegriffen?",
+    "answers": [
+      {
+        "id": 1,
+        "text": "Ich kenne mich gar nicht aus – bitte erklären Sie es mir wie einem Laien.",
+        "points": 1
+      },
+      {
+        "id": 2,
+        "text": "Ich kenne die Grundlagen meiner Gesundheit ganz gut.",
+        "points": 2
+      },
+      {
+        "id": 3,
+        "text": "Ich habe beruflich mit Medizin zu tun oder bin sehr tief im Thema.",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "text": "Welche Art der Erklärung hilft Ihnen am meisten?",
+    "answers": [
+      {
+        "id": 1,
+        "text": "Einfache Beispiele und Bilder aus dem Alltag.",
+        "points": 1
+      },
+      {
+        "id": 2,
+        "text": "Ein strukturierter Überblick über die wichtigsten Fakten.",
+        "points": 2
+      },
+      {
+        "id": 3,
+        "text": "Detaillierte medizinische Hintergründe und genaue Daten.",
+        "points": 3
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "text": "Worauf soll die KI bei der Erklärung den Fokus legen?",
+    "answers": [
+      {
+        "id": 1,
+        "text": "Wie sich die Diagnose auf mein tägliches Leben auswirkt.",
+        "points": 1
+      },
+      {
+        "id": 2,
+        "text": "Was genau in meinem Körper passiert (Ursache-Wirkung).",
+        "points": 2
+      },
+      {
+        "id": 3,
+        "text": "Die klinischen Details und Behandlungsoptionen.",
+        "points": 3
+      }
+    ]
+  }
+]

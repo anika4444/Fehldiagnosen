@@ -1,0 +1,44 @@
+﻿using Backend.Application.Services.FamilyHistoryService;
+using Backend.Application.Services.FamilyHistoryService.Dto;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Backend.Api.Controller
+{
+    [Authorize]
+    [ApiController]
+    [Route("api/family-history-entries")]
+    public class FamilyHistoryEntryController : BaseApiController
+    {
+        private readonly IFamilyHistoryEntryService _familyHistoryEntryService;
+
+        public FamilyHistoryEntryController(IFamilyHistoryEntryService familyHistoryEntryService)
+        {
+            _familyHistoryEntryService = familyHistoryEntryService;
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<FamilyHistoryEntryResponse>> GetById(int id)
+        {
+            var userId = IsArzt() ? null : GetCurrentUserId();
+            var result = await _familyHistoryEntryService.GetByIdAsync(id, userId);
+
+            return ToActionResult(result);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var userId = IsArzt() ? null : GetCurrentUserId();
+            var result = await _familyHistoryEntryService.DeleteAsync(id, userId);
+
+            return ToActionResult(result);
+        }
+    }
+}
