@@ -22,9 +22,35 @@ using System.Reflection;
 using Scalar.AspNetCore;
 using Backend.Application.Services.DrugInteractionService;
 using Backend.Application.Services.CheckupService;
+using Backend.Api.Controller;
+using Backend.Api;
+using Backend.Api.Middleware;
+using Backend.Application.Services.EmergencyAccessService;
+using Backend.Application.Services.EmergencyAccessService.Dto;
+using Backend.Application.Services.EmergencyDataService;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 using Backend.Infrastructure.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// LAN_IP from the .env in the repository root (or an environment variable), so the IP lives in one place.
+// It makes the emergency portal on http://{LAN_IP}:5173 the QR code target and an allowed CORS origin.
+var lanIp = LanConfig.ReadLanIp(builder.Environment.ContentRootPath);
+if (!string.IsNullOrWhiteSpace(lanIp))
+{
+    var lanPortalUrl = $"http://{lanIp}:5173";
+    var origins = builder.Configuration.GetSection("Emergency:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    var lanSettings = new Dictionary<string, string?> { ["Emergency:PortalBaseUrl"] = lanPortalUrl };
+    var allOrigins = origins.Contains(lanPortalUrl) ? origins : origins.Append(lanPortalUrl).ToArray();
+    for (var i = 0; i < allOrigins.Length; i++)
+    {
+        lanSettings[$"Emergency:AllowedOrigins:{i}"] = allOrigins[i];
+    }
+    builder.Configuration.AddInMemoryCollection(lanSettings);
+}
 
 builder.Services.AddCors(options =>
 {
@@ -35,6 +61,75 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowCredentials();
     });
+
+    // The public emergency portal may only call from its own origin
+    var emergencyOrigins = builder.Configuration.GetSection("Emergency:AllowedOrigins").Get<string[]>()
+        ?? new[] { "http://localhost:5173" };
+
+    options.AddPolicy(EmergencyPortalController.CorsPolicy, policy =>
+    {
+        policy.WithOrigins(emergencyOrigins)
+            .WithMethods("GET", "POST", "DELETE")
+            .WithHeaders("Content-Type", EmergencyPortalController.SessionHeader)
+            // The session header forces a preflight request, caching it halves the number of calls
+            .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+    });
+});
+
+// Wrong values here would break the lock after failed PINs, so the app refuses to start with them
+builder.Services.AddOptions<EmergencyOptions>()
+    .Bind(builder.Configuration.GetSection("Emergency"))
+    .Validate(o => o.MaxFailedAttempts > 0 && o.LockMinutes > 0 && o.EmergencySessionMinutes > 0
+            && o.TreatmentSessionMinutes > 0 && o.OneTimeLinkHours > 0 && o.ApprovalWindowMinutes > 0,
+        "All numbers in the Emergency section of appsettings.json must be greater than 0.")
+    .ValidateOnStart();
+builder.Services.AddMemoryCache();
+
+// Behind a reverse proxy (HTTPS on the subdomain) every request comes from the proxy address.
+// Listing the proxy here lets the rate limit and the access log see the real client address.
+// Only listed proxies are trusted, otherwise anybody could fake the X-Forwarded-For header.
+var trustedProxies = builder.Configuration.GetSection("Emergency:TrustedProxies").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    foreach (var proxy in trustedProxies)
+    {
+        options.KnownProxies.Add(IPAddress.Parse(proxy));
+    }
+});
+
+// Brute force protection for the portal, per IP (IPv6 per /64). The lock per emergency id is in EmergencyAccessService.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy(EmergencyPortalController.LoginRateLimit, context =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            ClientAddress.PartitionKey(context),
+            _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy(EmergencyPortalController.ReadRateLimit, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            ClientAddress.PartitionKey(context),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 120,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { message = "Zu viele Anfragen. Bitte kurz warten und erneut versuchen." },
+            cancellationToken);
+    };
 });
 
 builder.Services.AddControllers();
@@ -72,6 +167,10 @@ builder.Services.AddScoped<ICheckupService, CheckupService>();
 
 builder.Services.AddScoped<IMedicalLetterRepository, MySqlMedicalLetterRepository>();
 builder.Services.AddScoped<IAnonymizerService, AnonymizerService>();
+
+builder.Services.AddScoped<IEmergencyAccessRepository, MySqlEmergencyAccessRepository>();
+builder.Services.AddScoped<IEmergencyAccessService, EmergencyAccessService>();
+builder.Services.AddScoped<IEmergencyDataService, EmergencyDataService>();
 
 builder.Services.AddTransient<DtoMapper>();
 
@@ -136,18 +235,32 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.Initialize(context, roleManager);
 }
 
+// Must run first, so everything after it sees the real client address
+if (trustedProxies.Length > 0)
+{
+    app.UseForwardedHeaders();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+else
+{
+    app.UseHsts();
+}
 
 app.UseObservability();
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<EmergencyHeadersMiddleware>();
+
 app.UseCors("AllowAll");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

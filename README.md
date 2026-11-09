@@ -8,7 +8,7 @@ Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
 
 - **Node.js**: Wird benötigt, um die Pakete über `npm` zu installieren
 - **Docker**
-- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend muss die LAN-IP deines Laptops als `EXPO_PUBLIC_API_URL` eingetragen werden (siehe [Umgebungen & Befehle](#️-umgebungen--befehle))
+- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend die IP deines PCs als `LAN_IP` in der `.env` im Projekt-Root eintragen (Vorlage: `.env.example`). Backend, Notfallportal und App lesen sie von dort
 - _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
 - **Visual Studio**: Mit .NET 10
 - **Python**: Für die Durchführung des Arztbrief-Scans
@@ -177,6 +177,7 @@ npm run db:up
 
 # 3. Als nächstes muss die Datenbankstruktur erstellt werden. Navigiere im Terminal zu adam\Backend\Backend und führe folgenden Befehl aus:
 dotnet ef database update
+# Nach jedem Pull mit neuen Migrationen (z. B. AddEmergencyAccess für den Notfallzugang) diesen Befehl erneut ausführen.
 
 # 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml im Projekt-Root.
 
@@ -204,7 +205,7 @@ cd frontend
 npm install
 
 # 3. Starte den Entwicklungsserver
-npx expo start
+npm start   # nutzt LAN_IP aus der .env im Projekt-Root für den QR-Code
 ```
 
 ### 4. AI Service starten
@@ -286,10 +287,34 @@ dotnet test Backend.slnx --filter "Category=Stress" --logger "console;verbosity=
 
 In der CI (`.github/workflows/build.yml`) laufen die Jobs `test-backend`, `test-ai` und `test-frontend`. Die Build-Jobs hängen davon ab: Schlägt ein Test fehl, wird die Pipeline rot und es werden keine Artefakte gebaut.
 
+### 6. Notfallportal starten
+
+Das Notfallportal ist eine eigene Website für Rettungskräfte und Ärzt:innen. Sie zeigt die freigegebenen Daten über QR-Code oder Notfall-ID plus PIN, ohne Login und nur lesend. Öffne dafür ein weiteres Terminal
+
+```bash
+# 1. Navigiere zum Ordner emergency-portal
+cd emergency-portal
+
+# 2. Installiere alle Abhängigkeiten des Portals (nur beim ersten Mal nötig)
+npm install
+
+# 3. Starte das Portal:
+npm run dev
+```
+
+Das Portal läuft auf http://localhost:5173. Die Codes erstellst du in der App unter Daten > Notfallzugang.
+
+**Portal am Handy testen**
+Ein QR-Code zeigt standardmäßig auf `localhost` und funktioniert deshalb nur am PC. Für einen Test mit einem zweiten Handy im selben WLAN:
+
+- In `Backend/Backend/appsettings.json` unter `Emergency` bei `PortalBaseUrl` und `AllowedOrigins` die LAN-IP eintragen, z. B. `http://192.168.0.198:5173`
+- Im Ordner `emergency-portal` eine Datei `.env` anlegen mit `VITE_API_BASE_URL=http://192.168.0.198:5238/api`
+- Danach Backend und Portal neu starten. Die App baut die QR-Adresse beim nächsten Öffnen mit der neuen Adresse, ein bereits gespeichertes Sperrbild muss neu erstellt werden
+
 ### 🚀 Verwendung der App
 
 **Am Handy**
-Hierfür benötigst du die Expo App. Zusätzlich muss in `config/dev.local.env` die LAN-IP deines Laptops eingetragen werden, z. B. `EXPO_PUBLIC_API_URL=http://192.168.0.198:5238/api` (beim direkten Start im Ordner `frontend` stattdessen in `frontend/.env.local`). Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
+Hierfür benötigst du die Expo App. Zusätzlich musst du die IP deines PCs als `LAN_IP` in der `.env` im Projekt-Root eintragen. Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
 
 **Im Webbrowser**
 Möchtest du die App direkt auf dem PC im Browser öffnen?
