@@ -33,6 +33,17 @@ namespace Backend.Infrastructure.Repositories
         public DbSet<DrugInteraction> DrugInteractions { get; set; }
 
         public DbSet<DrugDetail> DrugDetails { get; set; }
+
+        public DbSet<EmergencyAccessCode> EmergencyAccessCodes { get; set; }
+
+        public DbSet<EmergencyAccessSession> EmergencyAccessSessions { get; set; }
+
+        public DbSet<EmergencyAccessLog> EmergencyAccessLogs { get; set; }
+
+        public DbSet<EmergencyShareSetting> EmergencyShareSettings { get; set; }
+
+        public DbSet<EmergencyProfile> EmergencyProfiles { get; set; }
+
         public MySqlDbContext(DbContextOptions<MySqlDbContext> options) : base(options)
         {
         }
@@ -49,6 +60,22 @@ namespace Backend.Infrastructure.Repositories
             modelBuilder.Entity<AtcDrugMapping>().HasIndex(m => m.AtcCode);
             modelBuilder.Entity<DrugInteraction>().HasIndex(i => i.SourceDrugBankId);
             modelBuilder.Entity<DrugInteraction>().HasIndex(i => new {i.SourceDrugBankId, i.TargetDrugBankId});
+
+            // Emergency access: lookups by hash or public id must be fast and unique
+            modelBuilder.Entity<EmergencyAccessCode>().HasIndex(c => c.PublicId).IsUnique();
+            modelBuilder.Entity<EmergencyAccessCode>().HasIndex(c => c.TokenHash).IsUnique();
+            modelBuilder.Entity<EmergencyAccessCode>().HasIndex(c => new { c.PatientId, c.Type, c.IsActive });
+            modelBuilder.Entity<EmergencyAccessSession>().HasIndex(s => s.SessionTokenHash).IsUnique();
+            modelBuilder.Entity<EmergencyAccessSession>().HasIndex(s => new { s.PatientId, s.ApprovalState });
+            modelBuilder.Entity<EmergencyAccessLog>().HasIndex(l => new { l.PatientId, l.AccessedAt });
+            modelBuilder.Entity<EmergencyShareSetting>().HasIndex(s => new { s.PatientId, s.CodeType, s.Category }).IsUnique();
+            modelBuilder.Entity<EmergencyProfile>().HasIndex(p => p.PatientId).IsUnique();
+
+            // Emergency rows belong to a patient and go away with him
+            modelBuilder.Entity<EmergencyProfile>().HasOne<Patient>().WithMany().HasForeignKey(p => p.PatientId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<EmergencyShareSetting>().HasOne<Patient>().WithMany().HasForeignKey(s => s.PatientId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<EmergencyAccessLog>().HasOne<Patient>().WithMany().HasForeignKey(l => l.PatientId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<EmergencyAccessSession>().HasOne(s => s.AccessLog).WithMany().HasForeignKey(s => s.AccessLogId).OnDelete(DeleteBehavior.SetNull);
 
             // Symptome
             var jsonOptions = (JsonSerializerOptions?)null;

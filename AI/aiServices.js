@@ -10,6 +10,7 @@ import { getIcdContext } from "./icd10Lookup.js";
 import { ChainBuilder } from "./chainBuilder.js";
 import { parseValidatorResponse } from "./validatorResponse.js";
 import checkupSummaryRouter from "./checkupSummary.js";
+import emergencySummaryRouter from "./emergencySummary.js";
 import { logger, httpLogger } from "./observability/logger.js";
 import {
   httpMetrics,
@@ -41,6 +42,7 @@ app.use(
 app.get("/metrics", metricsHandler);
 app.use(createHealthRouter(APP_VERSION));
 app.use(checkupSummaryRouter);
+app.use(emergencySummaryRouter);
 
 app.get("/ai/version", (req, res) => res.json({ version: APP_VERSION }));
 

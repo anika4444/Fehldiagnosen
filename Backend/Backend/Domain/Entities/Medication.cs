@@ -42,5 +42,8 @@ namespace Backend.Domain.Entities
 
         [MaxLength(500)]
         public string? Notes { get; set; }
+
+        // Needed for "data last updated" in the emergency portal
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

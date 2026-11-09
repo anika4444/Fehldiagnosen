@@ -308,6 +308,208 @@ namespace Backend.Migrations
                     b.ToTable("DrugInteractions");
                 });
 
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DeactivatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PinHash")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Type", "IsActive");
+
+                    b.ToTable("EmergencyAccessCodes");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AccessedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("AccessorInstitution")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("AccessorName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("CodeType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DeviceType")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("varchar(45)");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Outcome")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId", "AccessedAt");
+
+                    b.ToTable("EmergencyAccessLogs");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AccessLogId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovalExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ApprovalState")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodeType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("SessionTokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccessLogId");
+
+                    b.HasIndex("CodeId");
+
+                    b.HasIndex("SessionTokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "ApprovalState");
+
+                    b.ToTable("EmergencyAccessSessions");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ConsentGivenAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("TreatmentRequiresApproval")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId")
+                        .IsUnique();
+
+                    b.ToTable("EmergencyProfiles");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyShareSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CodeType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId", "CodeType", "Category")
+                        .IsUnique();
+
+                    b.ToTable("EmergencyShareSettings");
+                });
+
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -467,6 +669,9 @@ namespace Backend.Migrations
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -724,6 +929,62 @@ namespace Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessCode", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessLog", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyAccessSession", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.EmergencyAccessLog", "AccessLog")
+                        .WithMany()
+                        .HasForeignKey("AccessLogId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Backend.Domain.Entities.EmergencyAccessCode", "Code")
+                        .WithMany()
+                        .HasForeignKey("CodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccessLog");
+
+                    b.Navigation("Code");
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyProfile", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Backend.Domain.Entities.EmergencyShareSetting", b =>
+                {
+                    b.HasOne("Backend.Domain.Entities.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Backend.Domain.Entities.FamilyHistoryEntry", b =>

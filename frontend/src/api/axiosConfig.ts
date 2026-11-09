@@ -1,7 +1,14 @@
 import axios from "axios";
+import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
+// Kommt aus LAN_IP in der .env im Projekt-Root (eingelesen in app.config.js). Leer = Emulator/localhost.
+const LAN_IP = (Constants.expoConfig?.extra?.lanIp as string | undefined) ?? "";
+
+const getBaseURL = () => {
+  if (__DEV__ && LAN_IP && (Platform.OS === "android" || Platform.OS === "ios")) {
+    return `http://${LAN_IP}:5238/api`;
 const getBaseURL = () => {
   // Kommt je nach Umgebung aus config/<env>.env bzw. config/<env>.local.env
   // (oder frontend/.env.local). Expo baut den Wert beim Bundeln fest ein.

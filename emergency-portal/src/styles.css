@@ -1,0 +1,655 @@
+/* Colors match the ADAM app and the mockup. Contrast checked for text on every surface. */
+:root {
+  --ink: #0b3b2e;
+  --ink-muted: #4b635a;
+  --ground: #f6f8f7;
+  --surface: #ffffff;
+  --line: #dce7e2;
+  --line-soft: #eef3f0;
+  --field-line: #c9d8d1;
+
+  --primary: #047857;
+  --primary-ink: #ffffff;
+  --primary-soft: #d1fae5;
+
+  --emergency: #991b1b;
+  --emergency-strong: #b91c1c;
+  --emergency-soft: #fee2e2;
+  --emergency-line: #f87171;
+
+  --treatment: #1e3a8a;
+  --treatment-soft: #dbeafe;
+
+  --notice: #78350f;
+  --notice-soft: #fef3c7;
+
+  --radius-l: 20px;
+  --radius-m: 14px;
+  /* System fonts only: no font download from third parties on a page with health data */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Jump links stop below the sticky bar, TopBar publishes its real height */
+  scroll-padding-top: calc(var(--topbar-height, 64px) + 12px);
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Long words, codes or links in notes must wrap instead of widening the page on a 360 px phone */
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--primary);
+}
+
+:focus-visible {
+  outline: 3px solid #065f46;
+  outline-offset: 2px;
+}
+
+/* Headings get focus on screen changes for screen readers, no ring needed there */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Layout */
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 18px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbar-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stack-l {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  font-size: 16px;
+  color: var(--ink-muted);
+}
+
+.small {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Surfaces */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 18px;
+}
+
+.list {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list > li {
+  padding: 14px 16px;
+}
+
+.list > li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.empty {
+  padding: 14px 16px;
+  color: var(--ink-muted);
+  font-size: 15px;
+}
+
+/* Pills and badges */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pill-emergency {
+  color: var(--emergency);
+  background: var(--emergency-soft);
+}
+
+.pill-treatment {
+  color: var(--treatment);
+  background: var(--treatment-soft);
+}
+
+.pill-neutral {
+  color: var(--ink-muted);
+  background: var(--line-soft);
+}
+
+.pill-active {
+  color: #065f46;
+  background: var(--primary-soft);
+}
+
+.code {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  background: var(--line-soft);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Forms */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field .optional {
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.input {
+  height: 52px;
+  width: 100%;
+  border: 1.5px solid var(--field-line);
+  border-radius: var(--radius-m);
+  padding: 0 14px;
+  background: var(--surface);
+  font-size: 16px;
+}
+
+.input-mono {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.08em;
+}
+
+.consent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--ground);
+  border: 1.5px solid var(--field-line);
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.consent input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--primary);
+}
+
+.error {
+  background: var(--emergency-soft);
+  color: var(--emergency);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Buttons */
+
+.btn {
+  min-height: 52px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  font-weight: 800;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.btn-link {
+  background: none;
+  border: 0;
+  color: var(--primary);
+  font-weight: 700;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+/* Data page */
+
+.updated {
+  background: var(--ink);
+  color: #f3f7f5;
+  border-radius: 16px;
+  padding: 12px 16px;
+}
+
+.updated span {
+  display: block;
+}
+
+.updated .label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.85;
+}
+
+.updated .value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.flags {
+  background: var(--emergency-soft);
+  border: 2px solid var(--emergency-line);
+  border-radius: var(--radius-l);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flags h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #7f1d1d;
+}
+
+.flag {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #7f1d1d;
+}
+
+.flag strong {
+  display: block;
+  font-size: 15px;
+}
+
+.flag span {
+  font-size: 14px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+/* Lets flex children shrink below their content width, otherwise long text pushes the row wider */
+.row > * {
+  min-width: 0;
+}
+
+.row-center {
+  align-items: center;
+}
+
+.med-name {
+  font-size: 17px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.med-dose {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.meta {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.intensity {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-weight: 800;
+}
+
+.intensity b {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.intensity small {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.intensity-high {
+  background: var(--emergency-soft);
+  color: #7f1d1d;
+}
+
+.intensity-mid {
+  background: var(--notice-soft);
+  color: var(--notice);
+}
+
+.intensity-low {
+  background: var(--line-soft);
+  color: var(--ink);
+}
+
+.notice {
+  background: var(--notice-soft);
+  color: var(--notice);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notice h2 {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ai-box {
+  background: var(--surface);
+  border: 1.5px dashed #9ab0a6;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-tag {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: #e4ede8;
+  color: var(--ink);
+  padding: 4px 9px;
+  border-radius: 6px;
+}
+
+.timeline > li {
+  display: flex;
+  gap: 14px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  margin-top: 6px;
+  flex: 0 0 auto;
+}
+
+.letter-ai {
+  background: var(--ground);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* One scrollable row keeps the sticky bar low on small phones */
+.tabs {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs a {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.timer {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.timer-low {
+  color: var(--emergency-strong);
+}
+
+.center {
+  text-align: center;
+  align-items: center;
+}
+
+.badge-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--line-soft), #f7faf8, var(--line-soft));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 12px;
+  height: 18px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Hides the PIN like a password field without making browsers offer to save it */
+.input-secret {
+  -webkit-text-security: disc;
+}
+
+.letter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.letter-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+}
