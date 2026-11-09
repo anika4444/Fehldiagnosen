@@ -18,8 +18,8 @@
     "docker:logs": "docker compose --env-file config/dev.env logs -f",
     "docker:down": "docker compose --env-file config/dev.env --profile monitoring down",
 
-    "monitoring:up": "docker compose --env-file config/dev.env --profile monitoring up -d prometheus grafana",
-    "monitoring:down": "docker compose --env-file config/dev.env --profile monitoring stop prometheus grafana",
+    "monitoring:up": "docker compose --env-file config/dev.env --profile monitoring up -d prometheus grafana loki alloy",
+    "monitoring:down": "docker compose --env-file config/dev.env --profile monitoring stop prometheus grafana loki alloy",
 
     "dev": "node scripts/env-run.mjs dev npm run _all:dev",
     "start:test": "node scripts/env-run.mjs test npm run _all:release",

@@ -73,6 +73,7 @@ services:
   # ─── Monitoring (optional) ───
   # Startet nur mit dem Profil "monitoring": npm run monitoring:up
   #   Prometheus: http://localhost:9090   Grafana: http://localhost:3001 (Dashboard "ADAM – Übersicht")
+  #   Logs: Alloy sammelt sie ein, Loki speichert sie, Grafana zeigt sie (Dashboard-Abschnitt "Logs", Explore)
   prometheus:
     image: prom/prometheus:v3.5.0
     profiles: [monitoring]
@@ -91,6 +92,7 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+      - loki
     environment:
       # Lesen ohne Login, zum Bearbeiten mit admin / ${GRAFANA_ADMIN_PASSWORD} anmelden
       GF_AUTH_ANONYMOUS_ENABLED: "true"
@@ -102,3 +104,35 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     ports:
       - "3001:3000"
+
+  loki:
+    image: grafana/loki:3.5.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+
+  alloy:
+    image: grafana/alloy:v1.10.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    depends_on:
+      - loki
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      # Liest die Logs der anderen Container (nur lesend)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Merkt sich, bis wohin die Logs gelesen wurden (sonst nach jedem Neustart doppelt)
+      - alloy_data:/var/lib/alloy/data
+    ports:
+      - "4318:4318" # OTLP/HTTP, hierhin schickt das Backend seine Logs
+      - "12345:12345" # Alloy-Oberfläche
+
+volumes:
+  loki_data:
+  alloy_data:

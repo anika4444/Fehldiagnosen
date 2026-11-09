@@ -4,6 +4,8 @@ using Backend.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 using Prometheus;
 
 namespace Backend.Infrastructure.Observability
@@ -22,7 +24,7 @@ namespace Backend.Infrastructure.Observability
         {
             // ─── Logs ───
             // Development: eine lesbare Zeile pro Eintrag. Sonst JSON, damit Log-Tools die Felder
-            // (Level, Kategorie, RequestId, ...) auswerten können. Scopes enthalten die RequestId.
+            // (Level, Kategorie, request_id, ...) auswerten können. Scopes enthalten die request_id.
             if (builder.Environment.IsDevelopment())
             {
                 builder.Logging.AddSimpleConsole(o =>
@@ -40,6 +42,25 @@ namespace Backend.Infrastructure.Observability
                     o.UseUtcTimestamp = true;
                     o.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
                 });
+            }
+
+            // Zusätzlich per OpenTelemetry (OTLP) an Grafana Alloy → Loki, damit die Logs in Grafana
+            // landen. Nur aktiv, wenn OTEL_EXPORTER_OTLP_ENDPOINT gesetzt ist (config/dev.env).
+            // Läuft das Monitoring nicht, gehen die Logs dort verloren, die Konsole bleibt unberührt.
+            if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
+            {
+                builder.Services.AddOpenTelemetry()
+                    .ConfigureResource(r => r
+                        .AddService("backend", serviceVersion: GetVersion())
+                        .AddAttributes([new("deployment.environment.name", builder.Environment.EnvironmentName)]))
+                    .WithLogging(
+                        logging => logging.AddOtlpExporter(),
+                        options =>
+                        {
+                            // Scopes enthalten die request_id → wird in Loki zu einem filterbaren Feld
+                            options.IncludeScopes = true;
+                            options.IncludeFormattedMessage = true;
+                        });
             }
 
             // Ein Eintrag pro Request mit Methode, Pfad, Status und Dauer.
@@ -119,11 +140,14 @@ namespace Backend.Infrastructure.Observability
         private static bool IsMonitoringRequest(PathString path) =>
             path.StartsWithSegments("/api/health") || path.StartsWithSegments("/metrics");
 
-        private static void LogStartup(WebApplication app)
-        {
-            var version = typeof(Program).Assembly
+        private static string? GetVersion() =>
+            typeof(Program).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion;
+
+        private static void LogStartup(WebApplication app)
+        {
+            var version = GetVersion();
 
             app.Lifetime.ApplicationStarted.Register(() =>
                 app.Logger.LogInformation("Backend gestartet: Version {Version}, Umgebung {Environment}, URLs {Urls}",

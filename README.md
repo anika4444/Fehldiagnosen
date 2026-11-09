@@ -140,7 +140,7 @@ docker compose --env-file config/test.env up -d --no-build --wait
 | `medication_scans_total`, `auth_login_attempts_total`, `auth_registrations_total` | Medikamenten-Scans, Anmeldungen, Registrierungen |
 | `process_*`, `nodejs_*`, `dotnet_*` | CPU, Speicher, GC, Event-Loop |
 
-**Dashboard (optional):** Prometheus und Grafana starten mit einem vorkonfigurierten Dashboard ([monitoring/](monitoring/)):
+**Dashboard (optional):** Prometheus (Metriken), Loki (Logs), Grafana Alloy (sammelt die Logs ein) und Grafana starten mit einem vorkonfigurierten Dashboard ([monitoring/](monitoring/)):
 
 ```bash
 npm run docker:up         # AI-Service (und DB, Frontend)
@@ -150,6 +150,15 @@ npm run monitoring:down
 ```
 
 In Grafana öffnet sich direkt das Dashboard „ADAM – Übersicht“. Lesen geht ohne Login, zum Bearbeiten mit `admin` / `admin` anmelden (Passwort über `GRAFANA_ADMIN_PASSWORD` änderbar). Unter http://localhost:9090/targets sieht man, ob Prometheus beide Services erreicht.
+
+**Logs in Grafana:** Ganz unten im Dashboard steht der Abschnitt „Logs“ mit der Anzahl der Einträge je Pegel und den Log-Zeilen selbst. Oben lassen sich Service, Log-Pegel und **Request-ID** wählen. Die Request-ID steht im Antwort-Header `X-Request-ID`, damit sieht man alle Backend- und AI-Logs zu genau einem Aufruf. Für freie Abfragen: Grafana → *Explore* → Datenquelle *Loki*, z. B. `{service_name="backend"} | detected_level="Error"`.
+
+| Quelle | Weg in Loki |
+|---|---|
+| AI-Service, DB, Frontend (Docker) | Alloy liest die Container-Logs über den Docker-Socket |
+| Backend (läuft auf dem Host) | OpenTelemetry/OTLP an Alloy (`localhost:4318`), nur wenn `OTEL_EXPORTER_OTLP_ENDPOINT` gesetzt ist (in `config/dev.env` voreingestellt) |
+
+Logs werden 7 Tage aufbewahrt. Beim allerersten Start meldet Loki „timestamp too old“ für ältere Container-Logs, das ist harmlos. Die Alloy-Oberfläche unter http://localhost:12345 zeigt, ob die Pipeline läuft.
 
 ## 💻 Installation & Start
 

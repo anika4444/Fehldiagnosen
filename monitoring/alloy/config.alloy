@@ -1,0 +1,98 @@
+// Grafana Alloy sammelt Logs ein und schickt sie an Loki.
+//   1. Docker-Container dieses Projekts (AI-Service, DB, Frontend) über den Docker-Socket
+//   2. Backend (läuft auf dem Host) per OpenTelemetry/OTLP auf Port 4318
+// Oberfläche zum Debuggen der Pipeline: http://localhost:12345
+
+// ─── 1. Docker-Container ───
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  // Nur Container dieses Compose-Projekts, Monitoring-Container selbst ausgenommen
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=fehldiagnosen"]
+  }
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  // Compose-Service-Name (ai, db, frontend, ...) als Label "service_name"
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service_name"
+  }
+
+  rule {
+    source_labels = ["service_name"]
+    regex         = "prometheus|grafana|loki|alloy"
+    action        = "drop"
+  }
+}
+
+loki.source.docker "containers" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.containers.output
+  relabel_rules = discovery.relabel.containers.rules
+  forward_to    = [loki.process.containers.receiver]
+}
+
+loki.process "containers" {
+  // AI-Service loggt JSON (pino). Pegel und Request-ID herausziehen, damit man danach filtern kann.
+  stage.match {
+    selector = "{service_name=\"ai\"}"
+
+    stage.json {
+      expressions = { level = "level", request_id = "reqId", req_id = "req.id" }
+    }
+
+    // pino schreibt den Pegel als Zahl (30 = info, 40 = warn, ...)
+    stage.template {
+      source   = "level"
+      template = "{{ with .Value }}{{ if eq . \"10\" }}trace{{ else if eq . \"20\" }}debug{{ else if eq . \"30\" }}info{{ else if eq . \"40\" }}warn{{ else if eq . \"50\" }}error{{ else if eq . \"60\" }}fatal{{ else }}{{ . }}{{ end }}{{ end }}"
+    }
+
+    // pino-http schreibt die ID unter req.id, eigene Logs mit req.log unter reqId
+    stage.template {
+      source   = "request_id"
+      template = "{{ if .Value }}{{ .Value }}{{ else if .req_id }}{{ .req_id }}{{ end }}"
+    }
+
+    stage.structured_metadata {
+      values = { level = "", request_id = "" }
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+// ─── 2. Backend per OTLP ───
+otelcol.receiver.otlp "default" {
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    logs = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    logs = [otelcol.exporter.otlphttp.loki.input]
+  }
+}
+
+// Loki nimmt OTLP direkt an: service.name → Label service_name,
+// Log-Attribute (z. B. request_id aus dem Scope) → structured metadata
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://loki:3100/otlp"
+  }
+}
+
+// ─── Ziel ───
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

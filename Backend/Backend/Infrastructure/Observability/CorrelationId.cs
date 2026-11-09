@@ -28,7 +28,9 @@ namespace Backend.Infrastructure.Observability
             context.TraceIdentifier = requestId;
             context.Response.Headers[HeaderName] = requestId;
 
-            using (_logger.BeginScope(new Dictionary<string, object> { ["RequestId"] = requestId }))
+            // Schlüssel "request_id" wie im AI-Service. "RequestId" ist schon durch ASP.NET Core
+            // belegt (interne Verbindungs-ID) und würde sonst doppelt im Log stehen.
+            using (_logger.BeginScope(new Dictionary<string, object> { ["request_id"] = requestId }))
             {
                 await _next(context);
             }
