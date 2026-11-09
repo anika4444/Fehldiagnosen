@@ -3,6 +3,7 @@ using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
 using Backend.Domain.Enums;
+using Backend.Infrastructure.Observability;
 using System.Text.Json;
 
 namespace Backend.Application.Services.AIService
@@ -16,13 +17,15 @@ namespace Backend.Application.Services.AIService
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IDiagnosisService _diagnosisService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<AIService> _logger;
 
         private readonly string _explanationEndpoint;
         private readonly string _interpretEndpoint;
         private readonly string _medicationScanEndpoint;
 
-        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration, IDiagnosisService diagnosisService)
+        public AIService(IPatientRepository patientRepository, IDiagnosisRepository diagnosisRepository, ICommunicationLevelRepository communicationLevelRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration, IDiagnosisService diagnosisService, ILogger<AIService> logger)
         {
+            _logger = logger;
             _patientRepository = patientRepository;
             _diagnosisRepository = diagnosisRepository;
             _communicationLevelRepository = communicationLevelRepository;
@@ -69,6 +72,15 @@ namespace Backend.Application.Services.AIService
             {
                 var httpClient = _httpClientFactory.CreateClient();
                 using var response = await httpClient.PostAsJsonAsync(_explanationEndpoint, payload);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    AppMetrics.AiServiceErrors.WithLabels("explain").Inc();
+                    _logger.LogWarning("AI-Service antwortete bei Erklärung zu Diagnose {DiagnosisId} mit HTTP {StatusCode}",
+                        diagnosisId, (int)response.StatusCode);
+                    return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
+                }
+
                 var responseBody = await response.Content.ReadAsStringAsync();
 
                 var aiResponse = JsonSerializer.Deserialize<AiExplainResponse>(responseBody,
@@ -76,13 +88,19 @@ namespace Backend.Application.Services.AIService
 
                 if (aiResponse == null)
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("explain").Inc();
+                    _logger.LogWarning("AI-Service lieferte leere Erklärung zu Diagnose {DiagnosisId}", diagnosisId);
                     return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
                 }
 
+                _logger.LogInformation("Erklärung zu Diagnose {DiagnosisId} erstellt (Sprachniveau {LangLevel})",
+                    diagnosisId, payload.langLevel);
                 return ServiceResult<AiExplainResponse>.Success(aiResponse);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AppMetrics.AiServiceErrors.WithLabels("explain").Inc();
+                _logger.LogError(ex, "Erklärung zu Diagnose {DiagnosisId} fehlgeschlagen: AI-Service nicht erreichbar", diagnosisId);
                 return ServiceResult<AiExplainResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
@@ -107,6 +125,8 @@ namespace Backend.Application.Services.AIService
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("medical-letter").Inc();
+                    _logger.LogWarning("AI-Service antwortete bei Arztbrief-Auswertung mit HTTP {StatusCode}", (int)response.StatusCode);
                     return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Service antwortete mit Fehler");
                 }
 
@@ -117,6 +137,8 @@ namespace Backend.Application.Services.AIService
 
                 if (aiResponse?.Extracted == null)
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("medical-letter").Inc();
+                    _logger.LogWarning("AI-Service lieferte keine Felder aus dem Arztbrief");
                     return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
                 }
 
@@ -153,11 +175,21 @@ namespace Backend.Application.Services.AIService
                         {
                             savedDiagnosis = createdResult.Data;
                         }
+                        else
+                        {
+                            _logger.LogWarning("Diagnose aus Arztbrief für Patient {PatientId} nicht gespeichert: {ErrorType}",
+                                patientId, createdResult.ErrorType);
+                        }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        // Die extrahierten Felder werden trotzdem zurückgegeben, nur das Speichern fehlt
+                        _logger.LogError(ex, "Diagnose aus Arztbrief für Patient {PatientId} konnte nicht gespeichert werden", patientId);
                     }
                 }
+
+                _logger.LogInformation("Arztbrief für Patient {PatientId} ausgewertet, Diagnose gespeichert: {Saved}",
+                    patientId, savedDiagnosis != null);
 
                 var result = new InterpretMedicalLetterResponse
                 {
@@ -167,8 +199,10 @@ namespace Backend.Application.Services.AIService
 
                 return ServiceResult<InterpretMedicalLetterResponse>.Success(result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AppMetrics.AiServiceErrors.WithLabels("medical-letter").Inc();
+                _logger.LogError(ex, "Arztbrief-Auswertung fehlgeschlagen: AI-Service nicht erreichbar");
                 return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }
@@ -189,13 +223,12 @@ namespace Backend.Application.Services.AIService
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("medication-image").Inc();
+                    _logger.LogWarning("AI-Service antwortete bei Medikamenten-Scan mit HTTP {StatusCode}", (int)response.StatusCode);
                     return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service antwortete mit Fehler");
                 }
 
                 var responseBody = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine("=== NODE RESPONSE ===");
-                Console.WriteLine(responseBody);
 
                 var result = JsonSerializer.Deserialize<MedicationScanResponse>(responseBody,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -203,16 +236,21 @@ namespace Backend.Application.Services.AIService
                 // Brand ist jetzt der Pflicht-Anker statt Name
                 if (result == null || string.IsNullOrWhiteSpace(result.Brand))
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("medication-image").Inc();
+                    _logger.LogWarning("Medikamenten-Scan: KI hat keine Marke erkannt");
                     return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Extraktion fehlgeschlagen");
                 }
 
-                Console.WriteLine($"[AIService] brand={result.Brand}, productName={result.ProductName}, activeIngredient={result.ActiveIngredient}, dosage={result.Dosage}, form={result.Form}");
+                // Medikamentendaten nur auf Debug-Level: Sie verraten, was ein Patient einnimmt
+                _logger.LogDebug("Medikamenten-Scan erkannt: Marke {Brand}, Produkt {ProductName}, Wirkstoff {ActiveIngredient}, Dosierung {Dosage}, Form {Form}",
+                    result.Brand, result.ProductName, result.ActiveIngredient, result.Dosage, result.Form);
 
                 return ServiceResult<MedicationScanResponse>.Success(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                AppMetrics.AiServiceErrors.WithLabels("medication-image").Inc();
+                _logger.LogError(ex, "Medikamenten-Scan fehlgeschlagen: AI-Service nicht erreichbar");
                 return ServiceResult<MedicationScanResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
         }

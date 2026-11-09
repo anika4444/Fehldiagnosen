@@ -6,8 +6,19 @@ name: Release
 #      berechnet, das Tag wird erst angelegt, wenn alles grün ist.
 #   2. Lokal ein Tag pushen:  git tag v1.2.3 && git push origin v1.2.3
 #
-# In beiden Fällen wird die Version in Backend, Frontend und AI-Service gesetzt,
-# alles gebaut und ein GitHub-Release mit den Artefakten erstellt.
+# Ablauf:
+#   CI -> Quality Gate -> Docker Build -> Image v1.x -> Registry -> Deploy
+#
+#   version          neue Versionsnummer bestimmen
+#   ci               Quality Gate: Tests, CodeQL, Audits, Lizenzen, Docker-Konfigurationstest
+#   release-*        versionierte Pakete (Backend-ZIP, Frontend-ZIP, AI-tar.gz)
+#   docker-images    Images für AI-Service und Frontend bauen und in die GitHub
+#                    Container Registry (ghcr.io) pushen, getaggt mit der Version
+#   publish          Git-Tag + GitHub-Release mit den Paketen
+#   deploy-test      Images aus der Registry in der Umgebung "test" starten und prüfen
+#   deploy-prod      wie test, aber erst nach Freigabe (GitHub Environment "prod")
+#
+# Das Backend läuft außerhalb von Docker (Windows-OCR) und wird als ZIP ausgeliefert.
 
 on:
   push:
@@ -22,6 +33,8 @@ on:
 
 permissions:
   contents: write
+  # Images in die GitHub Container Registry pushen
+  packages: write
   # Für den CodeQL-Job im aufgerufenen build.yml
   actions: read
   security-events: write
@@ -39,6 +52,8 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      version_minor: ${{ steps.version.outputs.version_minor }}
+      image_prefix: ${{ steps.version.outputs.image_prefix }}
 
     steps:
       - name: Checkout repository
@@ -79,6 +94,9 @@ jobs:
           echo "Neue Version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          # Image-Namen müssen kleingeschrieben sein
+          echo "version_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
+          echo "image_prefix=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/fehldiagnosen" >> "$GITHUB_OUTPUT"
 
   # ─── Tests & Checks (bestehender Build-Workflow) ────────────────────────────
 
@@ -156,9 +174,11 @@ jobs:
             fs.writeFileSync('app.json', JSON.stringify(app, null, 2) + '\n');
           "
 
-      - name: Build frontend (Expo web export)
+      # Baut mit den Werten aus config/prod.env (z. B. EXPO_PUBLIC_API_URL).
+      # Im Repo-Secret/Environment gesetzte Variablen hätten Vorrang.
+      - name: Build frontend (Expo web export, prod-Konfiguration)
         working-directory: frontend
-        run: npx expo export --platform web
+        run: node ../scripts/env-run.mjs --no-secrets prod npx expo export --platform web
 
       - name: Package frontend
         working-directory: frontend/dist
@@ -208,12 +228,56 @@ jobs:
           path: fehldiagnosen-ai-service-v${{ env.VERSION }}.tar.gz
           if-no-files-found: error
 
+  # ─── Docker Images -> Registry ──────────────────────────────────────────────
+
+  docker-images:
+    name: Docker Image ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: [version, ci]
+    strategy:
+      matrix:
+        service: [ai, frontend]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      IMAGE: ${{ needs.version.outputs.image_prefix }}-${{ matrix.service }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Tags: 1.2.3 (genau diese Version), 1.2 (neuester Patch), latest
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service == 'ai' && 'AI' || 'frontend' }}
+          push: true
+          build-args: VERSION=${{ env.VERSION }}
+          tags: |
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+            ${{ env.IMAGE }}:${{ needs.version.outputs.version_minor }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
   # ─── GitHub Release ─────────────────────────────────────────────────────────
 
   publish:
     name: GitHub Release erstellen
     runs-on: ubuntu-latest
-    needs: [version, release-backend, release-frontend, release-ai]
+    needs: [version, release-backend, release-frontend, release-ai, docker-images]
 
     steps:
       - name: Download release artifacts
@@ -236,4 +300,108 @@ jobs:
           name: ${{ needs.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+          body: |
+            ## Docker Images
+            ```
+            docker pull ${{ needs.version.outputs.image_prefix }}-ai:${{ needs.version.outputs.version }}
+            docker pull ${{ needs.version.outputs.image_prefix }}-frontend:${{ needs.version.outputs.version }}
+            ```
+            Das Backend läuft außerhalb von Docker: `fehldiagnosen-backend-${{ needs.version.outputs.tag }}.zip`
           files: dist/*
+
+  # ─── Deploy ─────────────────────────────────────────────────────────────────
+  # Es gibt noch keine Server. Die Deploy-Jobs starten die Images deshalb auf dem
+  # GitHub-Runner, genau so, wie es später auf dem Server passiert:
+  # Images aus der Registry ziehen, mit der Konfiguration der Umgebung starten,
+  # Konfigurationstest ausführen.
+  # Sobald es einen Server gibt, ersetzt man "docker compose up" durch einen
+  # Aufruf auf dem Server (z. B. per SSH) und lässt den Rest gleich.
+  #
+  # Die Jobs nutzen GitHub Environments (Settings > Environments > test / prod).
+  # Dort können pro Umgebung Secrets hinterlegt werden (z. B. AI_API_KEY) und für
+  # prod eine Freigabe ("Required reviewers"): Dann wartet deploy-prod auf einen Klick.
+
+  deploy-test:
+    name: Deploy test
+    runs-on: ubuntu-latest
+    needs: [version, publish]
+    environment: test
+    env:
+      IMAGE_PREFIX: ${{ needs.version.outputs.image_prefix }}
+      IMAGE_TAG: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Secrets aus dem GitHub Environment "test"; ohne hinterlegten Key ein Dummy
+      - name: Secrets der Umgebung bereitstellen
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: echo "AI_API_KEY=${AI_API_KEY:-ci-dummy-key}" > config/test.local.env
+
+      - name: Images aus der Registry starten
+        run: |
+          docker compose --env-file config/test.env pull ai frontend
+          docker compose --env-file config/test.env up -d --no-build --wait ai frontend
+
+      - name: Konfigurationstest
+        run: node scripts/docker-check.mjs test "$IMAGE_TAG"
+
+      - name: Container-Logs
+        if: failure()
+        run: docker compose --env-file config/test.env logs
+
+  deploy-prod:
+    name: Deploy prod
+    runs-on: ubuntu-latest
+    needs: [version, deploy-test]
+    environment: prod
+    env:
+      IMAGE_PREFIX: ${{ needs.version.outputs.image_prefix }}
+      IMAGE_TAG: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Secrets der Umgebung bereitstellen
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: echo "AI_API_KEY=${AI_API_KEY:-ci-dummy-key}" > config/prod.local.env
+
+      - name: Images aus der Registry starten
+        run: |
+          docker compose --env-file config/prod.env pull ai frontend
+          docker compose --env-file config/prod.env up -d --no-build --wait ai frontend
+
+      - name: Konfigurationstest
+        run: node scripts/docker-check.mjs prod "$IMAGE_TAG"
+
+      - name: Container-Logs
+        if: failure()
+        run: docker compose --env-file config/prod.env logs

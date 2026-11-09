@@ -11,23 +11,39 @@ import { ChainBuilder } from "./chainBuilder.js";
 import { parseValidatorResponse } from "./validatorResponse.js";
 import checkupSummaryRouter from "./checkupSummary.js";
 import emergencySummaryRouter from "./emergencySummary.js";
+import { logger, httpLogger } from "./observability/logger.js";
+import {
+  httpMetrics,
+  metricsHandler,
+  trackLlmCall,
+  validatorAttempts,
+  validatorResults,
+  icdContextLookups,
+  invalidAiResponses,
+} from "./observability/metrics.js";
+import { createHealthRouter } from "./observability/health.js";
 
 dotenv.config();
 
+// Liefert die laufende Version (beim Release aus dem Git-Tag gesetzt).
+const { version: APP_VERSION } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+);
+
 const app = express();
+app.use(httpLogger);
+app.use(httpMetrics);
 app.use(
   express.json({
     extended: true,
     limit: "25mb",
   }),
 );
+app.get("/metrics", metricsHandler);
+app.use(createHealthRouter(APP_VERSION));
 app.use(checkupSummaryRouter);
 app.use(emergencySummaryRouter);
 
-// Liefert die laufende Version (beim Release aus dem Git-Tag gesetzt).
-const { version: APP_VERSION } = JSON.parse(
-  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
-);
 app.get("/ai/version", (req, res) => res.json({ version: APP_VERSION }));
 
 const MAX_ATTEMPTS = parseInt(process.env.MAX_VALIDATION_ATTEMPTS || "3");
@@ -62,7 +78,9 @@ const LANG_LEVEL_MAP = {
 };
 
 async function validateExplanation(text, inputData) {
-  const raw = await validatorChain.invoke({ text, ...inputData });
+  const raw = await trackLlmCall("validate", process.env.VALIDATOR_MODEL_NAME, () =>
+    validatorChain.invoke({ text, ...inputData }),
+  );
   return parseValidatorResponse(raw);
 }
 
@@ -118,8 +136,9 @@ app.post("/ai/explain", async (req, res) => {
       ? `MEDIZINISCHER KONTEXT (kuratierte Quelle, darf verwendet werden):\n${escapedContext}\n\n`
       : "";
 
+    icdContextLookups.inc({ result: rawIcdContext ? "hit" : "miss" });
     if (rawIcdContext) {
-      console.log(`📚 Wissenskontext geladen für ICD-Code: ${icd10Code}`);
+      req.log.debug({ icd10Code }, "Wissenskontext für ICD-Code geladen");
     }
 
     const inputData = {
@@ -153,25 +172,36 @@ app.post("/ai/explain", async (req, res) => {
         );
       }
 
-      console.log(
-        `▶️ Versuch ${attempts}/${MAX_ATTEMPTS} – Hauptmodell generiert...`,
+      const aiMessage = await trackLlmCall("explain", process.env.AI_MODEL_NAME, () =>
+        model.invoke(messages),
       );
-      const aiMessage = await model.invoke(messages);
       responseText = aiMessage.content.replace(/\n+/g, " ").trim();
 
-      console.log(`🔍 Validator prüft Versuch ${attempts}...`);
       const validation = await validateExplanation(responseText, inputData);
 
       if (validation.score === 1) {
         validated = true;
-        console.log(`✅ Validator: OK nach ${attempts} Versuch(en)`);
+        validatorResults.inc({ result: "pass" });
         break;
       }
 
+      validatorResults.inc({ result: "fail" });
       lastFeedback = validation.feedback;
       validatorLogs.push(`Versuch ${attempts}: ${lastFeedback}`);
-      console.log(`❌ Validator: FAIL (Versuch ${attempts}) → ${lastFeedback}`);
+      // Das Feedback beschreibt nur Fehler der Erklärung, nicht den Patienten
+      req.log.info(
+        { attempt: attempts, maxAttempts: MAX_ATTEMPTS, icd10Code, feedback: lastFeedback },
+        "Validator hat Erklärung abgelehnt",
+      );
     }
+
+    validatorAttempts.observe({ validated: String(validated) }, attempts);
+    req.log[validated ? "info" : "warn"](
+      { attempts, validated, icd10Code, langLevel: inputData.langLevel },
+      validated
+        ? "Erklärung erstellt"
+        : "Erklärung nach maximaler Anzahl Versuche nicht validiert",
+    );
 
     res.json({
       text: responseText,
@@ -179,7 +209,7 @@ app.post("/ai/explain", async (req, res) => {
         "Dies ist eine KI-generierte Erklärung - kein Ersatz für ein persönliches Arztgespräch.",
     });
   } catch (error) {
-    console.error("AI Error:", error.message);
+    req.log.error({ err: error }, "Erklärung fehlgeschlagen");
     res.status(500).json({ error: "KI-Service aktuell nicht erreichbar" });
   }
 });
@@ -298,10 +328,18 @@ app.post("/ai/interpret-medical-letter", async (req, res) => {
       return res.status(400).json({ error: "Kein Arztbrief-Text übergeben." });
     }
 
-    const extracted = await diagnosisChain.invoke({ letterText });
+    const extracted = await trackLlmCall(
+      "medical-letter",
+      process.env.AI_MODEL_NAME_DIAGNOSIS,
+      () => diagnosisChain.invoke({ letterText }),
+    );
+    req.log.info(
+      { letterLength: String(letterText).length, icdCode: extracted.icdCode || null },
+      "Arztbrief ausgewertet",
+    );
     return res.json({ extracted });
   } catch (error) {
-    console.error("AI Parse Error:", error?.message || error);
+    req.log.error({ err: error }, "Arztbrief-Auswertung fehlgeschlagen");
     return res
       .status(500)
       .json({ error: "KI-Service aktuell nicht erreichbar." });
@@ -377,9 +415,11 @@ OUTPUT:
       },
     ];
 
-    const aiResponse = await medicationModel.invoke(messages);
-
-    console.log("🤖 [MedScan] KI Rohantwort:", aiResponse.content);
+    const aiResponse = await trackLlmCall(
+      "medication-image",
+      process.env.AI_MODEL_NAME_MEDICATION,
+      () => medicationModel.invoke(messages),
+    );
 
     let parsed;
 
@@ -389,15 +429,24 @@ OUTPUT:
         .replace(/```\s*/gi, "")
         .trim();
 
-      console.log("🧹 [MedScan] Nach Strip:", raw);
-
       parsed = JSON.parse(raw);
-
-      console.log("✅ [MedScan] Parsed:", JSON.stringify(parsed));
     } catch (e) {
-      console.error("❌ [MedScan] JSON Parse Error:", aiResponse.content);
+      invalidAiResponses.inc({ operation: "medication-image" });
+      // Nur Länge statt Inhalt: Die Antwort kann Angaben zur Medikation enthalten
+      req.log.warn(
+        { err: e, responseLength: String(aiResponse.content).length },
+        "Medikamenten-Scan: KI-Antwort ist kein gültiges JSON",
+      );
       return res.status(500).json({ error: "Ungültige KI-Antwort" });
     }
+
+    req.log.info(
+      {
+        mimeType: mime,
+        recognizedFields: Object.keys(parsed).filter((k) => parsed[k] != null),
+      },
+      "Medikamenten-Scan ausgewertet",
+    );
 
     return res.json({
       brand: parsed.brand ?? null,
@@ -407,7 +456,7 @@ OUTPUT:
       form: parsed.form ?? null,
     });
   } catch (error) {
-    console.error("❌ [MedScan] Fehler:", error?.message || error);
+    req.log.error({ err: error }, "Medikamenten-Scan fehlgeschlagen");
     return res
       .status(500)
       .json({ error: "KI-Service aktuell nicht erreichbar." });
@@ -417,9 +466,13 @@ OUTPUT:
 // ─── SERVER START ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);
-  console.log(`   → POST /ai/explain`);
-  console.log(`   → POST /ai/interpret-medical-letter`);
-  console.log(`   → POST /ai/interpret-medication-image`);
-  console.log(`   → POST /ai/emergency-summary`);
+  logger.info(
+    {
+      port: PORT,
+      version: APP_VERSION,
+      environment: process.env.APP_ENV,
+      maxValidationAttempts: MAX_ATTEMPTS,
+    },
+    "Med-AI-Service gestartet",
+  );
 });

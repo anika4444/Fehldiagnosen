@@ -2,6 +2,7 @@
 using Backend.Application.Repositories;
 using Backend.Application.Services.CheckupService.Dto;
 using Backend.Domain.Entities;
+using Backend.Infrastructure.Observability;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -17,6 +18,7 @@ namespace Backend.Application.Services.CheckupService
         private readonly ICommunicationLevelRepository _communicationLevelRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _checkupSummaryEndpoint;
+        private readonly ILogger<CheckupService> _logger;
 
         public CheckupService(
             IPatientRepository patientRepository,
@@ -25,8 +27,10 @@ namespace Backend.Application.Services.CheckupService
             IPatientSymptomRepository patientSymptomRepository,
             ICommunicationLevelRepository communicationLevelRepository,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ILogger<CheckupService> logger)
         {
+            _logger = logger;
             _patientRepository = patientRepository;
             _diagnosisRepository = diagnosisRepository;
             _medicationRepository = medicationRepository;
@@ -166,6 +170,8 @@ namespace Backend.Application.Services.CheckupService
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    AppMetrics.AiServiceErrors.WithLabels("checkup-summary").Inc();
+                    _logger.LogWarning("AI-Service antwortete bei Checkup-Zusammenfassung mit HTTP {StatusCode}", (int)response.StatusCode);
                     return "AI-Summary aktuell nicht verfügbar.";
                 }
 
@@ -179,8 +185,10 @@ namespace Backend.Application.Services.CheckupService
 
                 return "AI-Summary konnte nicht erstellt werden.";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                AppMetrics.AiServiceErrors.WithLabels("checkup-summary").Inc();
+                _logger.LogError(ex, "Checkup-Zusammenfassung fehlgeschlagen: AI-Service nicht erreichbar");
                 return "AI-Summary aktuell nicht erreichbar.";
             }
         }

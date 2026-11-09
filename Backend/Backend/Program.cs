@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
+using Backend.Infrastructure.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -135,6 +136,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 
+// Strukturierte Logs, Health-Checks (/api/health) und Prometheus-Metriken (/metrics)
+builder.AddObservability();
+
 builder.Services.AddScoped<IPatientSymptomRepository, MySqlSymptomRepository>();
 builder.Services.AddScoped<IPatientRepository, MySqlPatientRepository>();
 builder.Services.AddScoped<ISymptomDefinitionRepository, MySqlSymptomDefinitionRepository>();
@@ -170,10 +174,23 @@ builder.Services.AddScoped<IEmergencyDataService, EmergencyDataService>();
 
 builder.Services.AddTransient<DtoMapper>();
 
+// Secrets stehen nicht in appsettings.json. Sie kommen in dev aus appsettings.Development.json,
+// sonst aus Umgebungsvariablen (ConnectionStrings__mySqlDb, JwtSettings__Secret), siehe config/local.env.example.
 var connectionString = builder.Configuration.GetConnectionString("mySqlDb");
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("Connection string 'mySqlDb' not found.");
+    throw new InvalidOperationException(
+        $"Connection string 'mySqlDb' fehlt (Umgebung: {builder.Environment.EnvironmentName}). " +
+        "Umgebungsvariable 'ConnectionStrings__mySqlDb' setzen.");
+}
+
+var jwtSecret = builder.Configuration["JwtSettings:Secret"];
+// HMAC-SHA256 braucht einen Schlüssel mit mindestens 256 Bit (32 Bytes)
+if (string.IsNullOrEmpty(jwtSecret) || System.Text.Encoding.UTF8.GetByteCount(jwtSecret) < 32)
+{
+    throw new InvalidOperationException(
+        $"JwtSettings:Secret fehlt oder ist kürzer als 32 Bytes (Umgebung: {builder.Environment.EnvironmentName}). " +
+        "Umgebungsvariable 'JwtSettings__Secret' setzen.");
 }
 
 builder.Services.AddDbContext<MySqlDbContext>(options => options.UseMySQL(connectionString));
@@ -199,9 +216,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-            builder.Configuration.GetSection("JwtSettings")["Secret"])
-        ),
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSecret)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
@@ -237,6 +252,8 @@ else
     app.UseHsts();
 }
 
+app.UseObservability();
+
 app.UseHttpsRedirection();
 
 app.UseMiddleware<EmergencyHeadersMiddleware>();
@@ -256,6 +273,7 @@ app.MapGet("/api/version", () => new
         .InformationalVersion
 });
 
+app.MapObservabilityEndpoints();
 app.MapControllers();
 
 app.Run();

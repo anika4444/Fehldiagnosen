@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Net;
 using System.Text.Json;
 using Backend.Application.Common.Results;
@@ -58,7 +59,8 @@ public class CheckupServiceTests
             _symptomRepository.Object,
             _communicationLevelRepository.Object,
             httpClientFactory.Object,
-            configuration);
+            configuration,
+            NullLogger<CheckupService>.Instance);
     }
 
     private Task<ServiceResult<CheckupSummaryResponse>> Generate(string? userId = OwnerUserId) =>

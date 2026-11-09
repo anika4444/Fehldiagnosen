@@ -43,3 +43,9 @@ web-build/
 # --- System ---
 .DS_Store
 Thumbs.db
+
+# Geheime / persönliche Werte pro Umgebung (Vorlage: config/local.env.example)
+config/*.local.env
+
+# Lokale Build-Ausgabe (npm run build:test / build:prod)
+publish/

@@ -9,6 +9,13 @@ const LAN_IP = (Constants.expoConfig?.extra?.lanIp as string | undefined) ?? "";
 const getBaseURL = () => {
   if (__DEV__ && LAN_IP && (Platform.OS === "android" || Platform.OS === "ios")) {
     return `http://${LAN_IP}:5238/api`;
+const getBaseURL = () => {
+  // Kommt je nach Umgebung aus config/<env>.env bzw. config/<env>.local.env
+  // (oder frontend/.env.local). Expo baut den Wert beim Bundeln fest ein.
+  // Für ein echtes Handy hier die LAN-IP setzen, z. B. http://192.168.0.198:5238/api
+  const configured = process.env.EXPO_PUBLIC_API_URL;
+  if (configured) {
+    return configured;
   }
 
   return Platform.OS === "android"

@@ -1,0 +1,104 @@
+# Datenbank, AI-Service und Frontend als Container.
+# Das Backend läuft bewusst AUSSERHALB von Docker (nutzt die Windows-OCR) und
+# erreicht DB und AI-Service über localhost:3306 bzw. localhost:3000.
+#
+# Umgebung wählen über --env-file (setzt ENV_NAME, IMAGE_TAG, FRONTEND_PORT):
+#   docker compose --env-file config/dev.env up -d --build --wait
+#   docker compose --env-file config/test.env up -d --build --wait
+# Einfacher über die npm-Befehle: npm run docker:up / docker:up:test / docker:up:prod
+
+name: fehldiagnosen
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: adam_backend_db
+    restart: unless-stopped # warum unless-stopped?
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: adam_api_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      # Gleicher Ordner wie bisher, vorhandene Daten bleiben erhalten
+      - ./Backend/Backend/Docker/mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-p${MYSQL_ROOT_PASSWORD:-root}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  ai:
+    image: ${IMAGE_PREFIX:-fehldiagnosen}-ai:${IMAGE_TAG:-local}
+    build:
+      context: ./AI
+      args:
+        VERSION: ${VERSION:-0.0.0-dev}
+    restart: unless-stopped
+    # Spätere Dateien überschreiben frühere (gleiche Priorität wie scripts/env-run.mjs)
+    env_file:
+      # Für dev weiterhin möglich: API-Key in AI/.env (niedrigste Priorität)
+      - path: AI/.env
+        required: false
+      - path: config/${ENV_NAME:-dev}.env
+      - path: config/${ENV_NAME:-dev}.local.env
+        required: false
+    ports:
+      - "3000:3000"
+
+  frontend:
+    image: ${IMAGE_PREFIX:-fehldiagnosen}-frontend:${IMAGE_TAG:-local}
+    build:
+      context: ./frontend
+      args:
+        VERSION: ${VERSION:-0.0.0-dev}
+    restart: unless-stopped
+    # Bekommt bewusst nur die API-URL und keine Secrets.
+    # Wert: Shell-Variable, sonst aus der --env-file (config/<env>.env)
+    environment:
+      EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL:-}
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+  # ─── Monitoring (optional) ───
+  # Startet nur mit dem Profil "monitoring": npm run monitoring:up
+  #   Prometheus: http://localhost:9090   Grafana: http://localhost:3001 (Dashboard "ADAM – Übersicht")
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    # Backend läuft auf dem Host, unter Linux ist host.docker.internal sonst nicht bekannt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: [monitoring]
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      # Lesen ohne Login, zum Bearbeiten mit admin / ${GRAFANA_ADMIN_PASSWORD} anmelden
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/adam.json
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"

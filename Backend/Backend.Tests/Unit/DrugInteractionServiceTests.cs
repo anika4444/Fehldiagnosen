@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DrugInteractionService;
@@ -19,7 +20,7 @@ public class DrugInteractionServiceTests
             .Setup(t => t.TranslateToGermanAsync(It.IsAny<string>()))
             .ReturnsAsync((string text) => $"DE:{text}");
 
-        _service = new DrugInteractionService(_repository.Object, _translator.Object);
+        _service = new DrugInteractionService(_repository.Object, _translator.Object, NullLogger<DrugInteractionService>.Instance);
     }
 
     private static DrugInteraction Interaction(string targetName, string description) => new()
