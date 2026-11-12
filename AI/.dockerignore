@@ -1,0 +1,9 @@
+# Nicht ins Image: wird im Container neu installiert bzw. ist geheim
+node_modules
+.env
+.env.*
+!.env.example
+test
+server.log
+Dockerfile
+.dockerignore

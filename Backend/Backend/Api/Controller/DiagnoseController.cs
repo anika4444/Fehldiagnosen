@@ -3,10 +3,12 @@ using Backend.Application.Services.AIService;
 using Backend.Application.Services.AnonymizerService;
 using Backend.Application.Services.DiagnosisService;
 using Backend.Application.Services.DiagnosisService.Dto;
+using Backend.Infrastructure.Observability;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Ocsp;
 using PDFtoImage;
+using Prometheus;
 using SkiaSharp;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
@@ -25,10 +27,12 @@ public class DiagnosisController : BaseApiController
     private readonly IDiagnosisService _diagnosisService;
     private readonly IAnonymizerService _anonymizerService;
     private readonly IAIService _aiService;
+    private readonly ILogger<DiagnosisController> _logger;
 
 
-    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IAIService aiService)
+    public DiagnosisController(IDiagnosisService diagnosisService, IAnonymizerService anonymizer, IAIService aiService, ILogger<DiagnosisController> logger)
     {
+        _logger = logger;
         _diagnosisService = diagnosisService;
         _anonymizerService = anonymizer;
         _aiService = aiService;
@@ -79,6 +83,8 @@ public class DiagnosisController : BaseApiController
             InMemoryRandomAccessStream randomAccessStream = new InMemoryRandomAccessStream();
             byte[] imageBytes;
             string extension = Path.GetExtension(file.FileName).ToLower();
+            // Misst PDF-Umwandlung und Texterkennung zusammen
+            var ocrTimer = AppMetrics.OcrDuration.WithLabels(extension == ".pdf" ? "pdf" : "image").NewTimer();
 
             if (extension == ".pdf")
             {
@@ -112,13 +118,26 @@ public class DiagnosisController : BaseApiController
 
             var engine = OcrEngine.TryCreateFromLanguage(new Windows.Globalization.Language("de-DE"));
             if (engine == null)
+            {
+                AppMetrics.MedicalLetterScans.WithLabels("error").Inc();
+                _logger.LogError("Arztbrief-Scan nicht möglich: Deutsches OCR-Sprachpaket (de-DE) nicht installiert");
                 return StatusCode(500, "Deutsches OCR-Sprachpaket nicht installiert.");
+            }
 
             var ocrResult = await engine.RecognizeAsync(softwareBitmap);
             var extractedText = ocrResult.Text;
+            ocrTimer.ObserveDuration();
 
             if (string.IsNullOrWhiteSpace(extractedText))
+            {
+                AppMetrics.MedicalLetterScans.WithLabels("no_text").Inc();
+                _logger.LogWarning("Arztbrief-Scan für Patient {PatientId}: Kein Text erkannt ({Extension}, {SizeKb} KB)",
+                    patientId, extension, file.Length / 1024);
                 return BadRequest("Es konnte kein Text extrahiert werden.");
+            }
+
+            _logger.LogInformation("Arztbrief-Scan für Patient {PatientId}: {CharCount} Zeichen erkannt ({Extension})",
+                patientId, extractedText.Length, extension);
 
             string pythonJsonResult = await _anonymizerService.AnonymizeTextAsync(extractedText);
 
@@ -126,6 +145,7 @@ public class DiagnosisController : BaseApiController
 
             var result = await _aiService.InterpretMedicalLetter(patientId, userId, pythonData?["anonymized_text"]?.ToString() ?? "");
 
+            AppMetrics.MedicalLetterScans.WithLabels(result.IsSuccess ? "success" : "ai_error").Inc();
             if (result.IsSuccess)
                 return Ok(result.Data);
 
@@ -133,6 +153,8 @@ public class DiagnosisController : BaseApiController
         }
         catch (Exception ex)
         {
+            AppMetrics.MedicalLetterScans.WithLabels("error").Inc();
+            _logger.LogError(ex, "Arztbrief-Scan für Patient {PatientId} fehlgeschlagen", patientId);
             return StatusCode(500, $"Fehler bei der Verarbeitung: {ex.Message}");
         }
     }

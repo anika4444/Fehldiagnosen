@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE_DIR = join(__dirname, "knowledge");
+const ICD10_PATTERN = /^[a-z][0-9]{2}(\.[0-9a-z]{1,4})?$/;
 
 /**
  * Lädt die MD-Wissensdatei für einen ICD-10-Code.
@@ -15,7 +16,13 @@ const KNOWLEDGE_DIR = join(__dirname, "knowledge");
 export function getIcdContext(icd10Code) {
   if (!icd10Code || icd10Code === "[NICHT ANGEGEBEN]") return null;
 
-  const filename = icd10Code.toLowerCase().replace(/\s/g, "") + ".md";
+  const code = icd10Code.toLowerCase().replace(/\s/g, "");
+
+  // Nur echte ICD-10-Codes zulassen (z.B. e11, e11.9, u07.1), damit der Code
+  // aus dem Request nicht als Pfad (z.B. "../../") missbraucht werden kann
+  if (!ICD10_PATTERN.test(code)) return null;
+
+  const filename = code + ".md";
   const filepath = join(KNOWLEDGE_DIR, filename);
 
   // Exakter Treffer
@@ -24,7 +31,7 @@ export function getIcdContext(icd10Code) {
   }
 
   // Fallback: Elterncode ohne Subkode versuchen (z.B. E11.9 → E11)
-  const parentCode = icd10Code.toLowerCase().replace(/\s/g, "").split(".")[0];
+  const parentCode = code.split(".")[0];
   const parentPath = join(KNOWLEDGE_DIR, parentCode + ".md");
   if (existsSync(parentPath)) {
     return readFileSync(parentPath, "utf-8").trim();

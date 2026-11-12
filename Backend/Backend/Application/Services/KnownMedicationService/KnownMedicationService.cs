@@ -7,10 +7,12 @@ namespace Backend.Application.Services
     public class KnownMedicationService : IKnownMedicationService
     {
         private readonly IKnownMedicationRepository _repository;
+        private readonly ILogger<KnownMedicationService> _logger;
 
-        public KnownMedicationService(IKnownMedicationRepository repository)
+        public KnownMedicationService(IKnownMedicationRepository repository, ILogger<KnownMedicationService> logger)
         {
             _repository = repository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<KnownMedication>> SearchAsync(string query)
@@ -35,11 +37,9 @@ namespace Backend.Application.Services
                 return null;
             }
 
-            Console.WriteLine($"AI-Extraktion → brand: {brand}, productName: {productName}, activeIngredient: {activeIngredient}, dosage: {dosage}, form: {form}");
-
             var candidates = await _repository.IdentifyAsync(brand, productName, activeIngredient, dosage, form);
 
-            Console.WriteLine($"Treffer: {candidates.Count()}");
+            _logger.LogDebug("Medikamentenabgleich: {CandidateCount} Treffer", candidates.Count());
 
             return candidates.FirstOrDefault();
         }

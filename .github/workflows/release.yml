@@ -1,0 +1,407 @@
+name: Release
+
+# Zwei Wege zu einem Release:
+#   1. In GitHub unter Actions > Release > "Run workflow" wählen, ob patch, minor
+#      oder major erhöht werden soll. Die neue Version wird aus dem letzten Tag
+#      berechnet, das Tag wird erst angelegt, wenn alles grün ist.
+#   2. Lokal ein Tag pushen:  git tag v1.2.3 && git push origin v1.2.3
+#
+# Ablauf:
+#   CI -> Quality Gate -> Docker Build -> Image v1.x -> Registry -> Deploy
+#
+#   version          neue Versionsnummer bestimmen
+#   ci               Quality Gate: Tests, CodeQL, Audits, Lizenzen, Docker-Konfigurationstest
+#   release-*        versionierte Pakete (Backend-ZIP, Frontend-ZIP, AI-tar.gz)
+#   docker-images    Images für AI-Service und Frontend bauen und in die GitHub
+#                    Container Registry (ghcr.io) pushen, getaggt mit der Version
+#   publish          Git-Tag + GitHub-Release mit den Paketen
+#   deploy-test      Images aus der Registry in der Umgebung "test" starten und prüfen
+#   deploy-prod      wie test, aber erst nach Freigabe (GitHub Environment "prod")
+#
+# Das Backend läuft außerhalb von Docker (Windows-OCR) und wird als ZIP ausgeliefert.
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Welcher Teil der Version wird erhöht? (SemVer)"
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+  # Images in die GitHub Container Registry pushen
+  packages: write
+  # Für den CodeQL-Job im aufgerufenen build.yml
+  actions: read
+  security-events: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # ─── Version ermitteln ──────────────────────────────────────────────────────
+
+  version:
+    name: Version ermitteln
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      version_minor: ${{ steps.version.outputs.version_minor }}
+      image_prefix: ${{ steps.version.outputs.image_prefix }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version berechnen
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            LAST_TAG=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n1)
+            LAST="${LAST_TAG#v}"
+            [ -z "$LAST" ] && LAST="0.0.0"
+            IFS=. read -r MAJOR MINOR PATCH <<< "$LAST"
+            case "$BUMP" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              *)     PATCH=$((PATCH + 1)) ;;
+            esac
+            VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "Letztes Tag: ${LAST_TAG:-keins}"
+          fi
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Ungültige Version '$VERSION'. Erwartet wird vMAJOR.MINOR.PATCH, z. B. v1.2.3"
+            exit 1
+          fi
+          if [ "$GITHUB_EVENT_NAME" != "push" ] && git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::Tag v$VERSION existiert bereits."
+            exit 1
+          fi
+
+          echo "Neue Version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          # Image-Namen müssen kleingeschrieben sein
+          echo "version_minor=${VERSION%.*}" >> "$GITHUB_OUTPUT"
+          echo "image_prefix=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/fehldiagnosen" >> "$GITHUB_OUTPUT"
+
+  # ─── Tests & Checks (bestehender Build-Workflow) ────────────────────────────
+
+  ci:
+    name: CI
+    uses: ./.github/workflows/build.yml
+
+  # ─── Versionierte Builds ────────────────────────────────────────────────────
+
+  release-backend:
+    name: Release-Build Backend
+    runs-on: windows-latest
+    needs: [version, ci]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish backend
+        run: >
+          dotnet publish Backend/Backend/Backend.csproj
+          --configuration Release
+          -p:Version=${{ env.VERSION }}
+          --output publish/backend
+
+      - name: Package backend
+        shell: pwsh
+        run: Compress-Archive -Path publish/backend/* -DestinationPath "fehldiagnosen-backend-v$env:VERSION.zip"
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-backend
+          path: fehldiagnosen-backend-v${{ env.VERSION }}.zip
+          if-no-files-found: error
+
+  release-frontend:
+    name: Release-Build Frontend
+    runs-on: ubuntu-latest
+    needs: [version, ci]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Version in package.json und app.json (Expo, per Constants.expoConfig.version abrufbar)
+      - name: Set version
+        working-directory: frontend
+        run: |
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          node -e "
+            const fs = require('fs');
+            const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            app.expo.version = process.env.VERSION;
+            fs.writeFileSync('app.json', JSON.stringify(app, null, 2) + '\n');
+          "
+
+      # Baut mit den Werten aus config/prod.env (z. B. EXPO_PUBLIC_API_URL).
+      # Im Repo-Secret/Environment gesetzte Variablen hätten Vorrang.
+      - name: Build frontend (Expo web export, prod-Konfiguration)
+        working-directory: frontend
+        run: node ../scripts/env-run.mjs --no-secrets prod npx expo export --platform web
+
+      - name: Package frontend
+        working-directory: frontend/dist
+        run: zip -r "$GITHUB_WORKSPACE/fehldiagnosen-frontend-web-v$VERSION.zip" .
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-frontend
+          path: fehldiagnosen-frontend-web-v${{ env.VERSION }}.zip
+          if-no-files-found: error
+
+  release-ai:
+    name: Release-Build AI Service
+    runs-on: ubuntu-latest
+    needs: [version, ci]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: AI/package-lock.json
+
+      - name: Install AI dependencies
+        working-directory: AI
+        run: npm ci --omit=dev
+
+      # Version in package.json (per GET /ai/version abrufbar)
+      - name: Set version
+        working-directory: AI
+        run: npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Package AI service
+        run: tar --exclude='AI/.env' -czf "fehldiagnosen-ai-service-v$VERSION.tar.gz" AI
+
+      - name: Upload AI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ai
+          path: fehldiagnosen-ai-service-v${{ env.VERSION }}.tar.gz
+          if-no-files-found: error
+
+  # ─── Docker Images -> Registry ──────────────────────────────────────────────
+
+  docker-images:
+    name: Docker Image ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: [version, ci]
+    strategy:
+      matrix:
+        service: [ai, frontend]
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      IMAGE: ${{ needs.version.outputs.image_prefix }}-${{ matrix.service }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Tags: 1.2.3 (genau diese Version), 1.2 (neuester Patch), latest
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service == 'ai' && 'AI' || 'frontend' }}
+          push: true
+          build-args: VERSION=${{ env.VERSION }}
+          tags: |
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+            ${{ env.IMAGE }}:${{ needs.version.outputs.version_minor }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  # ─── GitHub Release ─────────────────────────────────────────────────────────
+
+  publish:
+    name: GitHub Release erstellen
+    runs-on: ubuntu-latest
+    needs: [version, release-backend, release-frontend, release-ai, docker-images]
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt
+
+      # Legt das Tag (falls noch nicht vorhanden) auf dem gebauten Commit an
+      # und erzeugt die Release Notes automatisch aus den Commits/PRs seit dem letzten Tag.
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: ${{ needs.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          body: |
+            ## Docker Images
+            ```
+            docker pull ${{ needs.version.outputs.image_prefix }}-ai:${{ needs.version.outputs.version }}
+            docker pull ${{ needs.version.outputs.image_prefix }}-frontend:${{ needs.version.outputs.version }}
+            ```
+            Das Backend läuft außerhalb von Docker: `fehldiagnosen-backend-${{ needs.version.outputs.tag }}.zip`
+          files: dist/*
+
+  # ─── Deploy ─────────────────────────────────────────────────────────────────
+  # Es gibt noch keine Server. Die Deploy-Jobs starten die Images deshalb auf dem
+  # GitHub-Runner, genau so, wie es später auf dem Server passiert:
+  # Images aus der Registry ziehen, mit der Konfiguration der Umgebung starten,
+  # Konfigurationstest ausführen.
+  # Sobald es einen Server gibt, ersetzt man "docker compose up" durch einen
+  # Aufruf auf dem Server (z. B. per SSH) und lässt den Rest gleich.
+  #
+  # Die Jobs nutzen GitHub Environments (Settings > Environments > test / prod).
+  # Dort können pro Umgebung Secrets hinterlegt werden (z. B. AI_API_KEY) und für
+  # prod eine Freigabe ("Required reviewers"): Dann wartet deploy-prod auf einen Klick.
+
+  deploy-test:
+    name: Deploy test
+    runs-on: ubuntu-latest
+    needs: [version, publish]
+    environment: test
+    env:
+      IMAGE_PREFIX: ${{ needs.version.outputs.image_prefix }}
+      IMAGE_TAG: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Secrets aus dem GitHub Environment "test"; ohne hinterlegten Key ein Dummy
+      - name: Secrets der Umgebung bereitstellen
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: echo "AI_API_KEY=${AI_API_KEY:-ci-dummy-key}" > config/test.local.env
+
+      - name: Images aus der Registry starten
+        run: |
+          docker compose --env-file config/test.env pull ai frontend
+          docker compose --env-file config/test.env up -d --no-build --wait ai frontend
+
+      - name: Konfigurationstest
+        run: node scripts/docker-check.mjs test "$IMAGE_TAG"
+
+      - name: Container-Logs
+        if: failure()
+        run: docker compose --env-file config/test.env logs
+
+  deploy-prod:
+    name: Deploy prod
+    runs-on: ubuntu-latest
+    needs: [version, deploy-test]
+    environment: prod
+    env:
+      IMAGE_PREFIX: ${{ needs.version.outputs.image_prefix }}
+      IMAGE_TAG: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Login GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Secrets der Umgebung bereitstellen
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        run: echo "AI_API_KEY=${AI_API_KEY:-ci-dummy-key}" > config/prod.local.env
+
+      - name: Images aus der Registry starten
+        run: |
+          docker compose --env-file config/prod.env pull ai frontend
+          docker compose --env-file config/prod.env up -d --no-build --wait ai frontend
+
+      - name: Konfigurationstest
+        run: node scripts/docker-check.mjs prod "$IMAGE_TAG"
+
+      - name: Container-Logs
+        if: failure()
+        run: docker compose --env-file config/prod.env logs

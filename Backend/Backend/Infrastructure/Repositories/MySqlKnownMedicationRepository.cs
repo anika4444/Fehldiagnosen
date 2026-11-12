@@ -8,10 +8,12 @@ namespace Backend.Infrastructure.Repositories
     public class MySqlKnownMedicationRepository : IKnownMedicationRepository
     {
         private readonly MySqlDbContext _context;
+        private readonly ILogger<MySqlKnownMedicationRepository> _logger;
 
-        public MySqlKnownMedicationRepository(MySqlDbContext context)
+        public MySqlKnownMedicationRepository(MySqlDbContext context, ILogger<MySqlKnownMedicationRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<KnownMedication>> SearchAsync(string query)
@@ -59,7 +61,7 @@ namespace Backend.Infrastructure.Repositories
 
             if (string.IsNullOrWhiteSpace(brandLower) && string.IsNullOrWhiteSpace(activeIngredientLower))
             {
-                Console.WriteLine("[Repository] Kein Brand und kein Wirkstoff → kein Match möglich");
+                _logger.LogDebug("Kein Brand und kein Wirkstoff → kein Match möglich");
                 return Enumerable.Empty<KnownMedication>();
             }
 
@@ -88,7 +90,7 @@ namespace Backend.Infrastructure.Repositories
                     .ToListAsync();
             }
 
-            Console.WriteLine($"[Repository] Kandidaten nach Vorfilter: {candidates.Count}");
+            _logger.LogDebug("Kandidaten nach Vorfilter: {Count}", candidates.Count);
 
             if (!candidates.Any())
             {
@@ -105,10 +107,10 @@ namespace Backend.Infrastructure.Repositories
                 .OrderByDescending(entry => entry.Score)
                 .ToList();
 
-            Console.WriteLine($"[Repository] Nach Scoring: {scored.Count} Treffer");
+            _logger.LogDebug("Nach Scoring: {Count} Treffer", scored.Count);
             foreach (var entry in scored.Take(3))
             {
-                Console.WriteLine($"  → {entry.Medication.Name} | Score={entry.Score}");
+                _logger.LogDebug("Kandidat: {Name} | Score={Score}", entry.Medication.Name, entry.Score);
             }
 
             if (!scored.Any())
@@ -120,14 +122,14 @@ namespace Backend.Infrastructure.Repositories
 
             if (best.Score < 3)
             {
-                Console.WriteLine($"[Repository] Score zu niedrig ({best.Score}) → kein Treffer");
+                _logger.LogDebug("Score zu niedrig ({Score}) → kein Treffer", best.Score);
                 return Enumerable.Empty<KnownMedication>();
             }
 
             if (scored.Count > 1 && scored[1].Score >= best.Score)
             {
                 var topCandidates = scored.Where(entry => entry.Score == best.Score).ToList();
-                Console.WriteLine($"[Repository] Gleichstand bei {topCandidates.Count} Kandidaten, starte Tiebreaker...");
+                _logger.LogDebug("Gleichstand bei {Count} Kandidaten, starte Tiebreaker...", topCandidates.Count);
 
                 var dosageLower = dosage?.ToLowerInvariant() ?? "";
                 var formLower = form?.ToLowerInvariant() ?? "";
@@ -142,7 +144,7 @@ namespace Backend.Infrastructure.Repositories
 
                 if (exactMatch != null)
                 {
-                    Console.WriteLine($"[Repository] Tiebreaker Treffer (Dosage+Form): {exactMatch.Medication.Name}");
+                    _logger.LogDebug("Tiebreaker Treffer (Dosage+Form): {Name}", exactMatch.Medication.Name);
                     return new[] { exactMatch.Medication };
                 }
 
@@ -177,7 +179,7 @@ namespace Backend.Infrastructure.Repositories
 
                         if (productMatch.ProductWordMatches > secondBestMatches)
                         {
-                            Console.WriteLine($"[Repository] Tiebreaker Treffer (ProductName): {productMatch.Medication.Name}");
+                            _logger.LogDebug("Tiebreaker Treffer (ProductName): {Name}", productMatch.Medication.Name);
                             return new[] { productMatch.Medication };
                         }
                     }
@@ -190,15 +192,15 @@ namespace Backend.Infrastructure.Repositories
 
                 if (dosageMatch != null)
                 {
-                    Console.WriteLine($"[Repository] Tiebreaker Treffer (nur Dosage): {dosageMatch.Medication.Name}");
+                    _logger.LogDebug("Tiebreaker Treffer (nur Dosage): {Name}", dosageMatch.Medication.Name);
                     return new[] { dosageMatch.Medication };
                 }
 
-                Console.WriteLine($"[Repository] Tiebreaker erfolglos → kein sicherer Treffer");
+                _logger.LogDebug("Tiebreaker erfolglos → kein sicherer Treffer");
                 return Enumerable.Empty<KnownMedication>();
             }
 
-            Console.WriteLine($"[Repository] Bester Treffer: {best.Medication.Name} | Score={best.Score}");
+            _logger.LogDebug("Bester Treffer: {Name} | Score={Score}", best.Medication.Name, best.Score);
             return new[] { best.Medication };
         }
 
