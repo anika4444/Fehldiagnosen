@@ -1,0 +1,140 @@
+# 🚀 ADAM
+
+Willkommen bei ADAM! Ein Tool, dass dir bei der Verwaltung von medizinischen Daten hilft.
+
+## 🛠 Voraussetzungen
+
+Bevor du loslegst, stelle sicher, dass du Folgendes bereit hast:
+
+- **Node.js**: Wird benötigt, um die Pakete über `npm` zu installieren
+- **Docker**
+- _(Optional)_ **Expo Go App**: Lade die App auf deinem Smartphone herunter, unabhängig davon, ob du iOS oder Android verwendest. Anschließend im Ordner `frontend` eine Datei `.env.local` anlegen und dort die IP des eigenen PCs eintragen: `EXPO_PUBLIC_API_URL=http://DEINE-IP:5238/api` (die Datei wird nicht eingecheckt)
+- _(Optional)_ **Android Studio**: Falls du das Frontend lieber auf einem virtuellen Emulator am PC testen willst
+- **Visual Studio**: Mit .NET 10
+- **Python**: Für die Durchführung des Arztbrief-Scans
+- **.env**: Für unsere AI-Services (Unterordner _AI_) werden ein gültiger **API-Key** sowie die dazugehörigen **Umgebungsvariablen** benötigt. Eine Vorlage mit allen Variablen liegt unter `AI/.env.example`
+- **Drugbank XML**: Aus folgendem Link: https://fhvorarlberg-my.sharepoint.com/:f:/g/personal/asc9769_students_fhv_at/IgAba5IWyJyFTre7A00NZZYNAdOH0OawLz2UUscFsOQMz9w?e=TcmbgT
+
+## 💻 Installation & Start
+
+Befolge diese Schritte, um das Projekt lokal auf deinem Rechner zum Laufen zu bringen:
+
+### 1. Repository klonen & updaten
+
+Klone das Projekt auf deinen Rechner:
+
+```bash
+git clone https://github.com/anika4444/Fehldiagnosen.git adam
+
+cd adam
+```
+
+### 2. Backend einrichten
+
+```bash
+# 1. Lade die Drugbank-XML (interaction_database.xml) herunter und lege sie unter folgendem Pfad ab: adam\Backend\Backend\src\KnownMedications
+
+# 2. Starte den Datenbankserver in einem Docker-Container. Navigiere dazu in PowerShell oder in der Eingabeaufforderung zu adam\Backend\Backend\Docker und führe folgenden Befehl aus:
+docker compose up -d
+
+# 3. Als nächstes muss die Datenbankstruktur erstellt werden. Navigiere im Terminal zu adam\Backend\Backend und führe folgenden Befehl aus:
+dotnet ef database update
+
+# 4. Optional: Falls die Datenbank über MySQL Workbench überprüft werden soll, kann eine Verbindung hergestellt werden. Die benötigten Verbindungsdaten befinden sich in der docker-compose.yml.
+
+# 5. Installiere die benötigten Python-Abhängigkeiten für das Scannen des Arztbriefs. Führe dazu im bestehenden Terminal folgende Befehle aus:
+python -m pip install presidio-analyzer
+# Lädt das deutsche Sprachmodell für die Anonymisierung (ca. 500 MB, nur beim ersten Mal nötig)
+python -m spacy download de_core_news_lg
+
+# 6. Starte nun dein Backend:
+dotnet run
+
+# 7. Nun müssen zwei Wissensdatenbanken geladen werden (Medikamente und Wechselwirkungen). Führe dazu einmalig in adam\Backend\Backend folgenden Befehl aus. Das Backend importiert beide Dateien und beendet sich danach wieder:
+dotnet run -- --import-data
+
+# 8. Arzt-Konto zum Testen: Über die Registrierung entstehen nur noch Patienten. In Development legt das Backend beim Start automatisch einen Arzt an (Benutzername: arzt, Passwort: arzt123, siehe SeedDoctor in appsettings.Development.json)
+```
+
+### 3. Frontend starten (Expo)
+
+Wir nutzen für unser Frontend die Entwicklungsplattform Expo. Öffne das Projekt dazu in einer neuen IDE-Instanz
+
+```bash
+# 1. Navigiere zum Frontend-Ordner
+cd frontend
+
+# 2. Installiere alle Abhängigkeiten des Frontends (nur beim ersten Mal nötig)
+npm install
+
+# 3. Starte den Entwicklungsserver
+npx expo start
+```
+
+### 4. AI Service starten
+
+Öffne hierfür ein neues Terminal in derselben IDE-Instanz
+
+```bash
+# 1. Navigiere zum Ordner AI
+cd AI
+
+# 2. Installiere alle Abhängigkeiten des AI-Service (nur beim ersten Mal nötig)
+npm install
+
+# 3. Lege die Konfiguration an und trage API-Key, Base-URL und Modellnamen ein (nur beim ersten Mal nötig)
+cp .env.example .env
+
+# 4. Starte den AI-Service:
+node aiServices.js
+```
+
+### ⚠️ Änderungen durch das Refactoring (Review 1)
+
+- **Wissensdatenbanken:** Die Endpunkte `rebuild` und `rebuild-interactions` gibt es nicht mehr. Der Import läuft einmalig über `dotnet run -- --import-data` in `Backend/Backend` (siehe Schritt 7).
+- **Rollen:** Über die Registrierung entstehen nur noch Patienten. Ein Arzt-Konto wird in Development automatisch angelegt (`arzt` / `arzt123`, siehe Schritt 8).
+- **Login:** Das Token läuft nach 60 Minuten ab (`JwtSettings:ExpiresInMinutes` in `appsettings.json`). Danach ist ein neuer Login nötig.
+- **Login-Pflicht:** Alle Endpunkte außer Login und Registrierung verlangen ein Token. OpenAPI und Scalar bleiben in Development ohne Login erreichbar.
+- **AI-Service:** Der Dienst lauscht standardmäßig nur auf `127.0.0.1` (änderbar über `HOST` in `AI/.env`). Das Backend ruft ihn deshalb über `http://127.0.0.1:3000` statt `localhost` auf.
+- **Docker:** Läuft der AI-Service in einem Container (z. B. nach dem Zusammenführen mit `main`), muss in der `docker-compose.yml` beim AI-Service `HOST=0.0.0.0` gesetzt werden, sonst ist er von außerhalb des Containers nicht erreichbar:
+
+```yaml
+  ai:
+    environment:
+      HOST: 0.0.0.0
+```
+
+- **Uploads:** Der Medikamenten-Scan nimmt nur noch PNG oder JPEG bis 10 MB an.
+
+### 🚀 Verwendung der App
+
+**Am Handy**
+Hierfür benötigst du die Expo App. Zusätzlich musst du im Ordner `frontend` eine Datei `.env.local` mit `EXPO_PUBLIC_API_URL=http://DEINE-IP:5238/api` anlegen und Expo danach mit `npx expo start -c` neu starten. Wichtig ist, dass sich das Handy und der Laptop im gleichen WLAN befinden. Zum Starten der Anwendung muss anschließend der QR-Code gescannt werden.
+
+**Im Webbrowser**
+Möchtest du die App direkt auf dem PC im Browser öffnen?
+
+- Drücke in demselben Terminal, in dem der Expo-Server läuft, die Taste **`w`**.
+- _Hinweis: Expo öffnet dann automatisch einen neuen Browser-Tab mit der App._
+- Im Browser stehen jedoch nicht alle Features zur Verfügung. Eine Registrierung über das Frontend funktioniert beispielsweise nur auf einem mobilen Gerät. Alternativ kann über Scalar ein Account erstellt werden. Der JSON-Body des Requests muss dabei folgendem Muster entsprechen:
+
+```json
+{
+  "userName": "max",
+  "email": "max.mustermann@fhv.at",
+  "password": "12345678",
+  "firstName": "Max",
+  "lastName": "Mustermann",
+  "dateOfBirth": "2001-01-01",
+  "gender": 0
+}
+```
+
+**🤖 Auf einem Emulator testen (Android Studio):**
+Wenn du dir das ständige Scannen mit dem echten Handy sparen willst, kannst du dir ein virtuelles Smartphone auf deinem PC einrichten:
+
+1. Öffne Android Studio, klicke auf **More Actions** (oder gehe ins Menü) und öffne den **Virtual Device Manager**.
+2. Klicke auf "Create Device" und richte dir ein virtuelles Smartphone ein (z.B. ein Pixel 6).
+3. Starte den Emulator über den kleinen Play-Button.
+4. Sobald das virtuelle Handy auf deinem Bildschirm hochgefahren ist, drücke in demselben Terminal, in dem der Expo-Server läuft, die Taste **`a`**.
+5. Expo installiert die App jetzt vollautomatisch auf deinem Emulator
