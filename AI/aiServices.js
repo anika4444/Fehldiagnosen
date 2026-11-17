@@ -47,8 +47,8 @@ const ENTRY_BY_MAP = {
 
 const LANG_LEVEL_MAP = {
   L1: "basic",
-  L2: "mittel",
-  L3: "medizinisch",
+  L2: "medium",
+  L3: "advanced",
 };
 
 async function validateExplanation(text, inputData) {
