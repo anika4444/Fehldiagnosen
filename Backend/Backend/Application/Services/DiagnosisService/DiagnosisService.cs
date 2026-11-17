@@ -66,25 +66,24 @@ namespace Backend.Application.Services.DiagnosisService
             if (request.ConditionStatus is not { } conditionStatus)
                 return ServiceResult<DiagnosisResponse>.Invalid("Status der Diagnose fehlt.");
 
-            var diagnosis = new Diagnosis
-            {
-                PatientId = patientId,
-                Title = request.Title,
-                Description = request.Description ?? string.Empty,
-                IcdCode = request.IcdCode ?? string.Empty,
-                Severity = request.Severity ?? string.Empty,
-                SideLocalization = request.SideLocalization ?? string.Empty,
-                ConditionStatus = conditionStatus,
-                EntryBy = entryBy,
-                MedicationText = request.MedicationText ?? string.Empty,
-                Symptoms = request.Symptoms ?? string.Empty,
-                Findings = request.Findings ?? string.Empty,
-                TherapeuticMeasures = request.TherapeuticMeasures ?? string.Empty,
-                Note = request.Note ?? string.Empty,
-                DiagnosisDate = request.DiagnosisDate ?? DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            if (string.IsNullOrWhiteSpace(request.Title))
+                return ServiceResult<DiagnosisResponse>.Invalid("Titel der Diagnose fehlt.");
+
+            var diagnosis = Diagnosis.Create(
+                patientId,
+                request.Title,
+                conditionStatus,
+                entryBy,
+                description: request.Description,
+                icdCode: request.IcdCode,
+                severity: request.Severity,
+                sideLocalization: request.SideLocalization,
+                medicationText: request.MedicationText,
+                symptoms: request.Symptoms,
+                findings: request.Findings,
+                therapeuticMeasures: request.TherapeuticMeasures,
+                note: request.Note,
+                diagnosisDate: request.DiagnosisDate);
 
             var newDiagnosis = await _diagnosisRepository.AddAsync(diagnosis);
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(newDiagnosis));
@@ -104,19 +103,19 @@ namespace Backend.Application.Services.DiagnosisService
             if (existingEntry == null || existingEntry.PatientId != patientId)
                 return ServiceResult<DiagnosisResponse>.NotFound($"Diagnose mit ID {diagnosisId} existiert nicht.");
 
-            existingEntry.Title = request.Title ?? existingEntry.Title;
-            existingEntry.Description = request.Description ?? existingEntry.Description;
-            existingEntry.IcdCode = request.IcdCode ?? existingEntry.IcdCode;
-            existingEntry.Severity = request.Severity ?? existingEntry.Severity;
-            existingEntry.SideLocalization = request.SideLocalization ?? existingEntry.SideLocalization;
-            existingEntry.ConditionStatus = request.ConditionStatus ?? existingEntry.ConditionStatus;
-            existingEntry.MedicationText = request.MedicationText ?? existingEntry.MedicationText;
-            existingEntry.Symptoms = request.Symptoms ?? existingEntry.Symptoms;
-            existingEntry.Findings = request.Findings ?? existingEntry.Findings;
-            existingEntry.TherapeuticMeasures = request.TherapeuticMeasures ?? existingEntry.TherapeuticMeasures;
-            existingEntry.Note = request.Note ?? existingEntry.Note;
-            existingEntry.DiagnosisDate = request.DiagnosisDate ?? existingEntry.DiagnosisDate;
-            existingEntry.UpdatedAt = DateTime.UtcNow;
+            existingEntry.Update(
+                title: request.Title,
+                description: request.Description,
+                icdCode: request.IcdCode,
+                severity: request.Severity,
+                sideLocalization: request.SideLocalization,
+                conditionStatus: request.ConditionStatus,
+                medicationText: request.MedicationText,
+                symptoms: request.Symptoms,
+                findings: request.Findings,
+                therapeuticMeasures: request.TherapeuticMeasures,
+                note: request.Note,
+                diagnosisDate: request.DiagnosisDate);
 
             var updatedEntry = await _diagnosisRepository.UpdateAsync(existingEntry);
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(updatedEntry));
