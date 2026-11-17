@@ -52,6 +52,8 @@ dotnet run
 
 # 7. Nun müssen zwei Wissensdatenbanken geladen werden (Medikamente und Wechselwirkungen). Führe dazu einmalig in adam\Backend\Backend folgenden Befehl aus. Das Backend importiert beide Dateien und beendet sich danach wieder:
 dotnet run -- --import-data
+
+# 8. Arzt-Konto zum Testen: Über die Registrierung entstehen nur noch Patienten. In Development legt das Backend beim Start automatisch einen Arzt an (Benutzername: arzt, Passwort: arzt123, siehe SeedDoctor in appsettings.Development.json)
 ```
 
 ### 3. Frontend starten (Expo)
