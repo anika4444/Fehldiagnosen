@@ -1,9 +1,11 @@
 ﻿using Backend.Application.Services.CheckupService;
 using Backend.Application.Services.CheckupService.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
 
+[Authorize]
 [ApiController]
 [Route("api/checkup")]
 public class CheckupController : BaseApiController

@@ -1,8 +1,10 @@
 ﻿using Backend.Application.Services.HealthTipService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller
 {
+    [Authorize]
     [ApiController]
     [Route("api/health-tip")]
     public class HealthTipController : BaseApiController

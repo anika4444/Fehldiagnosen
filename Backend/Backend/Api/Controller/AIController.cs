@@ -1,9 +1,11 @@
-using Backend.Application.Services.AIService;
+﻿using Backend.Application.Services.AIService;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller;
 
+[Authorize]
 [ApiController]
 [Route("api/ai")]
 public class AIController : BaseApiController

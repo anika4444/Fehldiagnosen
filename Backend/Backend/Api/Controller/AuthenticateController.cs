@@ -1,10 +1,12 @@
 ﻿using Backend.Application.Services.UserService;
 using Backend.Application.Services.UserService.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Api.Controller
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("api/authenticate")]
     public class AuthenticateController : BaseApiController
