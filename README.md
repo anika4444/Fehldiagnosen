@@ -50,10 +50,8 @@ python -m spacy download de_core_news_lg
 # 6. Starte nun dein Backend:
 dotnet run
 
-# 7. Nun müssen zwei Wissensdatenbanken geladen werden. Öffne hierfür Scalar -> http://localhost:5238/scalar/
-Navigiere in Scalar zum Tab "KnownMedication" und rufe folgende API-Endpoints auf:
-- post /api/known-medications/rebuild
-- post /api/known-medications/rebuild-interactions
+# 7. Nun müssen zwei Wissensdatenbanken geladen werden (Medikamente und Wechselwirkungen). Führe dazu einmalig in adam\Backend\Backend folgenden Befehl aus. Das Backend importiert beide Dateien und beendet sich danach wieder:
+dotnet run -- --import-data
 ```
 
 ### 3. Frontend starten (Expo)

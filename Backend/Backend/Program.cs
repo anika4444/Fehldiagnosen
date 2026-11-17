@@ -145,6 +145,39 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.Initialize(context, roleManager, userManager, builder.Configuration);
 }
 
+if (args.Contains("--import-data"))
+{
+    using var importScope = app.Services.CreateScope();
+    var importServices = importScope.ServiceProvider;
+    var knownMedicationsPath = Path.Combine(app.Environment.ContentRootPath, "src", "KnownMedications");
+
+    var csvPath = Path.Combine(knownMedicationsPath, "AlleMedikationenStrukturiert.csv");
+    if (File.Exists(csvPath))
+    {
+        await importServices.GetRequiredService<IKnownMedicationService>().RebuildFromCsvAsync(csvPath);
+        Console.WriteLine("Medikamente wurden importiert.");
+    }
+    else
+    {
+        Console.WriteLine($"CSV Datei nicht gefunden: {csvPath}");
+    }
+
+    var xmlPath = Path.Combine(knownMedicationsPath, "interaction_database.xml");
+    if (File.Exists(xmlPath))
+    {
+        var importResult = await importServices.GetRequiredService<IDrugInteractionService>().ImportDrugDataAsync(xmlPath);
+        Console.WriteLine(importResult.IsSuccess
+            ? "Wechselwirkungen wurden importiert."
+            : $"Import der Wechselwirkungen fehlgeschlagen: {importResult.ErrorMessage}");
+    }
+    else
+    {
+        Console.WriteLine($"XML Datei nicht gefunden: {xmlPath}");
+    }
+
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
