@@ -89,6 +89,23 @@ cp .env.example .env
 node aiServices.js
 ```
 
+### ⚠️ Änderungen durch das Refactoring (Review 1)
+
+- **Wissensdatenbanken:** Die Endpunkte `rebuild` und `rebuild-interactions` gibt es nicht mehr. Der Import läuft einmalig über `dotnet run -- --import-data` in `Backend/Backend` (siehe Schritt 7).
+- **Rollen:** Über die Registrierung entstehen nur noch Patienten. Ein Arzt-Konto wird in Development automatisch angelegt (`arzt` / `arzt123`, siehe Schritt 8).
+- **Login:** Das Token läuft nach 60 Minuten ab (`JwtSettings:ExpiresInMinutes` in `appsettings.json`). Danach ist ein neuer Login nötig.
+- **Login-Pflicht:** Alle Endpunkte außer Login und Registrierung verlangen ein Token. OpenAPI und Scalar bleiben in Development ohne Login erreichbar.
+- **AI-Service:** Der Dienst lauscht standardmäßig nur auf `127.0.0.1` (änderbar über `HOST` in `AI/.env`). Das Backend ruft ihn deshalb über `http://127.0.0.1:3000` statt `localhost` auf.
+- **Docker:** Läuft der AI-Service in einem Container (z. B. nach dem Zusammenführen mit `main`), muss in der `docker-compose.yml` beim AI-Service `HOST=0.0.0.0` gesetzt werden, sonst ist er von außerhalb des Containers nicht erreichbar:
+
+```yaml
+  ai:
+    environment:
+      HOST: 0.0.0.0
+```
+
+- **Uploads:** Der Medikamenten-Scan nimmt nur noch PNG oder JPEG bis 10 MB an.
+
 ### 🚀 Verwendung der App
 
 **Am Handy**
@@ -106,7 +123,6 @@ Möchtest du die App direkt auf dem PC im Browser öffnen?
   "userName": "max",
   "email": "max.mustermann@fhv.at",
   "password": "12345678",
-  "role": "Patient",
   "firstName": "Max",
   "lastName": "Mustermann",
   "dateOfBirth": "2001-01-01",
