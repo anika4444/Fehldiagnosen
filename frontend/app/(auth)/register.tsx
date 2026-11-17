@@ -36,7 +36,6 @@ const RegisterScreen = () => {
     firstName: "",
     lastName: "",
     dateOfBirth: "", // Wird als YYYY-MM-DD gespeichert
-    role: "Patient",
   });
 
   const handleRegister = async () => {

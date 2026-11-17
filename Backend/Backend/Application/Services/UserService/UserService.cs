@@ -13,14 +13,12 @@ namespace Backend.Application.Services.UserService
     public class UserService : IUserService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IPatientRepository _patientRepository;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IPatientRepository patientRepository)
+        public UserService(UserManager<ApplicationUser> userManager, IConfiguration configuration, IPatientRepository patientRepository)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _configuration = configuration;
             _patientRepository = patientRepository;
         }
@@ -84,39 +82,19 @@ namespace Backend.Application.Services.UserService
                 return ServiceResult.Invalid("User creation failed! Please check user details and try again.");
             }
 
-            if (!string.IsNullOrEmpty(registerDto.Role))
+            await _userManager.AddToRoleAsync(user, "Patient");
+
+            var newPatient = new Patient
             {
-                if (registerDto.Role.Equals("Patient", StringComparison.OrdinalIgnoreCase))
-                {
-                    registerDto.Role = "Patient";
-                }
-                else if (registerDto.Role.Equals("Arzt", StringComparison.OrdinalIgnoreCase))
-                {
-                    registerDto.Role = "Arzt";
-                }
+                UserId = user.Id,
+                ApplicationUser = user,
+                UserName = registerDto.UserName,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                DateOfBirth = registerDto.DateOfBirth,
+            };
 
-                if (!await _roleManager.RoleExistsAsync(registerDto.Role))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(registerDto.Role));
-                }
-
-                await _userManager.AddToRoleAsync(user, registerDto.Role);
-            }
-
-            if (registerDto.Role == "Patient")
-            {
-                var newPatient = new Patient
-                {
-                    UserId = user.Id,
-                    ApplicationUser = user,
-                    UserName = registerDto.UserName,
-                    FirstName = registerDto.FirstName,
-                    LastName = registerDto.LastName,
-                    DateOfBirth = registerDto.DateOfBirth,
-                };
-
-                await _patientRepository.AddAsync(newPatient);
-            }
+            await _patientRepository.AddAsync(newPatient);
 
             return ServiceResult.Success();
         }

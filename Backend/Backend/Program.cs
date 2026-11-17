@@ -131,8 +131,9 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<MySqlDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    await DbInitializer.Initialize(context, roleManager);
+    await DbInitializer.Initialize(context, roleManager, userManager, builder.Configuration);
 }
 
 // Configure the HTTP request pipeline.

@@ -5,7 +5,6 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  role: "Patient" | "Arzt";
 }
 
 export interface RegisterResponse {

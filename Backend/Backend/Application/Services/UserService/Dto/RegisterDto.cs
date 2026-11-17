@@ -13,7 +13,6 @@ namespace Backend.Application.Services.UserService.Dto
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
-        public string Role { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
 
         public string LastName { get; set; } = string.Empty;

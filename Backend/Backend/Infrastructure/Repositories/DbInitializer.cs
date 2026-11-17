@@ -6,7 +6,7 @@ namespace Backend.Infrastructure.Repositories
 {
     public static class DbInitializer
     {
-        public static async Task Initialize(MySqlDbContext context, RoleManager<IdentityRole> roleManager)
+        public static async Task Initialize(MySqlDbContext context, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             await context.Database.MigrateAsync();
 
@@ -19,6 +19,8 @@ namespace Backend.Infrastructure.Repositories
                     await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
+
+            await SeedDoctorAsync(userManager, configuration);
 
             if (!context.SymptomsDefinition.Any())
             {
@@ -36,6 +38,36 @@ namespace Backend.Infrastructure.Repositories
             {
                 context.CommunicationLevels.AddRange(missingLevels);
                 await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task SeedDoctorAsync(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        {
+            var section = configuration.GetSection("SeedDoctor");
+            var userName = section["UserName"];
+            var password = section["Password"];
+
+            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
+            {
+                return;
+            }
+
+            if (await userManager.FindByNameAsync(userName) != null)
+            {
+                return;
+            }
+
+            var doctor = new ApplicationUser
+            {
+                UserName = userName,
+                Email = section["Email"],
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var result = await userManager.CreateAsync(doctor, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(doctor, "Arzt");
             }
         }
 

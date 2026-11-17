@@ -2306,7 +2306,6 @@ export interface components {
             userName: string;
             email: string;
             password: string;
-            role?: string;
             firstName?: string;
             lastName?: string;
             /** Format: date-time */
