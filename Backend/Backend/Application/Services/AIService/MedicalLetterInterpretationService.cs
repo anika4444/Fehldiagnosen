@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.AIService.Dto;
@@ -112,6 +112,11 @@ namespace Backend.Application.Services.AIService
                 return ServiceResult<InterpretMedicalLetterResponse>.InternalServerError("KI-Service aktuell nicht erreichbar");
             }
 
+            if (string.IsNullOrWhiteSpace(createRequest.Title))
+            {
+                return ServiceResult<InterpretMedicalLetterResponse>.UnprocessableEntity("Im Arztbrief wurde keine Diagnose erkannt.");
+            }
+
             ApplyDefaults(createRequest, patientId);
 
             try
@@ -139,7 +144,6 @@ namespace Backend.Application.Services.AIService
         private static void ApplyDefaults(CreateDiagnosisRequest request, int patientId)
         {
             request.PatientId = patientId;
-            request.Title = string.IsNullOrWhiteSpace(request.Title) ? "Unbekannte Diagnose" : request.Title;
             request.Description ??= string.Empty;
             request.IcdCode ??= string.Empty;
             request.Severity ??= string.Empty;

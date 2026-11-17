@@ -119,7 +119,7 @@ const Diagnosis = () => {
       );
     } catch (err: any) {
       console.error(err);
-      // Das Backend liefert bei 400/404/413/415/500 einen lesbaren Grund als Text
+      // Das Backend liefert bei 400/404/413/415/422/500 einen lesbaren Grund als Text
       const serverMessage = err?.response?.data;
       showErrorAlert(
         typeof serverMessage === "string" && serverMessage.trim()
