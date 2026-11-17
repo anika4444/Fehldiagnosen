@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Backend.Application.Common.Access;
+using System.Text.Json;
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.AIService.Dto;
@@ -42,16 +43,11 @@ namespace Backend.Application.Services.AIService
         public async Task<ServiceResult<InterpretMedicalLetterResponse>> ScanMedicalLetter(int patientId, string? userId, EntryBy entryBy, byte[] content, DocumentFormat format)
         {
             // 1. Zugriff zuerst: OCR und KI laufen nur für erlaubte Patienten
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
+            if (!access.IsSuccess)
             {
-                return ServiceResult<InterpretMedicalLetterResponse>.NotFound($"Patient {patientId} existiert nicht.");
-            }
-
-            if (userId != null && patient.UserId != userId)
-            {
-                return ServiceResult<InterpretMedicalLetterResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+                return access.ToFailure<InterpretMedicalLetterResponse>();
             }
 
             // 2. Text erkennen

@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.CommunicationLevelService.Dto;
 using Backend.Domain.Entities;
@@ -46,11 +47,16 @@ namespace Backend.Application.Services.CommunicationLevelService
         }
 
 
-        public async Task<ServiceResult<CommunicationLevelResponse>> CreateAsync(int patientId, CreateCommunicationLevelRequest request, string userId)
+        public async Task<ServiceResult<CommunicationLevelResponse>> CreateAsync(int patientId, CreateCommunicationLevelRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
-            if (patient == null) return ServiceResult<CommunicationLevelResponse>.NotFound("Patient not found.");
-            if (patient.UserId != userId) return ServiceResult<CommunicationLevelResponse>.Forbidden("Access denied.");
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
+
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<CommunicationLevelResponse>();
+            }
+
+            var patient = access.Data!;
 
             // Calculate key (L1, L2, or L3) based on average points
             var levelKey = CalculateLevelKey(request.SelectedAnswerIds);
@@ -73,11 +79,16 @@ namespace Backend.Application.Services.CommunicationLevelService
             });
         }
 
-        public async Task<ServiceResult<CommunicationLevelResponse>> GetByPatientIdAsync(int patientId, string userId)
+        public async Task<ServiceResult<CommunicationLevelResponse>> GetByPatientIdAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
-            if (patient == null) return ServiceResult<CommunicationLevelResponse>.NotFound("Patient not found.");
-            if (patient.UserId != userId) return ServiceResult<CommunicationLevelResponse>.Forbidden("Access denied.");
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
+
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<CommunicationLevelResponse>();
+            }
+
+            var patient = access.Data!;
 
             var communicationLevel = await _levelRepository.FindByPatientIdAsync(patientId);
             if (communicationLevel == null)

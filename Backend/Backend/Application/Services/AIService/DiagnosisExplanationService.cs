@@ -1,3 +1,4 @@
+using Backend.Application.Common.Access;
 using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.AIService.Dto;
@@ -44,12 +45,14 @@ namespace Backend.Application.Services.AIService
                 return ServiceResult<AiExplainResponse>.NotFound($"Diagnose mit ID {diagnosisId} nicht gefunden");
             }
 
-            var patient = await _patientRepository.FindByIdAsync(diagnosis.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(diagnosis.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
+            if (!access.IsSuccess)
             {
-                return ServiceResult<AiExplainResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
+                return access.ToFailure<AiExplainResponse>();
             }
+
+            var patient = access.Data!;
 
             var communicationLevels = await _communicationLevelRepository.GetAllAsync();
 

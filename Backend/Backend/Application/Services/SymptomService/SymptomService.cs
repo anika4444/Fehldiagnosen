@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.SymptomService.Dto;
@@ -23,13 +24,12 @@ namespace Backend.Application.Services.SymptomService
 
         public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<PatientSymptomResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<PatientSymptomResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<PatientSymptomResponse>>();
+            }
 
             var symptoms = await _patientSymptomRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<PatientSymptomResponse>>.Success(_mapper.ToPatientSymptomResponseList(symptoms));
@@ -37,13 +37,12 @@ namespace Backend.Application.Services.SymptomService
 
         public async Task<ServiceResult<IEnumerable<PatientSymptomResponse>>> GetAllByDateAsync(int patientId, DateTime date, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<PatientSymptomResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<PatientSymptomResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<PatientSymptomResponse>>();
+            }
 
             var symptoms = await _patientSymptomRepository.FindAllByPatientIdAndDateAsync(patientId, date);
             return ServiceResult<IEnumerable<PatientSymptomResponse>>.Success(_mapper.ToPatientSymptomResponseList(symptoms));
@@ -56,23 +55,24 @@ namespace Backend.Application.Services.SymptomService
             if (symptom == null)
                 return ServiceResult<PatientSymptomResponse>.NotFound($"Symptom {symptomId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(symptom.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(symptom.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult<PatientSymptomResponse>.Forbidden("Kein Zugriff auf dieses Symptom.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<PatientSymptomResponse>();
+            }
 
             return ServiceResult<PatientSymptomResponse>.Success(_mapper.ToPatientSymptomResponse(symptom));
         }
 
         public async Task<ServiceResult<PatientSymptomResponse>> CreateAsync(int patientId, CreatePatientSymptomRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<PatientSymptomResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<PatientSymptomResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<PatientSymptomResponse>();
+            }
 
             if (request.SymptomId != null)
             {
@@ -101,13 +101,12 @@ namespace Backend.Application.Services.SymptomService
 
         public async Task<ServiceResult<PatientSymptomResponse>> UpdateAsync(int patientId, int symptomId, UpdatePatientSymptomRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<PatientSymptomResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<PatientSymptomResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<PatientSymptomResponse>();
+            }
 
             var existingSymptom = await _patientSymptomRepository.FindByIdAsync(symptomId);
 
@@ -134,10 +133,12 @@ namespace Backend.Application.Services.SymptomService
             if (existingSymptom == null)
                 return ServiceResult.NotFound($"Symptom mit ID {symptomId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(existingSymptom.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(existingSymptom.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult.Forbidden("Kein Zugriff auf dieses Symptom.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure();
+            }
 
             await _patientSymptomRepository.DeleteAsync(existingSymptom);
             return ServiceResult.Success();

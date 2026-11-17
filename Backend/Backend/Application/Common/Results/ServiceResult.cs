@@ -47,6 +47,16 @@
             return new ServiceResult { ErrorMessage = errorMessage, ErrorType = ServiceErrorType.UnprocessableEntity };
         }
 
+        public ServiceResult ToFailure()
+        {
+            return new ServiceResult { ErrorMessage = ErrorMessage, ErrorType = ErrorType };
+        }
+
+        public ServiceResult<TOther> ToFailure<TOther>()
+        {
+            return new ServiceResult<TOther> { ErrorMessage = ErrorMessage, ErrorType = ErrorType };
+        }
+
     }
     public class ServiceResult<T> : ServiceResult
     {

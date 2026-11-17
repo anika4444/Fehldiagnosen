@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Repositories;
 using Backend.Application.Services.CheckupService.Dto;
 using Backend.Domain.Entities;
@@ -39,17 +40,14 @@ namespace Backend.Application.Services.CheckupService
 
         public async Task<ServiceResult<CheckupSummaryResponse>> GenerateCheckupSummary(int patientId, string? userId, CheckupSummaryRequest request)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
+            if (!access.IsSuccess)
             {
-                return ServiceResult<CheckupSummaryResponse>.NotFound($"Patient {patientId} existiert nicht.");
+                return access.ToFailure<CheckupSummaryResponse>();
             }
 
-            if (userId != null && patient.UserId != userId)
-            {
-                return ServiceResult<CheckupSummaryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
-            }
+            var patient = access.Data!;
 
             var communicationLevels = await _communicationLevelRepository.GetAllAsync();
             var communicationLevel = communicationLevels?.FirstOrDefault(level => level.Id == patient.CommunicationLevelId)

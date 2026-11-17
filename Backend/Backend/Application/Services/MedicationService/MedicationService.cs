@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DrugInteractionService;
@@ -24,13 +25,12 @@ namespace Backend.Application.Services.MedicationService
 
         public async Task<ServiceResult<IEnumerable<MedicationResponse>>> GetAllAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<MedicationResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<MedicationResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<MedicationResponse>>();
+            }
 
             var medications = await _medicationRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<MedicationResponse>>.Success(
@@ -45,23 +45,24 @@ namespace Backend.Application.Services.MedicationService
             if (medication == null)
                 return ServiceResult<MedicationResponse>.NotFound($"Medikament {medicationId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(medication.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(medication.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult<MedicationResponse>.Forbidden("Kein Zugriff auf dieses Medikament.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicationResponse>();
+            }
 
             return ServiceResult<MedicationResponse>.Success(_mapper.ToMedicationResponse(medication));
         }
 
         public async Task<ServiceResult<MedicationResponse>> CreateAsync(int patientId, CreateMedicationRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<MedicationResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<MedicationResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicationResponse>();
+            }
 
             var medication = new Medication
             {
@@ -151,13 +152,12 @@ namespace Backend.Application.Services.MedicationService
 
         public async Task<ServiceResult<MedicationResponse>> UpdateAsync(int patientId, int medicationId, UpdateMedicationRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<MedicationResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<MedicationResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicationResponse>();
+            }
 
             var existingMedication = await _medicationRepository.FindByIdAsync(medicationId);
 
@@ -187,10 +187,12 @@ namespace Backend.Application.Services.MedicationService
             if (existingMedication == null)
                 return ServiceResult.NotFound($"Medikament mit ID {medicationId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(existingMedication.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(existingMedication.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult.Forbidden("Kein Zugriff auf dieses Medikament.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure();
+            }
 
             await _medicationRepository.DeleteAsync(existingMedication);
             return ServiceResult.Success();

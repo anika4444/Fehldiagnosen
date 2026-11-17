@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.MedicalHistoryEntryService.Dto;
@@ -21,13 +22,12 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
         public async Task<ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>> GetAllAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<MedicalHistoryEntryResponse>>();
+            }
 
             var entries = await _medicalHistoryEntryRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<MedicalHistoryEntryResponse>>.Success(
@@ -42,23 +42,24 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
             if (medicalHistoryEntry == null)
                 return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Vorerkrankung {medicalHistoryEntryId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(medicalHistoryEntry.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(medicalHistoryEntry.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult<MedicalHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicalHistoryEntryResponse>();
+            }
 
             return ServiceResult<MedicalHistoryEntryResponse>.Success(_mapper.ToMedicalHistoryEntryResponse(medicalHistoryEntry));
         }
 
         public async Task<ServiceResult<MedicalHistoryEntryResponse>> CreateAsync(int patientId, CreateMedicalHistoryEntryRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<MedicalHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicalHistoryEntryResponse>();
+            }
 
             var medicalHistoryEntry = new MedicalHistoryEntry
             {
@@ -77,13 +78,12 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
 
         public async Task<ServiceResult<MedicalHistoryEntryResponse>> UpdateAsync(int patientId, int medicalHistoryEntryId, UpdateMedicalHistoryEntryRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<MedicalHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<MedicalHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<MedicalHistoryEntryResponse>();
+            }
 
             var existingEntry = await _medicalHistoryEntryRepository.FindByIdAsync(medicalHistoryEntryId);
 
@@ -108,10 +108,12 @@ namespace Backend.Application.Services.MedicalHistoryEntryService
             if (existingEntry == null)
                 return ServiceResult.NotFound($"Vorerkrankung mit ID {medicalHistoryEntryId} nicht gefunden.");
 
-            var patient = await _patientRepository.FindByIdAsync(existingEntry.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(existingEntry.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult.Forbidden("Kein Zugriff auf diesen Eintrag.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure();
+            }
 
             await _medicalHistoryEntryRepository.DeleteAsync(existingEntry);
             return ServiceResult.Success();

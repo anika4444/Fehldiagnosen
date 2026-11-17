@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.DiagnosisService.Dto;
@@ -23,13 +24,12 @@ namespace Backend.Application.Services.DiagnosisService
 
         public async Task<ServiceResult<IEnumerable<DiagnosisResponse>>> GetAllAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<DiagnosisResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<DiagnosisResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<DiagnosisResponse>>();
+            }
 
             var diagnoses = await _diagnosisRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<DiagnosisResponse>>.Success(
@@ -44,23 +44,24 @@ namespace Backend.Application.Services.DiagnosisService
             if (diagnosis == null)
                 return ServiceResult<DiagnosisResponse>.NotFound($"Diagnose {diagnosisId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(diagnosis.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(diagnosis.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult<DiagnosisResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<DiagnosisResponse>();
+            }
 
             return ServiceResult<DiagnosisResponse>.Success(_mapper.ToDiagnosisResponse(diagnosis));
         }
 
         public async Task<ServiceResult<DiagnosisResponse>> CreateAsync(int patientId, CreateDiagnosisRequest request, EntryBy entryBy, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<DiagnosisResponse>.NotFound($"Patient {request.PatientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<DiagnosisResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<DiagnosisResponse>();
+            }
 
             if (request.ConditionStatus is not { } conditionStatus)
                 return ServiceResult<DiagnosisResponse>.Invalid("Status der Diagnose fehlt.");
@@ -91,13 +92,12 @@ namespace Backend.Application.Services.DiagnosisService
 
         public async Task<ServiceResult<DiagnosisResponse>> UpdateAsync(int patientId, int diagnosisId, UpdateDiagnosisRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<DiagnosisResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<DiagnosisResponse>.Forbidden("Kein Zugriff auf diese Diagnose.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<DiagnosisResponse>();
+            }
 
             var existingEntry = await _diagnosisRepository.FindByIdAsync(diagnosisId);
 
@@ -142,10 +142,12 @@ namespace Backend.Application.Services.DiagnosisService
             if (existing == null)
                 return ServiceResult.NotFound($"Diagnose {diagnosisId} existiert nicht.");
 
-            var patient = await _patientRepository.FindByIdAsync(existing.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(existing.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult.Forbidden("Kein Zugriff auf diese Diagnose.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure();
+            }
 
             await _diagnosisRepository.DeleteAsync(existing);
             return ServiceResult.Success();

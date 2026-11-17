@@ -1,4 +1,5 @@
-﻿using Backend.Application.Common.Results;
+﻿using Backend.Application.Common.Access;
+using Backend.Application.Common.Results;
 using Backend.Application.Mapper;
 using Backend.Application.Repositories;
 using Backend.Application.Services.FamilyHistoryService.Dto;
@@ -22,13 +23,12 @@ namespace Backend.Application.Services.FamilyHistoryService
 
         public async Task<ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>> GetAllAsync(int patientId, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<IEnumerable<FamilyHistoryEntryResponse>>();
+            }
 
             var entries = await _familyHistoryEntryRepository.FindAllByPatientIdAsync(patientId);
             return ServiceResult<IEnumerable<FamilyHistoryEntryResponse>>.Success(
@@ -43,23 +43,24 @@ namespace Backend.Application.Services.FamilyHistoryService
             if (familyHistoryEntry == null)
                 return ServiceResult<FamilyHistoryEntryResponse>.NotFound($"Familiengeschichte {familyHistoryEntryId} nicht gefunden.");
 
-            var patient = await _patientRepository.FindByIdAsync(familyHistoryEntry.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(familyHistoryEntry.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult<FamilyHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Eintrag.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<FamilyHistoryEntryResponse>();
+            }
 
             return ServiceResult<FamilyHistoryEntryResponse>.Success(_mapper.ToFamilyHistoryEntryResponse(familyHistoryEntry));
         }
 
         public async Task<ServiceResult<FamilyHistoryEntryResponse>> CreateAsync(int patientId, CreateFamilyHistoryEntryRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<FamilyHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<FamilyHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<FamilyHistoryEntryResponse>();
+            }
 
             var familyHistoryEntry = new FamilyHistoryEntry
             {
@@ -75,13 +76,12 @@ namespace Backend.Application.Services.FamilyHistoryService
 
         public async Task<ServiceResult<FamilyHistoryEntryResponse>> UpdateAsync(int patientId, int familyHistoryEntryId, UpdateFamilyHistoryEntryRequest request, string? userId)
         {
-            var patient = await _patientRepository.FindByIdAsync(patientId);
+            var access = await _patientRepository.EnsureAccessAsync(patientId, userId);
 
-            if (patient == null)
-                return ServiceResult<FamilyHistoryEntryResponse>.NotFound($"Patient {patientId} existiert nicht.");
-
-            if (userId != null && patient.UserId != userId)
-                return ServiceResult<FamilyHistoryEntryResponse>.Forbidden("Kein Zugriff auf diesen Patienten.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure<FamilyHistoryEntryResponse>();
+            }
 
             var existingFamilyHistoryEntry = await _familyHistoryEntryRepository.FindByIdAsync(familyHistoryEntryId);
 
@@ -103,10 +103,12 @@ namespace Backend.Application.Services.FamilyHistoryService
             if (existingFamilyHistoryEntry == null)
                 return ServiceResult.NotFound($"Familiengeschichte mit ID {familyHistoryEntryId} nicht gefunden.");
 
-            var patient = await _patientRepository.FindByIdAsync(existingFamilyHistoryEntry.PatientId);
+            var access = await _patientRepository.EnsureAccessAsync(existingFamilyHistoryEntry.PatientId, userId);
 
-            if (userId != null && (patient == null || patient.UserId != userId))
-                return ServiceResult.Forbidden("Kein Zugriff auf diesen Eintrag.");
+            if (!access.IsSuccess)
+            {
+                return access.ToFailure();
+            }
 
             await _familyHistoryEntryRepository.DeleteAsync(existingFamilyHistoryEntry);
             return ServiceResult.Success();
