@@ -45,13 +45,17 @@ namespace Backend.Application.Services.UserService
 
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings")["Secret"]));
 
+                var expiresInMinutes = _configuration.GetValue<int?>("JwtSettings:ExpiresInMinutes") ?? 60;
+
                 var token = new JwtSecurityToken(
                     claims: authClaims,
+                    expires: DateTime.UtcNow.AddMinutes(expiresInMinutes),
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
                 return ServiceResult<Object>.Success(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo,
                     userId = user.Id,
                     patientId = patient?.Id,
                     firstName = patient?.FirstName

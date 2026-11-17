@@ -117,7 +117,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
-        RequireExpirationTime = false
+        RequireExpirationTime = true,
+        ClockSkew = TimeSpan.FromMinutes(1)
     };
 });
 
