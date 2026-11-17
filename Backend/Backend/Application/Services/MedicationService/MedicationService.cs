@@ -172,6 +172,7 @@ namespace Backend.Application.Services.MedicationService
             existingMedication.IntakeStartDate = request.IntakeStartDate;
             existingMedication.DurationInDays = request.DurationInDays;
             existingMedication.Indication = request.Indication;
+            existingMedication.AtcCode = request.AtcCode;
             existingMedication.EntryBy = request.EntryBy;
             existingMedication.Notes = request.Notes;
 
