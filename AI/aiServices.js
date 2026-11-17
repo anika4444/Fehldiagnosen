@@ -15,7 +15,7 @@ const app = express();
 app.use(
   express.json({
     extended: true,
-    limit: "25mb",
+    limit: "15mb",
   }),
 );
 app.use(checkupSummaryRouter);
@@ -441,8 +441,9 @@ OUTPUT:
 
 // ─── SERVER START ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Med-AI-Service läuft auf Port ${PORT}`);
+const HOST = process.env.HOST || "127.0.0.1";
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Med-AI-Service läuft auf ${HOST}:${PORT}`);
   console.log(`   → POST /ai/explain`);
   console.log(`   → POST /ai/interpret-medical-letter`);
   console.log(`   → POST /ai/interpret-medication-image`);
